@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 VOLUME /tmp
 EXPOSE 8080
 COPY target/clothing_shop-0.0.1-SNAPSHOT.jar clothing_shop.jar

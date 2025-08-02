@@ -1,51 +1,35 @@
 package vn.vti.clothing_shop.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.context.annotation.DependsOn;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import static vn.vti.clothing_shop.constants.RegularExpression.NUMBER;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@DependsOn("order")
 @Entity
-@Table(name = "`order_item`")
-public class OrderItem implements Serializable {
+public class OrderItem extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
-    private OnSaleProduct product_id;
+    @JoinColumn
+    private OnSaleProduct productId;
 
     @ManyToOne
-    @JoinColumn(name = "order_id", referencedColumnName = "id")
-    private Order order_id;
+    @JoinColumn
+    private Order orderId;
 
-    @Column(name = "quantity")
+    @Column(nullable = false)
     private Integer quantity;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updated_at;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
 }

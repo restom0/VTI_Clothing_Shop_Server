@@ -17,27 +17,17 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "`material`",uniqueConstraints = @UniqueConstraint(columnNames = {"name", "category_id"}))
-public class Material implements Serializable {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "category_id"}))
+public class Material extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name",unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "category_id",referencedColumnName = "id")
-    private Category category_id;
+    @JoinColumn
+    private Category categoryId;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updated_at;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
 }

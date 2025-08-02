@@ -21,5 +21,5 @@ public class LogDTO {
     private String method;
     private Filter column;
     private String detail;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

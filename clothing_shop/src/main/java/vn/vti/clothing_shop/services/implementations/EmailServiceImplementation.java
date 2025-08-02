@@ -2,9 +2,7 @@ package vn.vti.clothing_shop.services.implementations;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import vn.vti.clothing_shop.entities.Email;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.exceptions.NotFoundException;
 import vn.vti.clothing_shop.repositories.EmailRepository;
 import vn.vti.clothing_shop.services.interfaces.EmailService;
@@ -74,7 +72,7 @@ public class EmailServiceImplementation implements EmailService {
                 throw new NotFoundException("Email not found");
             }
             Email email1 = emailOptional.get();
-            email1.setDeleted_at(LocalDateTime.now());
+            email1.setdeletedAt(LocalDateTime.now());
             emailRepository.save(email1);
             return true;
         } catch (Exception e) {

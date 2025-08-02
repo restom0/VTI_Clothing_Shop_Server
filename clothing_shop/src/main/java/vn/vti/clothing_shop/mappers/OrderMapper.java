@@ -14,10 +14,10 @@ import vn.vti.clothing_shop.entities.Order;
 import vn.vti.clothing_shop.entities.OrderItem;
 import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.entities.Voucher;
-import vn.vti.clothing_shop.requests.OrderCheckoutRequest;
-import vn.vti.clothing_shop.requests.OrderConfirmRequest;
-import vn.vti.clothing_shop.requests.OrderCreateRequest;
-import vn.vti.clothing_shop.requests.OrderUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.OrderCheckoutRequest;
+import vn.vti.clothing_shop.dtos.ins.OrderConfirmRequest;
+import vn.vti.clothing_shop.dtos.ins.OrderCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.OrderUpdateRequest;
 
 import java.util.Date;
 import java.util.List;

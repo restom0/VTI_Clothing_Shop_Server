@@ -160,10 +160,10 @@ public class InputSaleServiceImplementation implements InputSaleService {
         List<OnSaleProduct> onSaleProducts = onSaleProductRepository.findByInputSaleId(inputSale.getId());
         System.out.println(onSaleProducts.size());
         onSaleProducts.forEach(onSaleProduct -> {
-            onSaleProduct.setDeleted_at(LocalDateTime.now());
+            onSaleProduct.setdeletedAt(LocalDateTime.now());
             onSaleProductRepository.save(onSaleProduct);
         });
-        inputSale.setDeleted_at(LocalDateTime.now());
+        inputSale.setdeletedAt(LocalDateTime.now());
         inputSaleRepository.save(inputSale);
         return true;
     };

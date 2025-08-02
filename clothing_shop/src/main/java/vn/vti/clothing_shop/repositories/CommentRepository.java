@@ -12,19 +12,19 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>{
     @Override
-    @Query("SELECT c FROM Comment c WHERE c.deleted_at IS NULL ORDER BY c.id DESC")
+    @Query("SELECT c FROM Comment c WHERE c.deletedAt IS NULL ORDER BY c.id DESC")
     @NotNull
     List<Comment> findAll();
 
-    @Query("SELECT c FROM Comment c WHERE c.product_id = ?1 AND c.deleted_at IS NULL ORDER BY c.created_at DESC")
+    @Query("SELECT c FROM Comment c WHERE c.productId = ?1 AND c.deletedAt IS NULL ORDER BY c.created_at DESC")
     List<Comment> findByProductId(Long product_id);
 
-    @Query("SELECT c FROM Comment c WHERE c.id = ?1 AND c.product_id=?2 AND c.user_id=?3 AND c.deleted_at IS NULL")
+    @Query("SELECT c FROM Comment c WHERE c.id = ?1 AND c.productId=?2 AND c.user_id=?3 AND c.deletedAt IS NULL")
     Optional<Comment> findByProductIdAndId(Long id, Long product_id, Long user_id);
 
-    @Query("SELECT c FROM Comment c WHERE c.id = ?1 AND c.user_id=?2 AND c.deleted_at IS NULL")
+    @Query("SELECT c FROM Comment c WHERE c.id = ?1 AND c.user_id=?2 AND c.deletedAt IS NULL")
     Optional<Comment> findByUserIdAndId(Long id, Long user_id);
 
-    @Query("SELECT c.product_id, SUM(c.star) FROM Comment c WHERE c.deleted_at IS NULL GROUP BY c.product_id ORDER BY SUM(c.star) DESC")
+    @Query("SELECT c.productId, SUM(c.star) FROM Comment c WHERE c.deletedAt IS NULL GROUP BY c.productId ORDER BY SUM(c.star) DESC")
     List<Object[]> sumRatingByProductId();
 }

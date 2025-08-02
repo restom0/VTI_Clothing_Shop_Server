@@ -14,10 +14,10 @@ import vn.vti.clothing_shop.dtos.outs.UserDTO;
 import vn.vti.clothing_shop.dtos.outs.UserLoginDTO;
 import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.exceptions.BadRequestException;
-import vn.vti.clothing_shop.requests.UserCreateRequest;
-import vn.vti.clothing_shop.requests.UserReadRequest;
-import vn.vti.clothing_shop.requests.UserUpdatePasswordRequest;
-import vn.vti.clothing_shop.requests.UserUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.UserReadRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdateRequest;
 import vn.vti.clothing_shop.services.JwtService;
 
 import java.util.List;

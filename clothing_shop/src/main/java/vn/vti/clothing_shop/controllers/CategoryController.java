@@ -6,18 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.vti.clothing_shop.mappers.CategoryMapper;
-import vn.vti.clothing_shop.requests.CategoryCreateRequest;
-import vn.vti.clothing_shop.requests.CategoryUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CategoryUpdateRequest;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.services.implementations.CategoryServiceImplementation;
 import vn.vti.clothing_shop.utils.ParameterUtils;
 
-import java.util.HashMap;
-import java.util.Map;
 @RequestMapping("/category")
 @RestController
 public class CategoryController {

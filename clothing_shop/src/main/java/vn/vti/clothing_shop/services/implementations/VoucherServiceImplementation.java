@@ -73,7 +73,7 @@ public class VoucherServiceImplementation implements VoucherService {
     @Transactional
     public Boolean deleteVoucher(Long id){
         Voucher voucher = voucherRepository.findById(id).orElseThrow(()->new NotFoundException("Voucher not found"));
-        voucher.setDeleted_at(LocalDateTime.now());
+        voucher.setdeletedAt(LocalDateTime.now());
         voucherRepository.save(voucher);
         return true;
     };

@@ -120,7 +120,7 @@ public class UserServiceImplementation implements UserService {
     @Transactional
     public Boolean deleteUser(Long id){
         User user = this.userRepository.findById(id).orElseThrow(()->new NotFoundException("Người dùng không tồn tại"));
-        user.setDeleted_at(LocalDateTime.now());
+        user.setdeletedAt(LocalDateTime.now());
         this.userRepository.save(user);
         return true;
     };

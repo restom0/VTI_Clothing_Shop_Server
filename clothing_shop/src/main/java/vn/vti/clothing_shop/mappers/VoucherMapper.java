@@ -7,8 +7,8 @@ import vn.vti.clothing_shop.dtos.ins.VoucherCreateDTO;
 import vn.vti.clothing_shop.dtos.ins.VoucherUpdateDTO;
 import vn.vti.clothing_shop.dtos.outs.VoucherDTO;
 import vn.vti.clothing_shop.entities.Voucher;
-import vn.vti.clothing_shop.requests.VoucherCreateRequest;
-import vn.vti.clothing_shop.requests.VoucherUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.VoucherCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.VoucherUpdateRequest;
 
 import java.util.List;
 

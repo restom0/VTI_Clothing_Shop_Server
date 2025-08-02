@@ -10,9 +10,9 @@ import vn.vti.clothing_shop.dtos.outs.ChatDTO;
 import vn.vti.clothing_shop.dtos.outs.UserDTO;
 import vn.vti.clothing_shop.entities.Chat;
 import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.requests.ChatCreateRequest;
-import vn.vti.clothing_shop.requests.ChatReplyRequest;
-import vn.vti.clothing_shop.requests.ChatUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
 
 @Component
 public class ChatMapper {

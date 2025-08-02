@@ -1,7 +1,9 @@
 package vn.vti.clothing_shop.exceptions;
 
-public class UnauthorizeException extends RuntimeException {
-    public UnauthorizeException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class UnauthorizeException extends BaseCheckedException {
+    public UnauthorizeException(String message) {
+        super(HttpStatus.UNAUTHORIZED, message);
     }
 }

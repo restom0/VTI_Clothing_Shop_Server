@@ -1,7 +1,9 @@
 package vn.vti.clothing_shop.exceptions;
 
-public class ConflictException extends RuntimeException {
-    public ConflictException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class ConflictException extends BaseCheckedException {
+    public ConflictException(String message) {
+        super(HttpStatus.CONFLICT, message);
     }
 }

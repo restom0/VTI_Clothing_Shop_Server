@@ -8,22 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.mappers.UserMapper;
-import vn.vti.clothing_shop.requests.UserCreateRequest;
-import vn.vti.clothing_shop.requests.UserReadRequest;
-import vn.vti.clothing_shop.requests.UserUpdatePasswordRequest;
-import vn.vti.clothing_shop.requests.UserUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.UserReadRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdateRequest;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.services.implementations.UserServiceImplementation;
 import vn.vti.clothing_shop.utils.ParameterUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 @RequestMapping(value = "/user")
 @RestController
 public class UserController {

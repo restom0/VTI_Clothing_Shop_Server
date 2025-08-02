@@ -2,9 +2,6 @@ package vn.vti.clothing_shop.services.implementations;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import vn.vti.clothing_shop.dtos.ins.ProductCreateDTO;
 import vn.vti.clothing_shop.dtos.ins.ProductUpdateDTO;
@@ -15,7 +12,6 @@ import vn.vti.clothing_shop.mappers.ProductMapper;
 import vn.vti.clothing_shop.entities.Brand;
 import vn.vti.clothing_shop.entities.Category;
 import vn.vti.clothing_shop.entities.Product;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.exceptions.NotFoundException;
 import vn.vti.clothing_shop.repositories.BrandRepository;
 import vn.vti.clothing_shop.repositories.CategoryRepository;
@@ -68,7 +64,7 @@ public class ProductServiceImplementation implements ProductService {
     public Boolean deleteProduct(Long id){
         try{
             Product result = this.productRepository.findById(id).orElseThrow(()->new NotFoundException("Product not found"));
-            result.setDeleted_at(LocalDateTime.now());
+            result.setdeletedAt(LocalDateTime.now());
             return true;
         }
         catch (Exception e){

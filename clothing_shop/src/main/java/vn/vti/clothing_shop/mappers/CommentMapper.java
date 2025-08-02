@@ -9,8 +9,8 @@ import vn.vti.clothing_shop.dtos.outs.CommentDTO;
 import vn.vti.clothing_shop.entities.Comment;
 import vn.vti.clothing_shop.entities.Product;
 import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.requests.CommentCreateRequest;
-import vn.vti.clothing_shop.requests.CommentUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.CommentCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CommentUpdateRequest;
 
 import static vn.vti.clothing_shop.constants.StarMin.STAR_MIN;
 

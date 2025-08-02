@@ -7,8 +7,8 @@ import vn.vti.clothing_shop.dtos.ins.CategoryCreateDTO;
 import vn.vti.clothing_shop.dtos.ins.CategoryUpdateDTO;
 import vn.vti.clothing_shop.dtos.outs.CategoryDTO;
 import vn.vti.clothing_shop.entities.Category;
-import vn.vti.clothing_shop.requests.CategoryCreateRequest;
-import vn.vti.clothing_shop.requests.CategoryUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CategoryUpdateRequest;
 
 @Component
 public class CategoryMapper {

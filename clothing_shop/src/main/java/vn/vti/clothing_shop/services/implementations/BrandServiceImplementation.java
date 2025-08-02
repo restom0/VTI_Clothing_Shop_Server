@@ -87,7 +87,7 @@ public class BrandServiceImplementation implements BrandService {
     @Transactional
     public Boolean deleteBrand(Long id) {
         Brand brand = this.brandRepository.findById(id).orElseThrow(()-> new NotFoundException("Brand not found"));
-        brand.setDeleted_at(LocalDateTime.now());
+        brand.setdeletedAt(LocalDateTime.now());
         this.brandRepository.save(brand);
         return true;
     }

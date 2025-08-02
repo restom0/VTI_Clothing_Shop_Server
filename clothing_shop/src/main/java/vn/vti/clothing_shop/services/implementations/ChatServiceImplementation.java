@@ -66,7 +66,7 @@ public class ChatServiceImplementation implements ChatService {
     @Transactional
     public Boolean deleteChat(Long id){
         Chat chat = chatRepository.findById(id).orElseThrow(()->new NotFoundException("Chat not found"));
-        chat.setDeleted_at(LocalDateTime.now());
+        chat.setdeletedAt(LocalDateTime.now());
         return true;
     };
 

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import vn.vti.clothing_shop.dtos.ins.LogCreateDTO;
 import vn.vti.clothing_shop.dtos.outs.LogDTO;
-import vn.vti.clothing_shop.entities.Log;
+import vn.vti.clothing_shop.entities.Audit;
 import vn.vti.clothing_shop.entities.User;
 
 import java.util.List;
@@ -22,17 +22,17 @@ public class LogMapper {
         this.userMapper = userMapper;
     }
 
-   private LogDTO EntityToDTO(Log log) {
-        LogDTO logDTO = modelMapper.map(log, LogDTO.class);
-        logDTO.setUser_id(userMapper.EntityToDTO(log.getUser_id()));
+   private LogDTO EntityToDTO(Audit audit) {
+        LogDTO logDTO = modelMapper.map(audit, LogDTO.class);
+        logDTO.setUser_id(userMapper.EntityToDTO(audit.getUser_id()));
         return logDTO;
     }
-    public List<LogDTO> ListEntityToDTO(List<Log> logs) {
-        return logs.stream().map(this::EntityToDTO).collect(Collectors.toList());
+    public List<LogDTO> ListEntityToDTO(List<Audit> audits) {
+        return audits.stream().map(this::EntityToDTO).collect(Collectors.toList());
     }
-    public Log CreateDTOToEntity(LogCreateDTO logCreateDTO, User user) {
-        Log log = modelMapper.map(logCreateDTO, Log.class);
-        log.setUser_id(user);
-        return log;
+    public Audit CreateDTOToEntity(LogCreateDTO logCreateDTO, User user) {
+        Audit audit = modelMapper.map(logCreateDTO, Audit.class);
+        audit.setUser_id(user);
+        return audit;
     }
 }

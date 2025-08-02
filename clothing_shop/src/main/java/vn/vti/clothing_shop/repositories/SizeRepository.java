@@ -14,14 +14,14 @@ import java.util.Optional;
 @Repository
 public interface SizeRepository extends JpaRepository<Size,Long> {
     @Override
-    @Query("SELECT s FROM Size s WHERE s.deleted_at IS NULL")
+    @Query("SELECT s FROM Size s WHERE s.deletedAt IS NULL")
     @NotNull
     List<Size> findAll();
 
-    @Query("SELECT s FROM Size s WHERE s.size = :size AND s.deleted_at IS NULL")
+    @Query("SELECT s FROM Size s WHERE s.size = :size AND s.deletedAt IS NULL")
     Optional<Size> findBySize(String size);
 
-    @Query("SELECT s FROM Size s WHERE s.category_id = :id AND s.deleted_at IS NULL")
+    @Query("SELECT s FROM Size s WHERE s.category_id = :id AND s.deletedAt IS NULL")
     Optional<Size> findByCategory_id(Long id);
 }
 

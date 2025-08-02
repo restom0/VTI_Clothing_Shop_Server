@@ -1,7 +1,9 @@
 package vn.vti.clothing_shop.exceptions;
 
-public class BadRequestException extends RuntimeException{
-    public BadRequestException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class BadRequestException extends BaseCheckedException {
+    public BadRequestException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

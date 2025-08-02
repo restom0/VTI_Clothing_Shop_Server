@@ -52,7 +52,7 @@ public class CommentServiceImplementation implements CommentService {
                 .collect(Collectors.toList());
     };
 
-    //@Cacheable(value = "comments", key = "#product_id")
+    //@Cacheable(value = "comments", key = "#productId")
     public List<CommentDTO> getCommentById(Long product_id){
         return commentRepository.findByProductId(product_id).stream()
                 .map(this.commentMapper::EntityToDTO)
@@ -81,7 +81,7 @@ public class CommentServiceImplementation implements CommentService {
     @Transactional
     public Boolean deleteComment(Long id){
         Comment comment = this.commentRepository.findById(id).orElseThrow(()->new NotFoundException("Comment not found"));
-        comment.setDeleted_at(LocalDateTime.now());
+        comment.setdeletedAt(LocalDateTime.now());
         this.commentRepository.save(comment);
         return true;
     };

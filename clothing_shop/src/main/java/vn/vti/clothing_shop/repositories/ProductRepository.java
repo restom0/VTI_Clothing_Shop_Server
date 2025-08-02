@@ -13,10 +13,10 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
     @Override
-    @Query("SELECT p FROM Product p WHERE p.deleted_at IS NULL ORDER BY p.id DESC")
+    @Query("SELECT p FROM Product p WHERE p.deletedAt IS NULL ORDER BY p.id DESC")
     @NotNull
     List<Product> findAll();
     @Override
-    @Query("SELECT COUNT(p) FROM Product p WHERE p.deleted_at IS NULL")
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.deletedAt IS NULL")
     long count();
 }

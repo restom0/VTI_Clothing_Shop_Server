@@ -122,7 +122,7 @@ public class OrderServiceImplementation implements OrderService {
         Order order = this.orderRepository.findById(id).orElseThrow(()-> new NotFoundException("Order not found"));
         addStock(order.getVoucherId().getId());
         order.setPayment_status(PaymentStatus.CANCELLED);
-        order.setDeleted_at(LocalDateTime.now());
+        order.setdeletedAt(LocalDateTime.now());
         this.orderRepository.save(order);
         return true;
     }

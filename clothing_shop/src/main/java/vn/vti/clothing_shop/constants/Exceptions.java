@@ -17,7 +17,6 @@ public class Exceptions {
                     new Error(ForbiddenException.class, HttpStatus.FORBIDDEN),
                     new Error(InternalServerErrorException.class, HttpStatus.INTERNAL_SERVER_ERROR),
                     new Error(MissingServletRequestParameterException.class, HttpStatus.BAD_REQUEST),
-                    new Error(HttpMessageNotReadableException.class, HttpStatus.BAD_REQUEST),
                     new Error(MethodArgumentNotValidException.class, HttpStatus.BAD_REQUEST)
             )
     );

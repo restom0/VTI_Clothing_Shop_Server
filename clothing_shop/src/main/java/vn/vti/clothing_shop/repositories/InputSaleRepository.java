@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 public interface InputSaleRepository extends JpaRepository<InputSale,Long> {
     @Override
-    @Query("SELECT i FROM InputSale i WHERE i.deleted_at IS NULL ORDER BY i.id DESC")
+    @Query("SELECT i FROM InputSale i WHERE i.deletedAt IS NULL ORDER BY i.id DESC")
     @NotNull
     List<InputSale> findAll();
 

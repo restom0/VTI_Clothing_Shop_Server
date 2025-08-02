@@ -18,5 +18,5 @@ public class CommentDTO {
     private String content;
     private Boolean status;
     private Float star;
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 }

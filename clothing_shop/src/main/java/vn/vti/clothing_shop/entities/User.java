@@ -23,60 +23,41 @@ import static vn.vti.clothing_shop.constants.RegularExpression.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "`user`")
-public class User implements Serializable {
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="name",nullable = false)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name="username",unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column(name = "password", nullable = false)
+    @Column(nullable = false)
     private String password;
 
-    @Column(name = "birthday")
     private LocalDate birthday;
 
-    @Column(name = "avatar_url")
-    private String avatar_url;
+    private String avatarUrl;
 
-    @Column(name = "public_id_avatar_url")
-    private String public_id_avatar_url;
+    private String publicIdAvatarUrl;
 
-    @Column(name = "email",unique = true)
-    @Pattern(regexp = EMAIL,message = "Invalid email")
+    @Column(unique = true)
     private String email;
 
-    @Column(name = "phone_number",unique = true,nullable = false)
-    @Pattern(regexp = PHONE_NUMBER,message = "Invalid phone number")
-    private String phone_number;
+    @Column(unique = true, nullable = false)
+    private String phoneNumber;
 
-    @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @Column(name="address")
     private String address;
 
-    @Column(name="salt")
+    @Column(nullable = false)
     private String salt;
 
-    @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private UserGender gender;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updated_at;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
 }

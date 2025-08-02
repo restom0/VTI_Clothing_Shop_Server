@@ -9,12 +9,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import vn.vti.clothing_shop.mappers.ProductMapper;
-import vn.vti.clothing_shop.requests.ProductCreateRequest;
-import vn.vti.clothing_shop.requests.ProductUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.ProductCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ProductUpdateRequest;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.entities.Product;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
-import vn.vti.clothing_shop.exceptions.NotFoundException;
 import vn.vti.clothing_shop.services.implementations.ProductServiceImplementation;
 import vn.vti.clothing_shop.utils.ParameterUtils;
 

@@ -9,20 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import vn.vti.clothing_shop.mappers.ChatMapper;
-import vn.vti.clothing_shop.requests.ChatCreateRequest;
-import vn.vti.clothing_shop.requests.ChatReplyRequest;
-import vn.vti.clothing_shop.requests.ChatUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
 import vn.vti.clothing_shop.responses.ResponseHandler;
 import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.services.implementations.ChatServiceImplementation;
 import vn.vti.clothing_shop.utils.ParameterUtils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/chat")

@@ -6,11 +6,10 @@ import org.springframework.stereotype.Component;
 import vn.vti.clothing_shop.dtos.ins.*;
 import vn.vti.clothing_shop.dtos.outs.ImportedProductDTO;
 import vn.vti.clothing_shop.entities.*;
-import vn.vti.clothing_shop.requests.ImportedProductCreateRequest;
-import vn.vti.clothing_shop.requests.ImportedProductUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Component
 public class ImportedProductMapper {

@@ -14,14 +14,14 @@ import java.util.Optional;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material,Long> {
     @Override
-    @Query("SELECT m FROM Material m WHERE m.deleted_at IS NULL")
+    @Query("SELECT m FROM Material m WHERE m.deletedAt IS NULL")
     @NotNull
     List<Material> findAll();
 
-    @Query("SELECT m FROM Material m WHERE m.name=:name AND m.deleted_at IS NULL")
+    @Query("SELECT m FROM Material m WHERE m.name=:name AND m.deletedAt IS NULL")
     Optional<Material> findByName(String name);
 
-    @Query("SELECT m FROM Material m WHERE m.category_id=:id AND m.deleted_at IS NULL")
+    @Query("SELECT m FROM Material m WHERE m.category_id=:id AND m.deletedAt IS NULL")
     Optional<Material> findByCategory_id(Long id);
 }
 

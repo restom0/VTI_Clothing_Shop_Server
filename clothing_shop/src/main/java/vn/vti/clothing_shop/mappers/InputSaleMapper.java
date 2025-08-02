@@ -9,8 +9,8 @@ import vn.vti.clothing_shop.dtos.outs.InputSaleDTO;
 import vn.vti.clothing_shop.dtos.outs.OnSaleProductDTO;
 import vn.vti.clothing_shop.entities.InputSale;
 import vn.vti.clothing_shop.entities.OnSaleProduct;
-import vn.vti.clothing_shop.requests.InputSaleCreateRequest;
-import vn.vti.clothing_shop.requests.InputSaleUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.InputSaleCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.InputSaleUpdateRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;

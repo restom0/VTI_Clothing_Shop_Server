@@ -1,7 +1,9 @@
 package vn.vti.clothing_shop.exceptions;
 
-public class NotFoundException extends RuntimeException {
-    public NotFoundException(String message){
-        super(message);
+import org.springframework.http.HttpStatus;
+
+public class NotFoundException extends BaseCheckedException {
+    public NotFoundException(String message) {
+        super(HttpStatus.NOT_FOUND, message);
     }
 }

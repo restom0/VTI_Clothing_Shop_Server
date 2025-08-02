@@ -1,105 +1,77 @@
 package vn.vti.clothing_shop.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import vn.vti.clothing_shop.constants.ClothGender;
-
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import static vn.vti.clothing_shop.constants.RegularExpression.NUMBER;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "`imported_product`")
-public class ImportedProduct implements Serializable {
+public class ImportedProduct extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "product_id",referencedColumnName = "id")
-    private Product product_id;
+    @JoinColumn
+    private Product productId;
 
     @ManyToOne
-    @JoinColumn(name = "size_id",referencedColumnName = "id")
-    private Size size_id;
+    @JoinColumn
+    private Size sizeId;
 
     @ManyToOne
-    @JoinColumn(name = "color_id",referencedColumnName = "id")
-    private Color color_id;
+    @JoinColumn
+    private Color colorId;
 
-    @Column(name = "imageUrl")
-    private String image_url;
+    private String imageUrl;
 
-    @Column(name = "slider_url_1")
-    private String slider_url_1;
+    private String sliderUrl1;
 
-    @Column(name = "slider_url_2")
-    private String slider_url_2;
+    private String sliderUrl2;
 
-    @Column(name = "slider_url_3")
-    private String slider_url_3;
+    private String sliderUrl3;
 
-    @Column(name = "slider_url_4")
-    private String slider_url_4;
+    private String sliderUrl4;
 
-    @Column(name = "public_id_url")
-    private String public_id_url;
+    private String publicIdUrl;
 
-    @Column(name = "public_id_slider_url_1")
-    private String public_id_slider_url_1;
+    private String publicIdSliderUrl1;
 
-    @Column(name = "public_id_slider_url_2")
-    private String public_id_slider_url_2;
+    private String publicIdSliderUrl2;
 
-    @Column(name = "public_id_slider_url_3")
-    private String public_id_slider_url_3;
+    private String publicIdSliderUrl3;
 
-    @Column(name = "public_id_slider_url_4")
-    private String public_id_slider_url_4;
+    private String publicIdSliderUrl4;
 
     @ManyToOne
-    @JoinColumn(name = "material_id",referencedColumnName = "id")
-    private Material material_id;
+    @JoinColumn
+    private Material materialId;
 
-    @Column(name = "sku")
     private String sku;
 
-    @Column(name = "gender")
     @Enumerated(EnumType.STRING)
     private ClothGender gender;
 
-    @NotNull(message = "Import price is required")
-    @Column(name = "importPrice",nullable = false)
-    @Min(value = 0, message = "Import price must be positive")
+    @Column(nullable = false)
     private Integer importPrice;
 
-    @Min(value = 1, message = "Import number must be greater than 0")
-    @NotNull(message = "Import number is required")
+    @Column(nullable = false)
     private Integer importNumber;
 
-    @NotNull(message = "Stock is required")
-    @Min(value = 0, message = "Stock must be positive")
-    @Column(name = "stock",nullable = false)
+    @Column(nullable = false)
     private Integer stock;
-
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updated_at;
-
-    @Column(name = "deleted_at",columnDefinition = "TIMESTAMP")
-    private LocalDateTime deleted_at;
 }

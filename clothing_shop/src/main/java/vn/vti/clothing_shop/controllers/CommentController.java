@@ -10,11 +10,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import vn.vti.clothing_shop.mappers.CommentMapper;
-import vn.vti.clothing_shop.requests.CommentCreateRequest;
-import vn.vti.clothing_shop.requests.CommentUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.CommentCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CommentUpdateRequest;
 import vn.vti.clothing_shop.responses.ResponseHandler;
 import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.exceptions.InternalServerErrorException;
 import vn.vti.clothing_shop.services.implementations.CommentServiceImplementation;
 import vn.vti.clothing_shop.utils.ParameterUtils;
 

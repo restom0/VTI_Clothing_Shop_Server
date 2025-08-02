@@ -1,77 +1,60 @@
 package vn.vti.clothing_shop.entities;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import vn.vti.clothing_shop.constants.PaymentMethod;
 import vn.vti.clothing_shop.constants.PaymentStatus;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
-import static vn.vti.clothing_shop.constants.RegularExpression.BOOLEAN;
-import static vn.vti.clothing_shop.constants.RegularExpression.PHONE_NUMBER;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "`order`")
-public class Order implements Serializable {
+public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name= "address",nullable = false)
+    @Column(nullable = false)
     private String address;
 
-    @Column(name= "phone_number",columnDefinition = "VARCHAR(255)",nullable = false)
-    @Pattern(regexp= PHONE_NUMBER,message = "Invalid phone number")
-    private String phone_number;
+    @Column(nullable = false)
+    private String phoneNumber;
 
-    @Column(name= "receiver_name",columnDefinition = "VARCHAR(255)",nullable = false)
-    private String receiver_name;
+    @Column(nullable = false)
+    private String receiverName;
 
-    @Column(name= "isPresent", columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
+    @Column(columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
     private Boolean isPresent;
 
-    @Column(name= "total_price", nullable = false)
-    private Long total_price;
+    private transient Long totalPrice;
 
-    @Column(name = "order_code",nullable = false)
-    private Long order_code;
+    @Column(nullable = false)
+    private Long orderCode;
 
-    @Column(name= "payment_status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentStatus payment_status;
+    private PaymentStatus paymentStatus;
 
-    @Column(name="payment_method",nullable = false)
     @Enumerated(EnumType.STRING)
-    private PaymentMethod payment_method;
+    private PaymentMethod paymentMethod;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
-    private User user_id;
+    @JoinColumn
+    private User userId;
 
     @ManyToOne
-    @JoinColumn(name = "voucherId",referencedColumnName = "id")
+    @JoinColumn
     private Voucher voucherId;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime created_at;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updated_at;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
 }

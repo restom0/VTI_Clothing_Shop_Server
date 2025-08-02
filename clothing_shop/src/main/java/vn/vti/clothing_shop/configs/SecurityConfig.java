@@ -16,10 +16,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import vn.vti.clothing_shop.middlewares.JwtAuthenticationFilter;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Configuration
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private static final Pattern PRODUCT_PATTERN = Pattern.compile("/product/**");
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -35,11 +37,11 @@ public class SecurityConfig {
 
         http
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(HttpMethod.POST,"/product/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT,"/product/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE,"/product/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, PRODUCT_PATTERN).authenticated()
+                        .requestMatchers(HttpMethod.PUT,PRODUCT_PATTERN).authenticated()
+                        .requestMatchers(HttpMethod.DELETE,PRODUCT_PATTERN).authenticated()
 
-                        .requestMatchers(HttpMethod.GET,"/product/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,PRODUCT_PATTERN).permitAll()
                         .requestMatchers(HttpMethod.POST,"/brand/**").authenticated()
                         .requestMatchers(HttpMethod.PUT,"/brand/**").authenticated()
                         .requestMatchers(HttpMethod.DELETE,"/brand/**").authenticated()

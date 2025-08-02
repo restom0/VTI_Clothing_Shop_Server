@@ -182,7 +182,7 @@ public class OrderItemServiceImplementation implements OrderItemService {
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(id);
         Order order = orderRepository.findById(orderId).orElseThrow(()-> new NotFoundException("Order not found"));
         orderItems.forEach((orderItem)->{
-            orderItem.setDeleted_at(LocalDateTime.now());
+            orderItem.setdeletedAt(LocalDateTime.now());
             this.refundStock(orderItem);
             this.orderItemRepository.save(orderItem);
         });

@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
+
 @Slf4j
 public class CustomRedisSerializer implements RedisSerializer<Object> {
     private final ObjectMapper mapper;
+
     public CustomRedisSerializer() {
         this.mapper = new ObjectMapper();
         this.mapper.activateDefaultTyping(
@@ -16,6 +18,7 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);
     }
+
     @Override
     public byte[] serialize(Object object) throws SerializationException {
         if (object == null) {
@@ -29,9 +32,10 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
         }
         return new byte[0];
     }
+
     @Override
     public Object deserialize(byte[] bytes) throws SerializationException {
-        if(bytes == null || bytes.length == 0) {
+        if (bytes == null || bytes.length == 0) {
             return null;
         }
         try {

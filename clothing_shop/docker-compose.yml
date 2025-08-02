@@ -1,0 +1,28 @@
+services:
+  clothing_shop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: clothing_shop_container
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://user:password@db:5432/clothing_shop_db
+      - SECRET_KEY=your_secret_key
+    depends_on:
+      - db
+    networks:
+      - clothing_network
+  database:
+    image: postgres:latest
+    container_name: clothing_shop_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: clothing_shop_db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - clothing_network
+networks:
+  clothing_network:

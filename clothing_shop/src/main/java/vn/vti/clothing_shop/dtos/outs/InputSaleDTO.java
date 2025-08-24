@@ -1,11 +1,11 @@
 package vn.vti.clothing_shop.dtos.outs;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -13,14 +13,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("InputSaleDTO")
 public class InputSaleDTO {
+    List<OnSaleProductDTO> onSaleProducts;
     private Long id;
     private String filter;
-    private Long filter_id;
+    private Long filterId;
     private Float salePercentage;
     private Float discount;
-    private String available_date;
-    private String end_date;
-    List<OnSaleProductDTO> onSaleProducts;
+    private LocalDate availableDate;
+    private LocalDate endDate;
 }

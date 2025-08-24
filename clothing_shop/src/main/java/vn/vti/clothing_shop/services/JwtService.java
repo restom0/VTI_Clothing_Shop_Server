@@ -2,20 +2,17 @@ package vn.vti.clothing_shop.services;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vn.vti.clothing_shop.entities.User;
 
 import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -45,15 +42,17 @@ public class JwtService {
     public long getExpirationTime() {
         return jwtExpiration;
     }
+
     public String buildSalt(String id) {
         return Jwts
                 .builder()
                 .subject(id)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + this.getExpirationTime() ))
+                .expiration(new Date(System.currentTimeMillis() + getExpirationTime()))
                 .signWith(getSignInKey())
                 .compact();
     }
+
     public String buildToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("salt", user.getSalt());
@@ -62,7 +61,7 @@ public class JwtService {
                 .claims(claims)
                 .subject(String.valueOf(user.getId()))
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + this.getExpirationTime() ))
+                .expiration(new Date(System.currentTimeMillis() + getExpirationTime()))
                 .signWith(getSignInKey())
                 .compact();
     }

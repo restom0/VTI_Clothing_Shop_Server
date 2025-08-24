@@ -22,7 +22,7 @@ public class BaseEntity implements Serializable {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
-    private LocalDateTime deletedAt;
+    private Long deletedAt;
 
     @Version
     private Long version;

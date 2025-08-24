@@ -3,134 +3,116 @@ package vn.vti.clothing_shop.controllers;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import vn.vti.clothing_shop.mappers.ChatMapper;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
-import vn.vti.clothing_shop.responses.ResponseHandler;
 import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.services.implementations.ChatServiceImplementation;
-import vn.vti.clothing_shop.utils.ParameterUtils;
+import vn.vti.clothing_shop.exceptions.WrapperException;
+import vn.vti.clothing_shop.responses.BaseMessageResponse;
+import vn.vti.clothing_shop.responses.ResponseHandler;
+import vn.vti.clothing_shop.services.interfaces.ChatService;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
 
-    private final ChatServiceImplementation chatServiceImplementation;
-    private final ChatMapper chatMapper;
+    private final ChatService chatService;
 
-    @Autowired
-    public ChatController(ChatServiceImplementation chatServiceImplementation, ChatMapper chatMapper) {
-        this.chatServiceImplementation = chatServiceImplementation;
-        this.chatMapper = chatMapper;
-    }
     @GetMapping("/all")
-    public ResponseEntity<?> getAllChats(){
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200, "Lấy tin nhắn thành công", chatServiceImplementation.getAllChat(), HttpStatus.OK);
-        }
-        catch (Exception e){
-            return ResponseHandler.exceptionBuilder(e);
-        }
+    public ResponseEntity<BaseMessageResponse> getAllChats() {
+        return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getAllChat());
     }
-    @GetMapping("/")
-    public ResponseEntity<?> getChat(){
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200, "Lấy tin nhắn thành công", chatServiceImplementation.getChat(userId), HttpStatus.OK);
-        }
-        catch (Exception e){
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
-    @PostMapping("/")
-    public ResponseEntity<?> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest, BindingResult bindingResult){
 
-        try{
+    @GetMapping("/")
+    public ResponseEntity<BaseMessageResponse> getChat() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Long userId = user.getId();
+        return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getChat(userId));
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<BaseMessageResponse> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest) {
+
+        try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            if(chatServiceImplementation.addChat(userId,chatMapper.ChatCreateRequestToChatCreateDTO(chatCreateRequest))){
-                return ResponseHandler.responseBuilder(201,"Tin nhắn được gửi thành công",null,HttpStatus.CREATED);
-            }
-            throw new InternalServerErrorException("Gửi tin nhắn thất bại");
-        }
-        catch(Exception e){
+            chatService.addChat(userId, chatCreateRequest);
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Tin nhắn được gửi thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateChat(
+    public ResponseEntity<BaseMessageResponse> updateChat(
             @RequestBody
             @Valid
             ChatUpdateRequest chatUpdateRequest,
             @PathVariable
             @NotNull(message = "Vui lòng chọn tin nhắn")
-            Long id,
-            BindingResult bindingResult
-    ){
-        if(bindingResult.hasErrors()){
-            return ParameterUtils.showBindingResult(bindingResult);
-        }
-        try{
-            if(chatServiceImplementation.updateChat(id,chatMapper.ChatUpdateRequestToChatUpdateDTO(chatUpdateRequest))){
-                return ResponseHandler.responseBuilder(200,"Tin nhắn được cập nhật thành công",null,HttpStatus.OK);
-            }
-            throw new InternalServerErrorException("Cập nhật tin nhắn thất bại");
-        }
-        catch(Exception e){
+            Long id
+    ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            Long userId = user.getId();
+            chatService.updateChat(id, userId, chatUpdateRequest);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Tin nhắn được cập nhật thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteChat(
+    public ResponseEntity<BaseMessageResponse> deleteChat(
             @PathVariable
             @NotNull(message = "Vui lòng chọn tin nhắn")
-            @Pattern(regexp = "^[0-9]*$", message = "Id tin nhắn không hợp lệ")
+            @Pattern(regexp = "^\\d+$", message = "Id tin nhắn không hợp lệ")
             Long id
-    ){
-        try{
-            if(chatServiceImplementation.deleteChat(id)){
-                return ResponseHandler.responseBuilder(200,"Xóa tin nhắn thành công",null,HttpStatus.OK);
-            }
-            throw new InternalServerErrorException("Xóa tin nhắn thất bại");
-        }
-        catch(Exception e){
+    ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            Long userId = user.getId();
+            chatService.deleteChat(id, userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa tin nhắn thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PutMapping("/reply/{id}")
-    public ResponseEntity<?> replyChat(
+    public ResponseEntity<BaseMessageResponse> replyChat(
             @RequestBody
             @Valid
             ChatReplyRequest chatReplyRequest,
             @PathVariable
             @NotNull(message = "Vui lòng chọn tin nhắn")
-            Long id,
-            BindingResult bindingResult
-    ){
-        if(bindingResult.hasErrors()){
-            return ParameterUtils.showBindingResult(bindingResult);
-        }
-        try{
-            if(chatServiceImplementation.replyChat(id,chatMapper.ChatReplyRequestToChatReplyDTO(chatReplyRequest))){
-                return ResponseHandler.responseBuilder(200,"Trả lời tin nhắn thành công",null,HttpStatus.OK);
-            }
-            throw new InternalServerErrorException("Trả lời tin nhắn thất bại");
-        }
-        catch(Exception e){
+            Long id
+    ) {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            Long userId = user.getId();
+            chatService.replyChat(id, userId, chatReplyRequest);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Trả lời tin nhắn thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }

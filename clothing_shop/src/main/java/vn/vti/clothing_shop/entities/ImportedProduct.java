@@ -27,15 +27,15 @@ public class ImportedProduct extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private Product productId;
+    private Product product;
 
     @ManyToOne
     @JoinColumn
-    private Size sizeId;
+    private Size size;
 
     @ManyToOne
     @JoinColumn
-    private Color colorId;
+    private Color color;
 
     private String imageUrl;
 
@@ -59,7 +59,7 @@ public class ImportedProduct extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private Material materialId;
+    private Material material;
 
     private String sku;
 

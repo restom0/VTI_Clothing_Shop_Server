@@ -1,34 +1,31 @@
 package vn.vti.clothing_shop.dtos.ins;
 
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import vn.vti.clothing_shop.constants.PaymentMethod;
+import vn.vti.clothing_shop.validators.PhoneNumber;
 
-import static vn.vti.clothing_shop.constants.RegularExpression.PHONE_NUMBER;
+public record OrderUpdateRequest(
+        @NotBlank(message = "Address is required")
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderUpdateRequest {
-    @NotBlank(message = "address is required")
-    private String address;
+        String address,
 
-    @NotBlank(message = "Phone_number is required")
-    @Pattern(regexp= PHONE_NUMBER,message = "Invalid phone number")
-    private String phone_number;
+        @NotBlank(message = "Phone_number is required")
+        @PhoneNumber
+        String phoneNumber,
 
-    @NotBlank(message = "receiver_name is required")
-    private String receiver_name;
+        @NotBlank(message = "receiver_name is required")
+        @Size(max = 255)
+        String receiverName,
 
-    @NotNull(message = "isPresent is required")
-    private Boolean isPresent;
+        @NotNull(message = "isPresent is required")
+        Boolean isPresent,
 
-    @NotBlank(message = "payment_method is required")
-    private PaymentMethod payment_method;
+        @NotBlank(message = "payment_method is required")
+        PaymentMethod paymentMethod,
 
-    private Long voucherId;
+        Long voucherId
+) {
+
 }

@@ -35,11 +35,11 @@ public class Size extends BaseEntity {
     @Column(nullable = false)
     private String height;
 
-    @Column(name = "weight", nullable = false)
+    @Column(nullable = false)
     private String weight;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
-    private Category categoryId;
+    @JoinColumn
+    private Category category;
 
 }

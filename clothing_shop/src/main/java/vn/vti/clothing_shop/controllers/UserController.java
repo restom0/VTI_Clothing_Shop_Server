@@ -2,138 +2,121 @@ package vn.vti.clothing_shop.controllers;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.mappers.UserMapper;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
-import vn.vti.clothing_shop.dtos.ins.UserReadRequest;
+import vn.vti.clothing_shop.dtos.ins.UserLoginRequest;
 import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
 import vn.vti.clothing_shop.dtos.ins.UserUpdateRequest;
+import vn.vti.clothing_shop.dtos.outs.UserDTO;
+import vn.vti.clothing_shop.dtos.outs.UserLoginDTO;
+import vn.vti.clothing_shop.entities.User;
+import vn.vti.clothing_shop.exceptions.WrapperException;
+import vn.vti.clothing_shop.responses.BaseMessageResponse;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.services.implementations.UserServiceImplementation;
-import vn.vti.clothing_shop.utils.ParameterUtils;
+import vn.vti.clothing_shop.services.interfaces.UserService;
 
+@AllArgsConstructor
 @RequestMapping(value = "/user")
 @RestController
 public class UserController {
 
-    private final UserServiceImplementation userServiceImplementation;
-    private final UserMapper userMapper;
-
-    @Autowired
-    public UserController(UserServiceImplementation userServiceImplementation, UserMapper userMapper) {
-        this.userServiceImplementation = userServiceImplementation;
-        this.userMapper = userMapper;
-    }
+    private final UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody @Valid UserReadRequest userReadRequest, BindingResult bindingResult){
+    public ResponseEntity<BaseMessageResponse> loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) {
         try {
-            if(bindingResult.hasErrors()){
-                return ParameterUtils.showBindingResult(bindingResult);
-            }
-            return  ResponseHandler.responseBuilder(200,"Đăng nhập thành công", userServiceImplementation.getUser(userMapper.ReadRequestToReadDTO(userReadRequest)), HttpStatus.OK);
-        }
-        catch (Exception e){
+            UserLoginDTO user = userService.getUser(userLoginRequest);
+            return ResponseHandler.successBuilder(HttpStatus.OK, user);
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody @Valid UserCreateRequest userCreateRequest, BindingResult bindingResult){
+    public ResponseEntity<BaseMessageResponse> registerUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
-            if(userServiceImplementation.addUser(userMapper.CreateRequestToCreateDTO(userCreateRequest)))
-                return ResponseHandler.responseBuilder(201,"Đăng ký thành công",null, HttpStatus.CREATED);
-            throw new InternalServerErrorException("Đăng ký thất bại");
-        }
-        catch (Exception e){
+            userService.addUser(userCreateRequest);
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Đăng ký thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @GetMapping("/profile")
-    public ResponseEntity<?> getUserById(){
+    public ResponseEntity<BaseMessageResponse> getUserById() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200,"Lấy thông tin người dùng thành công",userServiceImplementation.getUserById(userId),HttpStatus.OK);
-        }
-        catch (Exception e){
+            UserDTO userDTO = userService.getUserById(userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, userDTO);
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @GetMapping("/")
-    public ResponseEntity<?> getAllUsers(){
+    public ResponseEntity<BaseMessageResponse> getAllUsers() {
+        return ResponseHandler.successBuilder(HttpStatus.OK, userService.getUsers());
+    }
+
+    @PutMapping("/")
+    public ResponseEntity<BaseMessageResponse> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         try {
-            return ResponseHandler.responseBuilder(200,"Lấy danh sách người dùng thành công",userServiceImplementation.getAllUsers(),HttpStatus.OK);
-        }
-        catch (Exception e){
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User user = (User) authentication.getPrincipal();
+            Long userId = user.getId();
+            userService.updateUser(userUpdateRequest, userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật thông tin người dùng thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
-    @PutMapping("/")
-    public ResponseEntity<?> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest, BindingResult bindingResult){
-        try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            if(userServiceImplementation.updateUser(userMapper.UpdateRequestToUpdateDTO(userUpdateRequest,userId)))
-                return ResponseHandler.responseBuilder(200,"Cập nhật thông tin người dùng thành công",null,HttpStatus.OK);
-            throw new InternalServerErrorException("Cập nhật thông tin người dùng thất bại");
-        }
-        catch (Exception e){
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
     @PutMapping("/password")
-    public ResponseEntity<?> updatePassword(@RequestBody @Valid UserUpdatePasswordRequest userUpdateRequest, BindingResult bindingResult){
+    public ResponseEntity<BaseMessageResponse> updatePassword(@RequestBody @Valid UserUpdatePasswordRequest userUpdateRequest) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            if(userServiceImplementation.updateUserPassword(userMapper.UpdatePasswordRequestToUpdatePasswordDTO(userUpdateRequest,userId)))
-                return ResponseHandler.responseBuilder(200,"Cập nhật mật khẩu thành công",null,HttpStatus.OK);
-            throw new InternalServerErrorException("Cập nhật mật khẩu thất bại");
-        }
-        catch (Exception e){
+            userService.updateUserPassword(userUpdateRequest, userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật mật khẩu thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable @NotNull(message = "Vui lòng chọn người dùng") Long id){
+    public ResponseEntity<BaseMessageResponse> deleteUser(@PathVariable @NotNull(message = "Vui lòng chọn người dùng") Long id) {
         try {
-            if(userServiceImplementation.deleteUser(id))
-                return ResponseHandler.responseBuilder(200,"Xóa người dùng thành công",null,HttpStatus.OK);
-            throw new InternalServerErrorException("Xóa người dùng thất bại");
-        }
-        catch (Exception e){
+            userService.deleteUser(id);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa người dùng thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @DeleteMapping("/")
-    public ResponseEntity<?> deleteAccount(){
+    public ResponseEntity<BaseMessageResponse> deleteAccount() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            if(userServiceImplementation.deleteUser(userId))
-                return ResponseHandler.responseBuilder(200,"Xóa người dùng thành công",null,HttpStatus.OK);
-            throw new InternalServerErrorException("Xóa người dùng thất bại");
-        }
-        catch (Exception e){
+            userService.deleteUser(userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa người dùng thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }

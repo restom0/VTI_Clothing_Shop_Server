@@ -31,7 +31,7 @@ public class Audit implements Serializable {
 
     @ManyToOne
     @JoinColumn
-    private User userId;
+    private User user;
 
     private String method;
 

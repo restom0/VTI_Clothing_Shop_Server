@@ -1,13 +1,8 @@
 package vn.vti.clothing_shop.responses;
 
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class BaseMessageResponse {
-    private final Integer statusCode;
-
-    public BaseMessageResponse(Integer statusCode) {
-        this.statusCode = statusCode;
-    }
-
-    public Integer getStatusCode() {
-        return statusCode;
-    }
+    public final Integer statusCode;
 }

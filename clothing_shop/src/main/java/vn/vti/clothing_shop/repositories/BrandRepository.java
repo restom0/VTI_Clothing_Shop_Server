@@ -9,11 +9,13 @@ import java.util.Optional;
 
 @Repository
 public interface BrandRepository extends JpaRepository<Brand, Long> {
-    List<Brand> getAllByDeletedAtIsNullOrderByIdDesc();
+    List<Brand> findByDeletedAtIsNullOrderByIdDesc();
 
     Optional<Brand> findByDeletedAtIsNullAndId(Long id);
 
-    Optional<Brand> findByDeletedAtIsNullAndName(String name);
+    boolean existsByDeletedAtIsNullAndName(String name);
+
+    boolean existsByDeletedAtIsNullAndIdNotAndName(Long id, String name);
 
     long countByDeletedAtIsNull();
 }

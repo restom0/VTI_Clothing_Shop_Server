@@ -1,27 +1,20 @@
 package vn.vti.clothing_shop.repositories;
 
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.PropertyValues;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import vn.vti.clothing_shop.entities.Brand;
 import vn.vti.clothing_shop.entities.Size;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface SizeRepository extends JpaRepository<Size,Long> {
-    @Override
-    @Query("SELECT s FROM Size s WHERE s.deletedAt IS NULL")
-    @NotNull
-    List<Size> findAll();
+public interface SizeRepository extends JpaRepository<Size, Long> {
+    List<Size> findByDeletedAtIsNull();
 
-    @Query("SELECT s FROM Size s WHERE s.size = :size AND s.deletedAt IS NULL")
-    Optional<Size> findBySize(String size);
+    Optional<Size> findByName(String name);
 
-    @Query("SELECT s FROM Size s WHERE s.category_id = :id AND s.deletedAt IS NULL")
-    Optional<Size> findByCategory_id(Long id);
+    Optional<Size> findByDeletedAtIsNullAndCategory_Id(Long id);
+
+    Optional<Size> findByDeletedAtIsNullAndSizeAndHeightAndWeight(String size, String height, String weight);
 }
 

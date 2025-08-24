@@ -1,52 +1,23 @@
 package vn.vti.clothing_shop.mappers;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import vn.vti.clothing_shop.dtos.ins.SizeCreateDTO;
-import vn.vti.clothing_shop.dtos.ins.SizeUpdateDTO;
-import vn.vti.clothing_shop.dtos.outs.CategoryDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.SizeDTO;
 import vn.vti.clothing_shop.entities.Category;
 import vn.vti.clothing_shop.entities.Size;
 
 import java.util.List;
 
-@Component
-public class SizeMapper {
-    private final ModelMapper modelMapper;
+@Mapper
+public interface SizeMapper {
 
-    @Autowired
-    public SizeMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
+    SizeDTO entityToDTO(Size size);
 
-    public SizeDTO EntityToDTO(Size size) {
-        SizeDTO sizeDTO = modelMapper.map(size, SizeDTO.class);
-        sizeDTO.setCategory_id(modelMapper.map(size.getCategory_id(), CategoryDTO.class));
-        return sizeDTO;
-    }
+    List<SizeDTO> listEntityToDTO(List<Size> sizes);
 
-    public List<SizeDTO> EntityToDTO(List<Size> sizes) {
-        return sizes.stream().map(this::EntityToDTO).toList();
-    }
+    Size createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Category category);
 
-    public Size toEntity(SizeDTO sizeDTO) {
-        Size size = modelMapper.map(sizeDTO, Size.class);
-        size.setCategory_id(modelMapper.map(sizeDTO.getCategory_id(), Category.class));
-        return size;
-    }
-
-    public Size SizeCreateDTOToEntity(SizeCreateDTO sizeCreateDTO, Category category) {
-        Size size = modelMapper.map(sizeCreateDTO, Size.class);
-        size.setCategory_id(category);
-        return size;
-    }
-
-    public Size SizeUpdateDTOToEntity(SizeUpdateDTO sizeUpdateDTO, Size size) {
-        size.setSize(sizeUpdateDTO.getSize());
-        size.setHeight(sizeUpdateDTO.getHeight());
-        size.setWeight(sizeUpdateDTO.getWeight());
-        return size;
-    }
+    Size updateRequestToEntity(ImportedProductUpdateRequest importedProductUpdateRequest, Category category, @MappingTarget Size size);
 }

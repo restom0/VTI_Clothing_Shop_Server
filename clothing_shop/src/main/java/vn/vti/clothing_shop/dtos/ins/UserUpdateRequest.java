@@ -1,43 +1,35 @@
 package vn.vti.clothing_shop.dtos.ins;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import vn.vti.clothing_shop.constants.UserGender;
+import vn.vti.clothing_shop.validators.PhoneNumber;
 
 import java.time.LocalDate;
 
-import static vn.vti.clothing_shop.constants.RegularExpression.EMAIL;
-import static vn.vti.clothing_shop.constants.RegularExpression.PHONE_NUMBER;
+public record UserUpdateRequest(
+        @NotBlank(message = "Name is required")
+        String name,
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserUpdateRequest {
-    @NotBlank(message = "Name is required")
-    private String name;
+        @NotBlank(message = "Email is required")
+        @Email
+        String email,
 
-    @NotBlank(message = "Email is required")
-    @Pattern(regexp = EMAIL,message = "Invalid email")
-    private String email;
+        @NotNull(message = "Phone number is required")
+        @PhoneNumber
+        String phoneNumber,
 
-    @NotNull(message = "Phone number is required")
-    @Pattern(regexp = PHONE_NUMBER,message = "Invalid phone number")
-    private String phone_number;
+        String address,
 
-    private String address;
+        LocalDate birthday,
 
-    private LocalDate birthday;
+        String avatarUrl,
 
-    private String avatar_url;
+        String publicIdAvatarUrl,
 
-    private String public_id_avatar_url;
+        @NotNull(message = "Gender is required")
+        UserGender gender
+) {
 
-    @NotNull(message = "Gender is required")
-    private UserGender gender;
 }

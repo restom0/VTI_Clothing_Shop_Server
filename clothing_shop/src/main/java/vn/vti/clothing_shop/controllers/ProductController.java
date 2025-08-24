@@ -2,90 +2,70 @@ package vn.vti.clothing_shop.controllers;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import vn.vti.clothing_shop.mappers.ProductMapper;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vn.vti.clothing_shop.dtos.ins.ProductCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ProductUpdateRequest;
+import vn.vti.clothing_shop.exceptions.WrapperException;
+import vn.vti.clothing_shop.responses.BaseMessageResponse;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.services.implementations.ProductServiceImplementation;
-import vn.vti.clothing_shop.utils.ParameterUtils;
+import vn.vti.clothing_shop.services.interfaces.ProductService;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping(value = "/product")
 public class ProductController {
+    private final ProductService productService;
 
-    private final ProductServiceImplementation productServiceImplementation;
-    private final ProductMapper productMapper;
-
-    @Autowired
-    public ProductController(ProductServiceImplementation productServiceImplementation, ProductMapper productMapper) {
-        this.productServiceImplementation = productServiceImplementation;
-        this.productMapper = productMapper;
-    }
-
-    @GetMapping(value="/", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Object> getAllProducts(){
-        try {
-
-            return ResponseHandler.responseBuilder(200,"Lấy danh sách sản phẩm thành công",productServiceImplementation.getAllProducts(), HttpStatus.OK);
-        }
-        catch (Exception e){
-            return ResponseHandler.exceptionBuilder(e);
-        }
+    @GetMapping(value = "/")
+    public ResponseEntity<BaseMessageResponse> getAllProducts() {
+        return ResponseHandler.successBuilder(HttpStatus.OK, "Lấy danh sách sản phẩm thành công", productService.getAllProducts());
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> addProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest, BindingResult bindingResult){
+    public ResponseEntity<BaseMessageResponse> addProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest) {
         try {
-            if (bindingResult.hasErrors()) {
-                return ParameterUtils.showBindingResult(bindingResult);
-            }
-            if(productServiceImplementation.addProduct(productMapper.ProductCreateRequestToProductCreateDTO(productCreateRequest)))
-                return ResponseHandler.responseBuilder(201, "Thêm sản phẩm thành công", null, HttpStatus.CREATED);
-            throw new InternalServerErrorException("Thêm sản phẩm thất bại");
-        }
-        catch (Exception e){
+            productService.addProduct(productCreateRequest);
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Thêm sản phẩm thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest, @PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id,BindingResult bindingResult){
-        try {
-            if (bindingResult.hasErrors()) {
-                return ParameterUtils.showBindingResult(bindingResult);
-            }
-            if(productServiceImplementation.updateProduct(productMapper.ProductUpdateRequestToProductUpdateDTO(id,productUpdateRequest)))
-                return ResponseHandler.responseBuilder(200,"Cập nhật sản phẩm thành công",null, HttpStatus.OK);
 
-            throw new InternalServerErrorException("Cập nhật sản phẩm thất bại");
-        }
-        catch (Exception e){
+    @PutMapping("/{id}")
+    public ResponseEntity<BaseMessageResponse> updateProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest, @PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
+        try {
+            productService.updateProduct(productUpdateRequest, id);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật sản phẩm thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProduct(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id){
+    public ResponseEntity<BaseMessageResponse> deleteProduct(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
         try {
-            if(productServiceImplementation.deleteProduct(id)){
-                return ResponseHandler.responseBuilder(200,"Xóa sản phẩm thành công",null, HttpStatus.OK);
-            }
-            throw new InternalServerErrorException("Xóa sản phẩm thất bại");
-        }
-        catch (Exception e){
+            productService.deleteProduct(id);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa sản phẩm thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProductById(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id){
+    public ResponseEntity<BaseMessageResponse> getProductById(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
         try {
-                return ResponseHandler.responseBuilder(200,"Lấy sản phẩm thành công",productServiceImplementation.getProductById(id), HttpStatus.OK);
-        }
-        catch (Exception e){
+            return ResponseHandler.successBuilder(HttpStatus.OK, productService.getProductById(id));
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }

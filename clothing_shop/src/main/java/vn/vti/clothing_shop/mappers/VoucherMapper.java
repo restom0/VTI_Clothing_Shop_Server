@@ -1,57 +1,22 @@
 package vn.vti.clothing_shop.mappers;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import vn.vti.clothing_shop.dtos.ins.VoucherCreateDTO;
-import vn.vti.clothing_shop.dtos.ins.VoucherUpdateDTO;
-import vn.vti.clothing_shop.dtos.outs.VoucherDTO;
-import vn.vti.clothing_shop.entities.Voucher;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 import vn.vti.clothing_shop.dtos.ins.VoucherCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.VoucherUpdateRequest;
+import vn.vti.clothing_shop.dtos.outs.VoucherDTO;
+import vn.vti.clothing_shop.entities.Voucher;
 
 import java.util.List;
 
-@Component
-public class VoucherMapper {
-    private final ModelMapper modelMapper;
+@Mapper
+public interface VoucherMapper {
 
-    @Autowired
-    public VoucherMapper(ModelMapper modelMapper) {
-        this.modelMapper = modelMapper;
-    }
+    VoucherDTO entityToDTO(Voucher voucher);
 
-    public VoucherDTO EntityToDTO(Voucher voucher) {
-        return modelMapper.map(voucher, VoucherDTO.class);
-    }
+    List<VoucherDTO> listEntityToDTO(List<Voucher> vouchers);
 
-    public List<VoucherDTO> EntityToDTO(List<Voucher> vouchers) {
-        return vouchers.stream().map(this::EntityToDTO).toList();
-    }
+    Voucher createRequestToEntity(VoucherCreateRequest voucherCreateRequest);
 
-    public VoucherCreateDTO createRequestToCreateDTO(VoucherCreateRequest voucherCreateRequest) {
-        return modelMapper.map(voucherCreateRequest, VoucherCreateDTO.class);
-    }
-
-    public Voucher createDTOToEntity(VoucherCreateDTO voucherCreateDTO) {
-        Voucher voucher = modelMapper.map(voucherCreateDTO, Voucher.class);
-        voucher.setStock(voucherCreateDTO.getInput_stock());
-        return voucher;
-    }
-
-    public Voucher updateDTOToEntity(Voucher voucher, VoucherUpdateDTO voucherUpdateDTO) {
-        voucher.setStock(voucherUpdateDTO.getInput_stock());
-        voucher.setAvailable_date(voucherUpdateDTO.getAvailable_date());
-        voucher.setExpired_date(voucherUpdateDTO.getExpired_date());
-        voucher.setValue(voucherUpdateDTO.getValue());
-        voucher.setCode(voucherUpdateDTO.getCode());
-        return voucher;
-    }
-
-    public VoucherUpdateDTO updateRequestToUpdateDTO(VoucherUpdateRequest voucherUpdateRequest, Long id) {
-        VoucherUpdateDTO voucherUpdateDTO = modelMapper.map(voucherUpdateRequest, VoucherUpdateDTO.class);
-        voucherUpdateDTO.setId(id);
-        return voucherUpdateDTO;
-    }
-
+    Voucher updateRequestToEntity(VoucherUpdateRequest voucherUpdateRequest, @MappingTarget Voucher voucher);
 }

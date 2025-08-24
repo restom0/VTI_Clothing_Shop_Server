@@ -1,6 +1,5 @@
 package vn.vti.clothing_shop.dtos.outs;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,24 +10,23 @@ import vn.vti.clothing_shop.constants.ClothGender;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("ImportedProductDTO")
-public class ImportedProductDTO extends BaseDTO {
+public class ImportedProductDTO {
     private Long id;
-    private ProductDTO product_id;
+    private ProductDTO product;
     private Integer importNumber;
-    private SizeDTO size_id;
-    private ColorDTO color_id;
-    private MaterialDTO material_id;
-    private String image_url;
-    private String slider_url_1;
-    private String slider_url_2;
-    private String slider_url_3;
-    private String slider_url_4;
-    private String public_id_url;
-    private String public_id_slider_url_1;
-    private String public_id_slider_url_2;
-    private String public_id_slider_url_3;
-    private String public_id_slider_url_4;
+    private SizeDTO size;
+    private ColorDTO color;
+    private MaterialDTO material;
+    private String imageUrl;
+    private String sliderUrl1;
+    private String sliderUrl2;
+    private String sliderUrl3;
+    private String sliderUrl4;
+    private String publicIdUrl;
+    private String publicIdSliderUrl1;
+    private String publicIdSliderUrl2;
+    private String publicIdSliderUrl3;
+    private String publicIdSliderUrl4;
     private String sku;
     private ClothGender gender;
     private Integer importPrice;

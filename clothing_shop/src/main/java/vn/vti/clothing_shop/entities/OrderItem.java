@@ -24,11 +24,11 @@ public class OrderItem extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private OnSaleProduct productId;
+    private OnSaleProduct product;
 
     @ManyToOne
     @JoinColumn
-    private Order orderId;
+    private Order order;
 
     @Column(nullable = false)
     private Integer quantity;

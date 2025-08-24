@@ -1,15 +1,20 @@
 package vn.vti.clothing_shop.services.interfaces;
 
-import vn.vti.clothing_shop.dtos.ins.CommentCreateDTO;
-import vn.vti.clothing_shop.dtos.ins.CommentUpdateDTO;
+import vn.vti.clothing_shop.dtos.ins.CommentCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CommentUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.CommentDTO;
+import vn.vti.clothing_shop.exceptions.WrapperException;
 
 import java.util.List;
 
 public interface CommentService {
     List<CommentDTO> getAllComments();
-    List<CommentDTO> getCommentById(Long product_id);
-    Boolean createComment(Long user_id, CommentCreateDTO commentCreateDTO);
-    Boolean updateComment(Long id, Long user_id, CommentUpdateDTO commentUpdateDTO);
-    Boolean deleteComment(Long id);
+
+    List<CommentDTO> getCommentByProductId(Long productId);
+
+    void createComment(Long userId, CommentCreateRequest commentCreateRequest) throws WrapperException;
+
+    void updateComment(Long id, Long userId, CommentUpdateRequest commentUpdateRequest) throws WrapperException;
+
+    void deleteComment(Long id, Long userId) throws WrapperException;
 }

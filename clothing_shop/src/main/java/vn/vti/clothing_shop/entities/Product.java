@@ -29,10 +29,10 @@ public class Product extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private Category categoryId;
+    private Category category;
 
     @ManyToOne
     @JoinColumn
-    private Brand brandId;
+    private Brand brand;
 
 }

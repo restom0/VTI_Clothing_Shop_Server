@@ -12,8 +12,8 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
     private final ObjectMapper mapper;
 
     public CustomRedisSerializer() {
-        this.mapper = new ObjectMapper();
-        this.mapper.activateDefaultTyping(
+        mapper = new ObjectMapper();
+        mapper.activateDefaultTyping(
                 mapper.getPolymorphicTypeValidator(),
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY);

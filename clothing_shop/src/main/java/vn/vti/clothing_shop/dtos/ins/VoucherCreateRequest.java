@@ -1,37 +1,30 @@
 package vn.vti.clothing_shop.dtos.ins;
 
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Positive;
+import vn.vti.clothing_shop.validators.EndDateAfterStartDate;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class VoucherCreateRequest {
-    @NotNull(message = "Code is required")
-    private String code;
+@EndDateAfterStartDate
+public record VoucherCreateRequest(
+        @NotNull(message = "Code is required")
+        String code,
 
-    @NotNull(message = "Input stock is required")
-    @Min(value = 1, message = "Input stock must be greater than 0")
-    private Integer input_stock;
+        @NotNull(message = "Input stock is required")
+        @Positive
+        Integer inputStock,
 
-    @NotNull(message = "Value is required")
-    @DecimalMin(value = "0.00", message = "Value must be greater than 0")
-    private Float value;
+        @NotNull(message = "Value is required")
+        @Positive
+        Float value,
 
-    @Future(message = "Available date must be in the future")
-    @NotNull(message = "Available date is required")
-    private LocalDateTime available_date;
+        @NotNull(message = "Available date is required")
+        LocalDate availableDate,
 
-    @Future(message = "Expired date must be in the future")
-    @NotNull(message = "Expired date is required")
-    private LocalDateTime expired_date;
+        @Future(message = "Expired date must be in the future")
+        LocalDate endDate
+) {
+
 }

@@ -1,23 +1,29 @@
 package vn.vti.clothing_shop.services.interfaces;
 
-import org.springframework.stereotype.Component;
-import vn.vti.clothing_shop.dtos.ins.UserCreateDTO;
-import vn.vti.clothing_shop.dtos.ins.UserReadDTO;
-import vn.vti.clothing_shop.dtos.ins.UserUpdateDTO;
-import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordDTO;
+import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.UserLoginRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.UserDTO;
 import vn.vti.clothing_shop.dtos.outs.UserLoginDTO;
+import vn.vti.clothing_shop.exceptions.WrapperException;
 
 import java.util.List;
 
-@Component
 public interface UserService {
-    List<UserDTO> getAllUsers();
-    UserLoginDTO getUser(UserReadDTO userReadDTO);
+    List<UserDTO> getUsers();
+
+    UserLoginDTO getUser(UserLoginRequest userLoginRequest) throws WrapperException;
+
     Long countUser();
-    UserDTO getUserById(Long id);
-    Boolean addUser(UserCreateDTO userCreateDTO);
-    Boolean updateUser(UserUpdateDTO userUpdateDTO);
-    Boolean updateUserPassword(UserUpdatePasswordDTO userUpdatePasswordDTO);
-    Boolean deleteUser(Long id);
+
+    UserDTO getUserById(Long id) throws WrapperException;
+
+    void addUser(UserCreateRequest userCreateRequest) throws WrapperException;
+
+    void updateUser(UserUpdateRequest userUpdateRequest, Long id) throws WrapperException;
+
+    void updateUserPassword(UserUpdatePasswordRequest userUpdatePasswordRequest, Long id) throws WrapperException;
+
+    void deleteUser(Long id) throws WrapperException;
 }

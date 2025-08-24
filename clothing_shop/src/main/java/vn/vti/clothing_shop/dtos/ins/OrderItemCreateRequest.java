@@ -1,16 +1,20 @@
 package vn.vti.clothing_shop.dtos.ins;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderItemCreateRequest {
-    private Long product_id;
-    private Long order_id;
-    private Integer quantity;
+public record OrderItemCreateRequest(
+        @NotNull
+        @Positive
+        Long productId,
+
+        @NotNull
+        @Positive
+        Long orderId,
+
+        @NotNull
+        @Positive
+        Integer quantity
+) {
+
 }

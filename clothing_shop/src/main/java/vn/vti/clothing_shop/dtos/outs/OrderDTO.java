@@ -16,13 +16,13 @@ import java.util.List;
 public class OrderDTO {
     private Long id;
     private String address;
-    private String phone_number;
-    private String receiver_name;
+    private String phoneNumber;
+    private String receiverName;
     private Boolean isPresent;
-    private Long total_price;
-    private Long order_code;
-    private PaymentStatus payment_status;
-    private PaymentMethod payment_method;
-    private VoucherDTO voucherId;
+    private Long totalPrice;
+    private Long orderCode;
+    private PaymentStatus paymentStatus;
+    private PaymentMethod paymentMethod;
+    private VoucherDTO voucher;
     private List<OrderItemDTO> orderItems;
 }

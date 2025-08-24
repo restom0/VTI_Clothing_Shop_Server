@@ -1,19 +1,22 @@
 package vn.vti.clothing_shop.services.interfaces;
 
-import org.springframework.stereotype.Component;
-import vn.vti.clothing_shop.dtos.ins.CategoryCreateDTO;
-import vn.vti.clothing_shop.dtos.ins.CategoryUpdateDTO;
+import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.CategoryUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.CategoryDTO;
-import vn.vti.clothing_shop.responses.CategoryResponse;
+import vn.vti.clothing_shop.exceptions.WrapperException;
 
 import java.util.List;
 
-@Component
 public interface CategoryService {
     List<CategoryDTO> getAllCategories();
-    Boolean addCategory(CategoryCreateDTO categoryCreateDTO);
-    Boolean updateCategory(CategoryUpdateDTO categoryUpdateDTO);
-    Boolean deleteCategory(Long id);
-    CategoryResponse getCategoryById(Long id);
+
+    CategoryDTO addCategory(CategoryCreateRequest categoryCreateRequest) throws WrapperException;
+
+    CategoryDTO updateCategory(CategoryUpdateRequest categoryUpdateRequest, Long id) throws WrapperException;
+
+    void deleteCategory(Long id) throws WrapperException;
+
+    CategoryDTO getCategoryById(Long id) throws WrapperException;
+
     Long countCategory();
 }

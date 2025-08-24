@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ChatDTO {
     private Long id;
-    private UserDTO sender_id;
+    private UserDTO sender;
     private String content;
     private String reply;
 }

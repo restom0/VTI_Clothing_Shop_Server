@@ -1,164 +1,144 @@
 package vn.vti.clothing_shop.controllers;
 
 import jakarta.validation.constraints.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
-import vn.vti.clothing_shop.dtos.outs.OrderDTO;
-import vn.vti.clothing_shop.entities.User;
-import vn.vti.clothing_shop.mappers.OrderMapper;
 import vn.vti.clothing_shop.dtos.ins.OrderCheckoutRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderConfirmRequest;
-import vn.vti.clothing_shop.dtos.ins.OrderCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderUpdateRequest;
+import vn.vti.clothing_shop.dtos.outs.OrderDTO;
+import vn.vti.clothing_shop.entities.User;
+import vn.vti.clothing_shop.exceptions.WrapperException;
+import vn.vti.clothing_shop.mappers.OrderMapper;
+import vn.vti.clothing_shop.responses.BaseMessageResponse;
 import vn.vti.clothing_shop.responses.ResponseHandler;
-import vn.vti.clothing_shop.services.implementations.OrderItemServiceImplementation;
-import vn.vti.clothing_shop.services.implementations.OrderServiceImplementation;
-import vn.vti.clothing_shop.utils.ParameterUtils;
+import vn.vti.clothing_shop.services.interfaces.OrderItemService;
+import vn.vti.clothing_shop.services.interfaces.OrderService;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/order")
 public class OrderController {
 
     private final String redirectUrl;
-    private final OrderServiceImplementation orderServiceImplementation;
-    private final OrderItemServiceImplementation orderItemServiceImplementation;
+    private final OrderService orderService;
+    private final OrderItemService orderItemService;
     private final OrderMapper orderMapper;
 
-    @Autowired
-    public OrderController(Environment env, OrderServiceImplementation orderServiceImplementation, OrderItemServiceImplementation orderItemServiceImplementation, OrderMapper orderMapper) {
-        this.redirectUrl = env.getProperty("redirectUrl");
-        this.orderServiceImplementation = orderServiceImplementation;
-        this.orderItemServiceImplementation = orderItemServiceImplementation;
-        this.orderMapper = orderMapper;
-    }
-
     @GetMapping("/")
-    public ResponseEntity<?> getAllOrders() {
-        try{
-            return ResponseHandler.responseBuilder(200,"Lấy đơn hàng thành công",orderServiceImplementation.getAllOrders(), HttpStatus.OK);
-        }
-        catch (Exception e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
+    public ResponseEntity<BaseMessageResponse> getAllOrders() {
+        return ResponseHandler.successBuilder(HttpStatus.OK, orderService.getAllOrders());
     }
 
     @GetMapping("/user")
-    public ResponseEntity<?> getAllOrdersByUserId() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200,"Lấy đơn hàng thành công",orderServiceImplementation.getAllOrdersByUserId(userId), HttpStatus.OK);
-        }
-        catch (Exception e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
+    public ResponseEntity<BaseMessageResponse> getAllOrdersByUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Long userId = user.getId();
+        return ResponseHandler.successBuilder(HttpStatus.OK, orderService.getAllOrdersByUserId(userId));
     }
+
     @GetMapping("/cart")
-    public ResponseEntity<?> addOrder() {
+    public ResponseEntity<BaseMessageResponse> addOrder() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200,"Thêm đơn hàng thành công",this.orderServiceImplementation.addOrder(orderMapper.CreateRequestToCreateDTO(new OrderCreateRequest(),userId)), HttpStatus.CREATED);
-        }
-        catch (Exception e) {
+            OrderDTO orderDTO = orderService.addOrder(null, userId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, orderDTO);
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrder(
+    public ResponseEntity<BaseMessageResponse> updateOrder(
             @RequestBody @NotNull(message = "Vui lòng nhập thông tin đơn hàng") OrderUpdateRequest orderUpdateRequest,
-            @PathVariable @NotNull(message = "Vui lòng chọn giỏ hàng") Long id,
-            BindingResult bindingResult) {
+            @PathVariable @NotNull(message = "Vui lòng chọn giỏ hàng") Long id) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
-            if(orderServiceImplementation.updateOrder(orderMapper.UpdateRequestToUpdateDTO(orderUpdateRequest,id)))
-                return ResponseHandler.responseBuilder(200,"Cập nhật đơn hàng thành công",null, HttpStatus.OK);
-            throw new InternalServerErrorException("Cập nhật đơn hàng thất bại");
-        }
-        catch (Exception e) {
+            orderService.updateOrder(id, orderUpdateRequest);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật đơn hàng thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @DeleteMapping("/{orderId}/{id}")
-    public ResponseEntity<?> deleteOrder(
+    public ResponseEntity<BaseMessageResponse> deleteOrder(
             @PathVariable @NotNull(message = "Vui lòng chọn đơn hàng") Long orderId,
             @PathVariable @NotNull(message = "Vui lòng chọn giỏ hàng") Long id) {
         try {
-            if(orderServiceImplementation.deleteOrder(id) &&
-                    orderItemServiceImplementation.deleteOrderItem(id,orderId))
-                return ResponseHandler.responseBuilder(200,"Xóa đơn hàng thành công",null, HttpStatus.OK);
-            throw new InternalServerErrorException("Xóa đơn hàng thất bại");
-        }
-        catch (Exception e) {
+            orderItemService.deleteOrderItem(id, orderId);
+            orderService.deleteOrder(orderId);
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa đơn hàng thành công");
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PostMapping(path = "/checkout")
-    public ResponseEntity<?> createPaymentLink(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderCheckoutRequest orderCheckoutRequest, BindingResult bindingResult) {
+    public ResponseEntity<BaseMessageResponse> createPaymentLink(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderCheckoutRequest orderCheckoutRequest) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            OrderDTO orderDTO = orderServiceImplementation.getOrderByIdAndUserId(orderMapper.CheckoutRequestToCheckoutDTO(orderCheckoutRequest,userId));
+            OrderDTO orderDTO = orderService.getOrderByIdAndUserId(orderCheckoutRequest, userId);
             List<ItemData> itemDataList = orderDTO.
                     getOrderItems()
                     .stream()
                     .map(orderItemDTO -> ItemData
                             .builder()
-                            .name(orderItemDTO.getProduct_id().getProduct_id().getProduct_id().getName())
+                            .name(orderItemDTO.getProduct().getProduct().getProduct().getName())
                             .quantity(orderItemDTO.getQuantity()).build())
                     .toList();
             PaymentData paymentData = PaymentData.builder()
-                    .orderCode(orderDTO.getOrder_code())
+                    .orderCode(orderDTO.getOrderCode())
                     .items(itemDataList)
-                    .amount(orderDTO.getTotal_price().intValue())
-                    .returnUrl(redirectUrl+"success")
-                    .cancelUrl(redirectUrl+"cancel")
+                    .amount(orderDTO.getTotalPrice().intValue())
+                    .returnUrl(redirectUrl + "success")
+                    .cancelUrl(redirectUrl + "cancel")
                     .build();
-            return ResponseHandler.responseBuilder(200,"Tạo link thanh toán thành công",paymentData, HttpStatus.OK);
-        } catch (Exception e) {
+            return ResponseHandler.successBuilder(HttpStatus.OK, "Tạo link thanh toán thành công", paymentData);
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PutMapping("/success")
-    public ResponseEntity<?> success(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderConfirmRequest orderConfirmRequest, BindingResult bindingResult) {
+    public ResponseEntity<BaseMessageResponse> success(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderConfirmRequest orderConfirmRequest) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200, "Thanh toán thành công", this.orderServiceImplementation.confirmOrder(this.orderMapper.ConfirmRequestToConfirmDTO(orderConfirmRequest,userId,true)), HttpStatus.OK);
-        } catch (Exception e) {
+            return ResponseHandler.successBuilder(HttpStatus.OK, orderService.confirmOrder(orderConfirmRequest, userId));
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
+
     @PutMapping("/cancel")
-    public ResponseEntity<?> cancel(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderConfirmRequest orderConfirmRequest, BindingResult bindingResult) {
+    public ResponseEntity<BaseMessageResponse> cancel(@RequestBody @NotNull(message = "Vui lòng chọn đơn hàng") OrderConfirmRequest orderConfirmRequest) {
         try {
-            if (bindingResult.hasErrors())
-                return ParameterUtils.showBindingResult(bindingResult);
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
-            return ResponseHandler.responseBuilder(200, "Thanh toán thành công", this.orderServiceImplementation.confirmOrder(this.orderMapper.ConfirmRequestToConfirmDTO(orderConfirmRequest,userId,true)), HttpStatus.OK);
-        }
-        catch (Exception e) {
+            return ResponseHandler.successBuilder(HttpStatus.OK, orderService.confirmOrder(orderConfirmRequest, userId));
+        } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }

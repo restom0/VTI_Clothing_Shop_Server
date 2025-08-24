@@ -1,13 +1,11 @@
 package vn.vti.clothing_shop.dtos.ins;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record ChatReplyRequest(
         @NotBlank(message = "Vui lòng nhập phản hồi")
-        String reply,
-
-        @NotNull
-        Long version
+        @Size(max = 255, message = "Phản hồi không được vượt quá 255 ký tự")
+        String reply
 ) {
 }

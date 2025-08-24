@@ -1,6 +1,5 @@
 package vn.vti.clothing_shop.dtos.outs;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonTypeName("CategoryDTO")
-public class CategoryDTO extends BaseDTO {
+public class CategoryDTO {
     private Long id;
     private String name;
     private String description;

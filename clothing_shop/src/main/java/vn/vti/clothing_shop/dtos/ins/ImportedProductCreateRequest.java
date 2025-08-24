@@ -1,14 +1,14 @@
 package vn.vti.clothing_shop.dtos.ins;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import vn.vti.clothing_shop.constants.ClothGender;
 import vn.vti.clothing_shop.validators.HexCode;
 
 public record ImportedProductCreateRequest(
         @NotNull(message = "Product ID is required")
-        @Min(value = 1, message = "Product ID must be greater than 0")
+        @Positive
         Long productId,
 
         @NotBlank(message = "Color code is required")
@@ -34,7 +34,7 @@ public record ImportedProductCreateRequest(
         ClothGender gender,
 
         @NotNull(message = "Import price is required")
-        @Min(value = 1, message = "Import price must be greater than 0")
+        @Positive
         Integer importPrice,
 
         @NotBlank(message = "Image URL is required")
@@ -68,7 +68,7 @@ public record ImportedProductCreateRequest(
         String publicIdSliderUrl4,
 
         @NotNull(message = "Stock is required")
-        @Min(value = 1, message = "Stock must be positive")
+        @Positive
         Integer importNumber
 ) {
 

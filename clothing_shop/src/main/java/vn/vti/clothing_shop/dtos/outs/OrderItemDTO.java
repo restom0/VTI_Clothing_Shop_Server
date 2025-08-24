@@ -11,6 +11,6 @@ import lombok.Setter;
 @Getter
 public class OrderItemDTO {
     private Long id;
-    private OnSaleProductDTO product_id;
+    private OnSaleProductDTO product;
     private Integer quantity;
 }

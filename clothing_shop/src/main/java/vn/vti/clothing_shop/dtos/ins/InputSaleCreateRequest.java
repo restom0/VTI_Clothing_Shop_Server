@@ -1,10 +1,10 @@
 package vn.vti.clothing_shop.dtos.ins;
 
 import jakarta.validation.constraints.DecimalMax;
-import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import vn.vti.clothing_shop.constants.InputSaleFilter;
 
 import java.time.LocalDate;
@@ -14,15 +14,15 @@ public record InputSaleCreateRequest(
         InputSaleFilter filter,
 
         @NotNull(message = "Filter id is required")
-        @Min(value = 1, message = "Filter id must be greater than 0")
+        @Positive
         Long filterId,
 
         @NotNull(message = "Sale price is required")
-        @DecimalMin(value = "0.00", message = "Sale price must be greater than 0")
+        @Positive
         Float salePercentage,
 
         @NotNull(message = "Discount is required")
-        @DecimalMin(value = "0.00", message = "Discount must be greater than 0")
+        @PositiveOrZero
         @DecimalMax(value = "100.00", message = "Discount must be less than or equal to 100")
         Float discount,
 
@@ -31,6 +31,6 @@ public record InputSaleCreateRequest(
 
         @Future(message = "End date must be in the future")
         LocalDate endDate
-) {
+) implements DateRange {
 
 }

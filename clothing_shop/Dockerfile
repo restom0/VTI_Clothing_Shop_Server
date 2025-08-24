@@ -1,5 +1,12 @@
+FROM maven:3.9.9-eclipse-temurin-21 AS builder
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
 FROM eclipse-temurin:21-jdk-alpine
-VOLUME /tmp
+WORKDIR /app
+COPY --from=builder /app/target/clothing_shop-0.0.1-SNAPSHOT.jar app.jar
+COPY .env ./
 EXPOSE 8080
-COPY target/clothing_shop-0.0.1-SNAPSHOT.jar clothing_shop.jar
-ENTRYPOINT ["java","-jar","/clothing_shop.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]

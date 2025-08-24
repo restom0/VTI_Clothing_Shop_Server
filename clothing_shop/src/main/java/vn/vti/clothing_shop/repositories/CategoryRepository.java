@@ -9,11 +9,15 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-    List<Category> getAllByDeletedAtIsNullOrderByIdDesc();
+    List<Category> findAllByDeletedAtIsNullOrderByIdDesc();
 
     Optional<Category> findByDeletedAtIsNullAndId(Long id);
 
     Optional<Category> findByDeletedAtIsNullAndName(String name);
 
     long countByDeletedAtIsNull();
+
+    boolean existsByDeletedAtIsNullAndName(String name);
+
+    boolean existsByDeletedAtIsNullAndNameAndIdNot(String name, Long id);
 }

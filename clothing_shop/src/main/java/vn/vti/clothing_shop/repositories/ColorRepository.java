@@ -12,9 +12,11 @@ public interface ColorRepository extends JpaRepository<Color, Long> {
 
     Optional<Color> findByDeletedAtIsNullAndNameOrderByIdDesc(String colorName);
 
-    Optional<Color> findByDeletedAtIsNullAndColor(String colorCode);
+    Optional<Color> findByDeletedAtIsNullAndCode(String code);
 
-    Optional<Color> findByDeletedAtIsNullAndCategory_id(Long categoryId);
+    Optional<Color> findByDeletedAtIsNullAndCategory_Id(Long categoryId);
 
-    List<Color> findAllByDeletedAtIsNull();
+    List<Color> findByDeletedAtIsNull();
+
+    Optional<Color> findByDeletedAtIsNullAndId(Long id);
 }

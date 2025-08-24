@@ -1,6 +1,7 @@
 package vn.vti.clothing_shop.configs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,13 +18,10 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
+@AllArgsConstructor
 public class CacheConfig {
-
     private final ObjectMapper objectMapper;
 
-    public CacheConfig(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
 
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {

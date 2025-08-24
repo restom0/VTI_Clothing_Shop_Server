@@ -1,27 +1,42 @@
 services:
-  clothing_shop:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: clothing_shop_container
     ports:
-      - "8000:8000"
+      - "8080:8080"
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/clothing_shop_db
-      - SECRET_KEY=your_secret_key
+      POSTGRESQL_DATABASE: clothing_shop
+      POSTGRESQL_USERNAME: user
+      POSTGRESQL_PASSWORD: password
+      POSTGRESQL_EXTERNAL_HOST: database
+      POSTGRESQL_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
     depends_on:
-      - db
+      - database
+      - redis
     networks:
       - clothing_network
   database:
-    image: postgres:latest
-    container_name: clothing_shop_db
+    image: postgres:alpine
+    container_name: clothing_shop_postgres
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: clothing_shop_db
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DATABASE}
+    networks:
+      - clothing_network
+  redis:
+    image: redis:alpine
+    container_name: clothing_shop_redis
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     networks:
       - clothing_network
 networks:

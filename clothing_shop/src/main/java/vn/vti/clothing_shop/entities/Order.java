@@ -51,10 +51,10 @@ public class Order extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn
-    private Voucher voucherId;
+    private Voucher voucher;
 
 }

@@ -1,18 +1,17 @@
 package vn.vti.clothing_shop.dtos.ins;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import vn.vti.clothing_shop.validators.NewPasswordNotEqualOldPassword;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserUpdatePasswordRequest {
-    @NotBlank(message = "Password is required")
-    private String password;
-    @NotBlank(message = "New password is required")
-    private String newPassword;
+@NewPasswordNotEqualOldPassword
+public record UserUpdatePasswordRequest(
+        @NotBlank(message = "Old password is required")
+        String oldPassword,
+        @NotBlank(message = "New password is required")
+        String password,
+        @NotNull
+        Long version
+) {
+
 }

@@ -24,10 +24,10 @@ public class Chat extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private User senderId;
+    private User sender;
 
     @Column(nullable = false)
     private String content;
 
-    private String reply;
+    private Chat reply;
 }

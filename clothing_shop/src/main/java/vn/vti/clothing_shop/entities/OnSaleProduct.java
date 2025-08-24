@@ -1,6 +1,5 @@
 package vn.vti.clothing_shop.entities;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -22,18 +21,14 @@ public class OnSaleProduct extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn
-    private ImportedProduct productId;
-
-    @Column(nullable = false, columnDefinition = "BIGINT CHECK (sale_price >= 0)")
-    private Long salePrice;
-
-    @Column(columnDefinition = "INT DEFAULT 0 CHECK (discount >= 0 AND discount <= 100)")
-    private Byte discount;
+    private transient Long salePrice;
 
     @ManyToOne
     @JoinColumn
-    private InputSale inputSaleId;
+    private ImportedProduct product;
+
+    @ManyToOne
+    @JoinColumn
+    private InputSale inputSale;
 
 }

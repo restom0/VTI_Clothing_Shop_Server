@@ -20,8 +20,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"code", "category_id"}),
-        @UniqueConstraint(columnNames = {"name", "category_id"})
+        @UniqueConstraint(columnNames = {"code", "categoryId"}),
+        @UniqueConstraint(columnNames = {"name", "categoryId"})
 })
 public class Color extends BaseEntity {
     @Id
@@ -36,5 +36,5 @@ public class Color extends BaseEntity {
 
     @ManyToOne
     @JoinColumn
-    private Category categoryId;
+    private Category category;
 }

@@ -1,31 +1,25 @@
 package vn.vti.clothing_shop.dtos.ins;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Positive;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductUpdateRequest {
-    @NotBlank(message = "Name is required")
-    private String name;
+public record ProductUpdateRequest(
+        @NotBlank(message = "Name is required")
+        String name,
 
-    private String short_description;
+        String shortDescription,
 
-    @NotNull(message = "Category is required")
-    @Min(value = 0 , message = "Category must be positive")
-    @Max(value = Long.MAX_VALUE, message = "Category is too large")
-    private Long category_id;
+        @NotNull(message = "Category is required")
+        @Positive
+        Long categoryId,
 
-    @NotNull(message = "Brand is required")
-    @Min(value = 0 , message = "Brand must be positive")
-    @Max(value = Long.MAX_VALUE, message = "Brand is too large")
-    private Long brand_id;
+        @NotNull(message = "Brand is required")
+        @Positive
+        Long brandId,
+
+        @NotNull
+        Long version
+) {
+
 }

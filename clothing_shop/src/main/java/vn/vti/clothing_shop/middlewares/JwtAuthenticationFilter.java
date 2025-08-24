@@ -4,18 +4,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerExceptionResolver;
 import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.exceptions.UnauthorizeException;
 import vn.vti.clothing_shop.repositories.UserRepository;
@@ -24,23 +21,12 @@ import vn.vti.clothing_shop.services.JwtService;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
+@AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private final HandlerExceptionResolver handlerExceptionResolver;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
-    @Autowired
-    public JwtAuthenticationFilter(
-            JwtService jwtService,
-            HandlerExceptionResolver handlerExceptionResolver, UserRepository userRepository
-    ) {
-        this.jwtService = jwtService;
-        this.handlerExceptionResolver = handlerExceptionResolver;
-        this.userRepository = userRepository;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -66,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 new SimpleGrantedAuthority("ROLE_" + user.getRole().toString().toUpperCase())
                         );
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                                user, null, authorities);
+                                user, authorities);
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
@@ -79,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             response.getWriter().write("{\"message\": \"" + exception.getMessage() +
-                    "\n\t"+"\"statusCode\": " + HttpServletResponse.SC_UNAUTHORIZED + "}");
+                    "\n\t" + "\"statusCode\": " + HttpServletResponse.SC_UNAUTHORIZED + "}");
         }
     }
 }

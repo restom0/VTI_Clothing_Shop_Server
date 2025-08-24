@@ -36,7 +36,7 @@ public class Comment extends BaseEntity {
             nullable = false,
             precision = 2,
             scale = 1,
-            columnDefinition = "DECIMAL(2,1) CHECK (star >= 0 AND star <= 5)"
+            columnDefinition = "DECIMAL(2,1) CHECK (star >= 0.0 AND star <= 5.0)"
     )
     private Float star;
 

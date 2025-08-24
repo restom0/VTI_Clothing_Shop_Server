@@ -22,7 +22,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ChatServiceImpl implements ChatService {
-
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
     private final ChatMapper chatMapper;

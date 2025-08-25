@@ -22,6 +22,7 @@ public class AuditServiceImpl implements AuditService {
     private final UserRepository userRepository;
 
     //@Cacheable(value = "Audits")
+    @Override
     public List<AuditDTO> getAllAudits() {
         return auditRepository.findAll()
                 .stream()
@@ -31,6 +32,7 @@ public class AuditServiceImpl implements AuditService {
 
     //@CacheEvict(value = "Audits", allEntries = true)
     @Transactional
+    @Override
     public void createAudit(AuditDTO auditDTO, Long userId) throws WrapperException {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> new ForbiddenException("User not found"));

@@ -27,17 +27,20 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMapper chatMapper;
 
     //@Cacheable(value = "chats")
+    @Override
     public List<ChatDTO> getAllChat() {
         return chatRepository.findAll().stream().map(chatMapper::entityToDTO).toList();
     }
 
     //@Cacheable(value = "chats", key = "#userId")
+    @Override
     public List<ChatDTO> getChat(Long userId) {
         return chatRepository.getByDeletedAtIsNullAndSenderId(userId).stream().map(chatMapper::entityToDTO).toList();
     }
 
     //@CacheEvict(value = "chats", allEntries = true)
     @Transactional
+    @Override
     public void addChat(Long userId, ChatCreateRequest chatCreateRequest) throws WrapperException {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
@@ -50,6 +53,7 @@ public class ChatServiceImpl implements ChatService {
 
     //@CachePut(value = "chats")
     @Transactional
+    @Override
     public void updateChat(Long chatId, Long userId, ChatUpdateRequest chatUpdateRequest) throws WrapperException {
         try {
             final Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(chatId, userId).orElseThrow(() -> new NotFoundException("Chat not found"));
@@ -61,6 +65,7 @@ public class ChatServiceImpl implements ChatService {
 
     //@CacheEvict(value = "chats", allEntries = true)
     @Transactional
+    @Override
     public void deleteChat(Long id, Long userId) throws WrapperException {
         try {
             Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(id, userId).orElseThrow(() -> new NotFoundException("Chat not found"));
@@ -73,6 +78,7 @@ public class ChatServiceImpl implements ChatService {
 
     //@CachePut(value = "chats")
     @Transactional
+    @Override
     public void replyChat(Long chatId, Long userId, ChatReplyRequest chatReplyRequest) throws WrapperException {
         try {
             User user = userRepository.findByDeletedAtIsNullAndId(userId).orElseThrow(() -> new NotFoundException("User not found"));

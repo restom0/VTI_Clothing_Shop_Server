@@ -46,6 +46,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     private final MaterialMapper materialMapper;
 
     //@Cacheable(value = "importedProducts")
+    @Override
     public List<ImportedProductDTO> getAllImportedProducts() {
         return importedProductRepository
                 .findAll()
@@ -56,6 +57,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 
     //@CacheEvict(value = "importedProducts", allEntries = true)
     @Transactional
+    @Override
     public void addImportedProduct(ImportedProductCreateRequest importedProductCreateRequest) throws WrapperException {
         try {
             final Product product = productRepository
@@ -87,6 +89,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 
     //@CacheEvict(value = "importedProducts", allEntries = true)
     @Transactional
+    @Override
     public void deleteImportedProduct(Long id) throws WrapperException {
         try {
             ImportedProduct importedProduct = importedProductRepository
@@ -100,6 +103,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 
     //@CachePut(value = "importedProducts")
     @Transactional
+    @Override
     public void updateImportedProduct(Long id, ImportedProductUpdateRequest importedProductUpdateRequest) throws WrapperException {
         try {
             ImportedProduct importedProduct = importedProductRepository
@@ -135,6 +139,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     }
 
     //@Cacheable(value = "importedProducts", key = "#id")
+    @Override
     public ImportedProductDTO findImportedProductById(Long id) throws WrapperException {
         try {
             return importedProductMapper.entityToDTO(importedProductRepository.findById(id).orElseThrow(() -> new NotFoundException("Imported product not found")));
@@ -144,6 +149,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     }
 
     //@Cacheable(value = "importedProducts", key = "#filter, #id")
+    @Override
     public List<ImportedProductDTO> getImportedProductByFilter(Filter filter, Long id) {
         return switch (filter) {
             case ALL -> getAllImportedProducts();
@@ -181,6 +187,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     }
 
     //@Cacheable(value = "colors")
+    @Override
     public List<ColorDTO> getColors() {
         return colorRepository.findByDeletedAtIsNull().stream()
                 .map(colorMapper::entityToDTO)
@@ -188,6 +195,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     }
 
     //@Cacheable(value = "materials")
+    @Override
     public List<MaterialDTO> getMaterials() {
         return materialRepository.findByDeletedAtIsNull()
                 .stream()
@@ -196,6 +204,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
     }
 
     //@Cacheable(value = "sizes")
+    @Override
     public List<SizeDTO> getSizes() {
         return sizeRepository.findByDeletedAtIsNull()
                 .stream()

@@ -47,6 +47,7 @@ public class BrandServiceImpl implements BrandService {
 
     //@CachePut(value = "brands")
     @Transactional
+    @Override
     public BrandDTO updateBrand(BrandUpdateRequest brandUpdateRequest, Long id) throws WrapperException {
         try {
             Brand oldBrand = brandRepository.findById(id)
@@ -63,6 +64,7 @@ public class BrandServiceImpl implements BrandService {
 
     //@CacheEvict(value = "brands", allEntries = true)
     @Transactional
+    @Override
     public void deleteBrand(Long id) throws WrapperException {
         try {
             Brand brand = brandRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Brand not found"));
@@ -74,6 +76,7 @@ public class BrandServiceImpl implements BrandService {
     }
 
     //@Cacheable(value = "brands", key = "#id")
+    @Override
     public BrandDTO findBrandById(Long id) throws WrapperException {
         try {
             final Brand brand = brandRepository.findByDeletedAtIsNullAndId(id)
@@ -84,6 +87,7 @@ public class BrandServiceImpl implements BrandService {
         }
     }
 
+    @Override
     public Long countBrand() {
         return brandRepository.countByDeletedAtIsNull();
     }

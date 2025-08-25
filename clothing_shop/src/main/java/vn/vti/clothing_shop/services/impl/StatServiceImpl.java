@@ -7,6 +7,7 @@ import vn.vti.clothing_shop.constants.UserRole;
 import vn.vti.clothing_shop.repositories.OrderItemRepository;
 import vn.vti.clothing_shop.repositories.OrderRepository;
 import vn.vti.clothing_shop.repositories.UserRepository;
+import vn.vti.clothing_shop.services.interfaces.StatService;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -16,11 +17,12 @@ import java.util.Map;
 
 @Component
 @AllArgsConstructor
-public class StatServiceImpl {
+public class StatServiceImpl implements StatService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final OrderItemRepository orderItemRepository;
 
+    @Override
     public Map<String, Long> getStat() {
         HashMap<String, Long> stat = new HashMap<>();
         Long income = orderRepository.sumTotalPriceByDeletedAtIsNullAndPaymentStatus(PaymentStatus.COMPLETED);
@@ -32,6 +34,7 @@ public class StatServiceImpl {
         return stat;
     }
 
+    @Override
     public Map<Integer, ArrayList<Long>> getMonthlyIncomeForLast5Years() {
         int currentYear = LocalDate.now().getYear();
         List<Integer> fiveRecentYears = new ArrayList<>();

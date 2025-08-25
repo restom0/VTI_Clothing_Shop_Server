@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     //@Cacheable(value = "users")
+    @Override
     public List<UserDTO> getUsers() {
         return userRepository.findByDeletedAtIsNull().stream()
                 .map(userMapper::entityToDTO)
@@ -41,6 +42,7 @@ public class UserServiceImpl implements UserService {
 
     //@CachePut(value = "users")
     @Transactional
+    @Override
     public UserLoginDTO getUser(UserLoginRequest userLoginRequest) throws WrapperException {
         try {
             final String keyword = userLoginRequest.usernameOrEmailOrPhoneNumber();
@@ -58,6 +60,7 @@ public class UserServiceImpl implements UserService {
 
     //@CacheEvict(value = "users", allEntries = true)
     @Transactional
+    @Override
     public void addUser(UserCreateRequest userCreateRequest) throws WrapperException {
         try {
             if (userRepository.existsByDeletedAtIsNullAndUsername(userCreateRequest.username())) {
@@ -78,11 +81,13 @@ public class UserServiceImpl implements UserService {
     }
 
     //@Cacheable(value = "users")
+    @Override
     public Long countUser() {
         return userRepository.count();
     }
 
     //@Cacheable(value = "user", key = "#id")
+    @Override
     public UserDTO getUserById(Long id) throws WrapperException {
         try {
             User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
@@ -94,6 +99,7 @@ public class UserServiceImpl implements UserService {
 
     //@CachePut(value = "user")
     @Transactional
+    @Override
     public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) throws WrapperException {
         try {
             User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
@@ -101,10 +107,9 @@ public class UserServiceImpl implements UserService {
                     && userRepository.existsByDeletedAtIsNullAndEmail(userUpdateRequest.email())) {
                 throw new BadRequestException("Email đã tồn tại");
             }
-            if (!Objects.equals(user.getPhoneNumber(), userUpdateRequest.phoneNumber())
-                    && userRepository.existsByDeletedAtIsNullAndPhoneNumber(userUpdateRequest.phoneNumber())) {
-                throw new BadRequestException("Số điện thoại đã tồn tại");
-            }
+            if (userRepository.existsByDeletedAtIsNullAndPhoneNumber(userUpdateRequest.phoneNumber()) && !Objects.equals(user.getPhoneNumber(), userUpdateRequest.phoneNumber())) {
+                    throw new BadRequestException("Số điện thoại đã tồn tại");
+                }
             userRepository.save(userMapper.updateRequestToEntity(userUpdateRequest, user));
         } catch (NotFoundException | BadRequestException e) {
             throw new WrapperException(e);
@@ -113,6 +118,7 @@ public class UserServiceImpl implements UserService {
 
     //@CachePut(value = "user")
     @Transactional
+    @Override
     public void updateUserPassword(UserUpdatePasswordRequest userUpdatePasswordRequest, Long userId) throws WrapperException {
         try {
             User user = userRepository
@@ -132,6 +138,7 @@ public class UserServiceImpl implements UserService {
 
     //@CacheEvict(value = "users", allEntries = true)
     @Transactional
+    @Override
     public void deleteUser(Long id) throws WrapperException {
         try {
             User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));

@@ -33,6 +33,7 @@ public class InputSaleServiceImpl implements InputSaleService {
     private final OnSaleProductMapper onSaleProductMapper;
 
     //@Cacheable(value = "inputSales")
+    @Override
     public List<InputSaleDTO> getAllInputSale() {
         return inputSaleRepository.findByDeletedAtIsNull()
                 .stream()
@@ -41,6 +42,7 @@ public class InputSaleServiceImpl implements InputSaleService {
     }
 
     //@Cacheable(value = "inputSales", key = "#id")
+    @Override
     public InputSaleDTO getInputSaleById(Long id) throws WrapperException {
         try {
             InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new NotFoundException("InputSale not found"));
@@ -85,6 +87,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 
     //@CacheEvict(value = "inputSales", allEntries = true)
     @Transactional
+    @Override
     public void createInputSale(InputSaleCreateRequest inputSaleCreateRequest) {
         InputSale inputSale = inputSaleMapper.createRequestEntity(inputSaleCreateRequest);
         inputSaleRepository.save(inputSale);
@@ -125,6 +128,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 
     //@CachePut(value = "inputSales")
     @Transactional
+    @Override
     public void updateInputSale(InputSaleUpdateRequest inputSaleUpdateRequest, Long inputSaleId) throws WrapperException {
         try {
             InputSale inputSale = inputSaleRepository.findById(inputSaleId).orElseThrow(() -> new NotFoundException("InputSale not found"));
@@ -138,6 +142,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 
     //@CacheEvict(value = "inputSales", allEntries = true)
     @Transactional
+    @Override
     public void deleteInputSale(Long id) {
         InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new RuntimeException("InputSale not found"));
         List<OnSaleProduct> onSaleProducts =

@@ -31,6 +31,7 @@ public class CommentServiceImpl implements CommentService {
 
 
     //@Cacheable(value = "comments")
+    @Override
     public List<CommentDTO> getAllComments() {
         return commentRepository.findAll().stream()
                 .map(commentMapper::entityToDTO)
@@ -38,6 +39,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     //@Cacheable(value = "comments", key = "#productId")
+    @Override
     public List<CommentDTO> getCommentByProductId(Long productId) {
         return commentRepository.findByDeletedAtIsNullAndProductIdOrderByCreatedAtDesc(productId).stream()
                 .map(commentMapper::entityToDTO)
@@ -46,6 +48,7 @@ public class CommentServiceImpl implements CommentService {
 
     //@CacheEvict(value = "comments", allEntries = true)
     @Transactional
+    @Override
     public void createComment(Long userId, CommentCreateRequest commentCreateRequest) throws WrapperException {
         try {
             final Product product = productRepository.findByIdAndDeletedAtIsNull(commentCreateRequest.productId()).orElseThrow(() -> new NotFoundException("Product not found"));
@@ -59,6 +62,7 @@ public class CommentServiceImpl implements CommentService {
 
     //@CachePut(value = "comments")
     @Transactional
+    @Override
     public void updateComment(Long id, Long userId, CommentUpdateRequest commentUpdateRequest) throws WrapperException {
         try {
             Comment comment = commentRepository.findByDeletedAtIsNullAndIdAndProductIdAndUserId(id, commentUpdateRequest.productId(), userId)
@@ -72,6 +76,7 @@ public class CommentServiceImpl implements CommentService {
 
     //@CacheEvict(value = "comments", allEntries = true)
     @Transactional
+    @Override
     public void deleteComment(Long id, Long userId) throws WrapperException {
         try {
             Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(() -> new NotFoundException("Comment not found"));

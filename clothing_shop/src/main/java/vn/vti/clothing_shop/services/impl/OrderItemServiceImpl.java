@@ -35,6 +35,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final ImportedProductRepository importedProductRepository;
 
     //@Cacheable(value = "orderItems")
+    @Override
     public List<OrderItemDTO> getAllOrderItems() {
         return orderItemRepository.findByDeletedAtIsNullOrderByIdDesc()
                 .stream()
@@ -43,6 +44,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     //@Cacheable(value = "orderItems", key = "#orderId")
+    @Override
     public List<OrderItemDTO> getAllOrderItemsByOrderId(Long orderId) {
         return orderItemRepository.findByDeletedAtIsNullAndOrder_Id(orderId)
                 .stream()
@@ -51,6 +53,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     //@Cacheable(value = "orderItems", key = "#id,#orderId")
+    @Override
     public OrderItemDTO findOrderItemByIdAndOrderId(Long id, Long orderId) throws WrapperException {
         try {
             return orderItemMapper.entityToDTO(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId).orElseThrow(() -> new NotFoundException("OrderItem not found")));
@@ -64,6 +67,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     //@CacheEvict(value = "orderItems", allEntries = true)
+    @Override
     public void addOrderItem(OrderItemCreateRequest orderItemCreateRequest) throws WrapperException {
         try {
             Order order = orderRepository.findById(orderItemCreateRequest.orderId()).orElseThrow(() -> new NotFoundException("Order not found"));
@@ -103,6 +107,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     //@CachePut(value = "orderItems")
+    @Override
     public void updateOrderItem(OrderItemUpdateRequest orderItemUpdateRequest, Long userId, Long orderId, Long orderItemId) throws WrapperException {
         try {
             Order order = orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(orderId, userId).orElseThrow(() -> new NotFoundException("Order not found"));
@@ -174,6 +179,7 @@ public class OrderItemServiceImpl implements OrderItemService {
     }
 
     //@CacheEvict(value = "orderItems", allEntries = true)
+    @Override
     public void deleteOrderItem(Long id, Long orderId) throws WrapperException {
         try {
             final Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));

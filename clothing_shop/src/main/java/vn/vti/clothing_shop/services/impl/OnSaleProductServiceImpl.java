@@ -18,11 +18,13 @@ public class OnSaleProductServiceImpl implements OnSaleProductService {
     private final OnSaleProductMapper onSaleProductMapper;
 
     //@Cacheable(value = "onSaleProducts")
+    @Override
     public List<OnSaleProductDTO> getAllOnSaleProducts() {
         final List<OnSaleProduct> onSaleProducts = onSaleProductRepository.findDistinctByDeletedAtIsNull();
         return onSaleProductMapper.entityToDTO(onSaleProducts);
     }
 
+    @Override
     public List<OnSaleProductDTO> getOnSaleProductById(Long id) {
         return onSaleProductRepository.findAllByProductId(id)
                 .stream()

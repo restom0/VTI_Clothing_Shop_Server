@@ -16,7 +16,6 @@ import vn.vti.clothing_shop.services.interfaces.CategoryService;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     //@Cacheable(value = "categories")
+    @Override
     public List<CategoryDTO> getAllCategories() {
         return categoryRepository.findAll().stream()
                 .map(categoryMapper::entityToDTO)
@@ -34,6 +34,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     //@CacheEvict(value = "categories", allEntries = true)
     @Transactional
+    @Override
     public CategoryDTO addCategory(CategoryCreateRequest categoryCreateRequest) throws WrapperException {
         try {
             if (categoryRepository.existsByDeletedAtIsNullAndName(categoryCreateRequest.name())) {
@@ -48,6 +49,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     //@CachePut(value = "categories")
     @Transactional
+    @Override
     public CategoryDTO updateCategory(CategoryUpdateRequest categoryUpdateRequest, Long id) throws WrapperException {
         try {
             if (categoryRepository.existsByDeletedAtIsNullAndNameAndIdNot(categoryUpdateRequest.name(), id)) {
@@ -62,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     //@CacheEvict(value = "categories", allEntries = true)
     @Transactional
+    @Override
     public void deleteCategory(Long id) throws WrapperException {
         try {
             Category category = categoryRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Category not found"));
@@ -72,6 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     //@Cacheable(value = "categories", key = "#id")
+    @Override
     public CategoryDTO getCategoryById(Long id) throws WrapperException {
         try {
             Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category not found"));
@@ -82,6 +86,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     }
 
+    @Override
     public Long countCategory() {
         return categoryRepository.count();
     }

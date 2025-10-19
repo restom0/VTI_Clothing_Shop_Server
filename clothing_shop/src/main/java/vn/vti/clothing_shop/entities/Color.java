@@ -20,8 +20,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"code", "categoryId"}),
-        @UniqueConstraint(columnNames = {"name", "categoryId"})
+        @UniqueConstraint(columnNames = {"code", "category"}),
+        @UniqueConstraint(columnNames = {"name", "category"})
 })
 public class Color extends BaseEntity {
     @Id

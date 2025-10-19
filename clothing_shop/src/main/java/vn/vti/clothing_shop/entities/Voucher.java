@@ -37,5 +37,4 @@ public class Voucher extends BaseEntity {
 
     @Column(nullable = false)
     private Float value;
-
 }

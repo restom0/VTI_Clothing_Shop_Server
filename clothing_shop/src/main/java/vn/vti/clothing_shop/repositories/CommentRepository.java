@@ -21,7 +21,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     Optional<Comment> findByDeletedAtIsNullAndUserIdAndId(Long userId, Long id);
 
-    @Query("SELECT c.productId, SUM(c.star) FROM Comment c WHERE c.deletedAt IS NULL GROUP BY c.productId ORDER BY SUM(c.star) DESC")
+    @Query("SELECT c.product, SUM(c.star) FROM Comment c WHERE c.deletedAt IS NULL GROUP BY c.product ORDER BY SUM(c.star) DESC")
     List<Object[]> sumRatingByProductId();
 
 }

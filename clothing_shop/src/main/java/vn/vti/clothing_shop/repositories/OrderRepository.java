@@ -11,8 +11,7 @@ import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
-
-    @Query("SELECT SUM(o.total_price) FROM Order o WHERE o.deletedAt IS NULL AND o.payment_status = 'COMPLETED' AND month(o.created_at) = ?1 AND year(o.created_at) = ?2")
+    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.deletedAt IS NULL AND o.paymentStatus = 'COMPLETED' AND month(o.createdAt) = ?1 AND year(o.createdAt) = ?2")
     Long sumTotalPriceByMonthAndYear(Integer month, Integer year);
 
     List<Order> findByDeletedAtIsNullOrderByIdDesc();
@@ -27,14 +26,15 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     long countByDeletedAtIsNull();
 
+	@Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.deletedAt IS NULL AND o.paymentStatus = :status")
     Long sumTotalPriceByDeletedAtIsNullAndPaymentStatus(PaymentStatus paymentStatus);
 
-    @Query("SELECT SUM(o.total_price) FROM Order o WHERE o.deleted_at IS NULL AND o.payment_status = 'COMPLETED' GROUP BY year(o.created_at), month(o.created_at)")
+    @Query("SELECT SUM(o.totalPrice) FROM Order o WHERE o.deletedAt IS NULL AND o.paymentStatus = 'COMPLETED' GROUP BY year(o.createdAt), month(o.createdAt)")
     List<Long> countCompletedOrderByMonth();
 
     Long countByDeletedAtIsNullAndPaymentStatus(PaymentStatus paymentStatus);
 
-    @Query("SELECT o FROM Order o WHERE o.deleted_at IS NULL AND o.payment_status = 'COMPLETED'")
+    @Query("SELECT o FROM Order o WHERE o.deletedAt IS NULL AND o.paymentStatus = 'COMPLETED'")
     List<Order> findByDeletedAtIsNullAndPaymentStatus(PaymentStatus paymentStatus);
 
     Optional<Order> findByDeletedAtIsNullAndOrderCodeAndUser_Id(Long orderCode, Long userId);

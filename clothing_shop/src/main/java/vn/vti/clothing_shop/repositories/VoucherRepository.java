@@ -11,12 +11,12 @@ import java.util.Optional;
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
     List<Voucher> findByDeletedAtIsNullOrderByIdDesc();
 
-    boolean existByDeletedAtIsNullAndCode(String code);
+    boolean existsByDeletedAtIsNullAndCode(String code);
 
     Optional<Voucher> findByDeletedAtIsNullAndCode(String code);
 
-    List<Voucher> findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateGreaterThanEqualAndExpiredDateLessThanEqual(
-            Integer stock, Long availableDate, Long expiredDate);
+    List<Voucher> findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateGreaterThanEqualAndEndDateLessThanEqual(
+            Integer stock, Long availableDate, Long endDate);
 
     Optional<Voucher> findByDeletedAtIsNullAndId(Long id);
 }

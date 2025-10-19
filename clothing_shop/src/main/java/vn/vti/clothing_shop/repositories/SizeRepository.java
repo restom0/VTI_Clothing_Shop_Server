@@ -15,6 +15,6 @@ public interface SizeRepository extends JpaRepository<Size, Long> {
 
     Optional<Size> findByDeletedAtIsNullAndCategory_Id(Long id);
 
-    Optional<Size> findByDeletedAtIsNullAndSizeAndHeightAndWeight(String size, String height, String weight);
+    Optional<Size> findByDeletedAtIsNullAndNameAndHeightAndWeight(String name, String height, String weight);
 }
 

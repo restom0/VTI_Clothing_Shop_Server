@@ -18,39 +18,39 @@ public interface OnSaleProductRepository extends JpaRepository<OnSaleProduct, Lo
 
     @Query("SELECT onSaleProduct " +
             "FROM OnSaleProduct onSaleProduct " +
-            "JOIN onSaleProduct.input_sale_id is " +
-            "JOIN onSaleProduct.productId.productId product " +
+            "JOIN onSaleProduct.inputSale is " +
+            "JOIN onSaleProduct.product.product product " +
             "WHERE product.id = ?1 " +
             "AND product.deletedAt IS NULL " +
             "AND onSaleProduct.deletedAt IS NULL " +
-            "AND is.available_date <= CURRENT_TIMESTAMP " +
-            "AND (is.end_date IS NULL OR is.end_date >= CURRENT_TIMESTAMP)")
+            "AND is.startDate <= CURRENT_TIMESTAMP " +
+            "AND (is.endDate IS NULL OR is.endDate >= CURRENT_TIMESTAMP)")
     List<OnSaleProduct> findAllByProductId(Long id);
 
     List<OnSaleProduct> findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(Long inputSaleId, LocalDate startDate);
 
     @Query("SELECT onSaleProduct " +
             "FROM OnSaleProduct onSaleProduct " +
-            "JOIN onSaleProduct.productId product " +
-            "JOIN onSaleProduct.input_sale_id inputSale " +
+            "JOIN onSaleProduct.product product " +
+            "JOIN onSaleProduct.inputSale inputSale " +
             "WHERE product.id = ?1 " +
             "AND product.deletedAt IS NULL " +
             "AND onSaleProduct.deletedAt IS NULL " +
             "AND inputSale.deletedAt IS NULL " +
-            "AND inputSale.available_date <= ?2 " +
-            "AND inputSale.end_date IS NOT NULL " +
-            "AND NOT (inputSale.available_date >= ?3 OR inputSale.end_date <= ?2) ")
+            "AND inputSale.startDate <= ?2 " +
+            "AND inputSale.endDate IS NOT NULL " +
+            "AND NOT (inputSale.startDate >= ?3 OR inputSale.endDate <= ?2) ")
     Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNotNullEndDate(Long id, LocalDate availableDate, LocalDate endDate);
 
     @Query("SELECT onSaleProduct " +
             "FROM OnSaleProduct onSaleProduct " +
-            "JOIN onSaleProduct.productId product " +
-            "JOIN onSaleProduct.input_sale_id inputSale " +
+            "JOIN onSaleProduct.product product " +
+            "JOIN onSaleProduct.inputSale inputSale " +
             "WHERE product.id = ?1 " +
             "AND product.deletedAt IS NULL " +
             "AND onSaleProduct.deletedAt IS NULL " +
             "AND inputSale.deletedAt IS NULL " +
-            "AND inputSale.end_date IS NULL ")
+            "AND inputSale.endDate IS NULL ")
     Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNullEndDate(Long id, @Future(message = "Available date must be in the future") @NotNull(message = "Available date is required") LocalDate availableDate);
 
     List<OnSaleProduct> findDistinctByDeletedAtIsNull();

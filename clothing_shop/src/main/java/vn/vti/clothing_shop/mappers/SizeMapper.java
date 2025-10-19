@@ -10,7 +10,7 @@ import vn.vti.clothing_shop.entities.Size;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface SizeMapper {
 
     SizeDTO entityToDTO(Size size);

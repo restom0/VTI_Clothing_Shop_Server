@@ -22,10 +22,10 @@ public class Comment extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    private User userId;
+    private User user;
 
     @ManyToOne
-    private Product productId;
+    private Product product;
 
     @Column(nullable = false)
     private String content;
@@ -34,9 +34,7 @@ public class Comment extends BaseEntity {
 
     @Column(
             nullable = false,
-            precision = 2,
-            scale = 1,
-            columnDefinition = "DECIMAL(2,1) CHECK (star >= 0.0 AND star <= 5.0)"
+            columnDefinition = "REAL CHECK (star >= 0.0 AND star <= 5.0)"
     )
     private Float star;
 

@@ -10,7 +10,7 @@ import vn.vti.clothing_shop.entities.Color;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ColorMapper {
     ColorDTO entityToDTO(Color color);
 

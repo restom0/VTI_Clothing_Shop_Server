@@ -9,7 +9,7 @@ import vn.vti.clothing_shop.entities.Comment;
 import vn.vti.clothing_shop.entities.Product;
 import vn.vti.clothing_shop.entities.User;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface CommentMapper {
     CommentDTO entityToDTO(Comment comment);
 

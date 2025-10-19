@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     public UserLoginDTO getUser(UserLoginRequest userLoginRequest) throws WrapperException {
         try {
             final String keyword = userLoginRequest.usernameOrEmailOrPhoneNumber();
-            final User user = userRepository.findOneByDeletedAtIsNullUsernameOrEmailOrPhoneNumber(keyword, keyword, keyword)
+            final User user = userRepository.findOneByDeletedAtIsNullAndUsernameOrEmailOrPhoneNumber(keyword, keyword, keyword)
                     .orElseThrow(() -> new NotFoundException("Tài khoản không tồn tại"));
 
             if (!passwordEncoder.matches(userLoginRequest.password(), user.getPassword())) {

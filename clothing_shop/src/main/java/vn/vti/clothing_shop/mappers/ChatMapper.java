@@ -9,7 +9,7 @@ import vn.vti.clothing_shop.dtos.outs.ChatDTO;
 import vn.vti.clothing_shop.entities.Chat;
 import vn.vti.clothing_shop.entities.User;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface ChatMapper {
     ChatDTO entityToDTO(Chat chat);
 

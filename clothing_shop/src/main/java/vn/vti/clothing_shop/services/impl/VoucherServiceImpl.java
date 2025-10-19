@@ -34,7 +34,7 @@ public class VoucherServiceImpl implements VoucherService {
 
     //@Cacheable(value = "vouchers", key = "#available")
     public List<VoucherDTO> getAllAvailableVouchers() {
-        return voucherRepository.findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateGreaterThanEqualAndExpiredDateLessThanEqual(0, Instant.now().toEpochMilli(), Instant.now().toEpochMilli())
+        return voucherRepository.findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateGreaterThanEqualAndEndDateLessThanEqual(0, Instant.now().toEpochMilli(), Instant.now().toEpochMilli())
                 .stream()
                 .map(voucherMapper::entityToDTO)
                 .toList();
@@ -66,7 +66,7 @@ public class VoucherServiceImpl implements VoucherService {
     @Transactional
     public void createVoucher(VoucherCreateRequest voucherCreateRequest) throws WrapperException {
         try {
-            if (voucherRepository.existByDeletedAtIsNullAndCode(voucherCreateRequest.code())) {
+            if (voucherRepository.existsByDeletedAtIsNullAndCode(voucherCreateRequest.code())) {
                 throw new ConflictException("Voucher code already exists");
             }
             voucherRepository.save(voucherMapper.createRequestToEntity(voucherCreateRequest));

@@ -35,8 +35,8 @@ public class Audit implements Serializable {
 
     private String method;
 
-    @Enumerated(EnumType.STRING)
-    private Filter column;
+	@Enumerated(EnumType.STRING)
+	private Filter filterColumn;
 
     private String detail;
 

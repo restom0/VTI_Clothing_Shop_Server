@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByDeletedAtIsNullAndId(Long id);
 
-    Optional<User> findOneByDeletedAtIsNullUsernameOrEmailOrPhoneNumber(String username, String email, String phoneNumber);
+    Optional<User> findOneByDeletedAtIsNullAndUsernameOrEmailOrPhoneNumber(String username, String email, String phoneNumber);
 
     long countByDeletedAtIsNullAndRole(UserRole role);
 

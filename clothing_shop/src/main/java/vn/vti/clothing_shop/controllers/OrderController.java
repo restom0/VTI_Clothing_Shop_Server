@@ -34,11 +34,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/order")
 public class OrderController {
-
-    private final String redirectUrl;
+    private static final String REDIRECT_URL = "localhost";
     private final OrderService orderService;
     private final OrderItemService orderItemService;
-    private final OrderMapper orderMapper;
 
     @GetMapping("/")
     public ResponseEntity<BaseMessageResponse> getAllOrders() {
@@ -110,8 +108,8 @@ public class OrderController {
                     .orderCode(orderDTO.getOrderCode())
                     .items(itemDataList)
                     .amount(orderDTO.getTotalPrice().intValue())
-                    .returnUrl(redirectUrl + "success")
-                    .cancelUrl(redirectUrl + "cancel")
+                    .returnUrl(REDIRECT_URL + "success")
+                    .cancelUrl(REDIRECT_URL + "cancel")
                     .build();
             return ResponseHandler.successBuilder(HttpStatus.OK, "Tạo link thanh toán thành công", paymentData);
         } catch (WrapperException e) {

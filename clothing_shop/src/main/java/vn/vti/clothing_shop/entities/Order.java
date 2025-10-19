@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import vn.vti.clothing_shop.constants.PaymentStatus;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "orders")
 public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,7 +40,8 @@ public class Order extends BaseEntity {
     @Column(columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
     private Boolean isPresent;
 
-    private transient Long totalPrice;
+	@Column(nullable = false)
+    private Long totalPrice;
 
     @Column(nullable = false)
     private Long orderCode;
@@ -56,5 +59,4 @@ public class Order extends BaseEntity {
     @ManyToOne
     @JoinColumn
     private Voucher voucher;
-
 }

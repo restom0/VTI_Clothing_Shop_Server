@@ -99,10 +99,10 @@ public class InputSaleServiceImpl implements InputSaleService {
                 saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);
                 break;
             case BRAND:
-                saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndBrand_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);
+                saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndProduct_Brand_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);
                 break;
             case CATEGORY:
-                saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndCategory_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);
+                saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndProduct_Category_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);
                 break;
             case COLOR:
                 saveListOnSaleProduct(importedProductRepository.findByDeletedAtIsNullAndColor_IdAndStockGreaterThan(inputSaleCreateRequest.filterId(), NumberUtils.INTEGER_ZERO), inputSale);

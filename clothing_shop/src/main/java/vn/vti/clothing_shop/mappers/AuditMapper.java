@@ -8,7 +8,7 @@ import vn.vti.clothing_shop.entities.User;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface AuditMapper {
     AuditDTO entityToDTO(Audit audit);
 

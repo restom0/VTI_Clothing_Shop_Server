@@ -34,5 +34,4 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn
     private Brand brand;
-
 }

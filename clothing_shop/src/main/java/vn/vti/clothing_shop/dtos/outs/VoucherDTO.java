@@ -16,6 +16,6 @@ public class VoucherDTO {
     private Integer stock;
     private Integer value;
     private String code;
-    private LocalDate availableDate;
-    private LocalDate endDate;
+    private Long availableDate;
+    private Long endDate;
 }

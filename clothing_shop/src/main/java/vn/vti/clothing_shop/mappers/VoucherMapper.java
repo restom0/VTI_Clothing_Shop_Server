@@ -9,7 +9,7 @@ import vn.vti.clothing_shop.entities.Voucher;
 
 import java.util.List;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface VoucherMapper {
 
     VoucherDTO entityToDTO(Voucher voucher);

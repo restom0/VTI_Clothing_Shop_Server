@@ -16,7 +16,7 @@ import vn.vti.clothing_shop.services.interfaces.AuditService;
 public class AuditController {
     private final AuditService auditService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllAudits() {
         return ResponseHandler.successBuilder(HttpStatus.OK, auditService.getAllAudits());
     }

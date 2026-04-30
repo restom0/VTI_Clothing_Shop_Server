@@ -29,7 +29,7 @@ import java.util.List;
 public class BrandController {
     private final BrandService brandService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getBrands() {
         final List<BrandDTO> brands = brandService.getBrands();
         return ResponseHandler.successBuilder(

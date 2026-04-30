@@ -33,7 +33,7 @@ public class ImportedProductController {
         return ResponseHandler.successBuilder(HttpStatus.OK, importedProductService.getAllImportedProducts());
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addImportedProduct(
             @RequestBody
             @Valid

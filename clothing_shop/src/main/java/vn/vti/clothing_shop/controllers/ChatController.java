@@ -36,7 +36,7 @@ public class ChatController {
         return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getAllChat());
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getChat() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
@@ -44,7 +44,7 @@ public class ChatController {
         return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getChat(userId));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest) {
 
         try {

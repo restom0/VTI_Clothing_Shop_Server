@@ -31,7 +31,7 @@ public class ProductController {
         return ResponseHandler.successBuilder(HttpStatus.OK, "messages.products.listFetched", productService.getAllProducts());
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest) {
         try {
             productService.addProduct(productCreateRequest);

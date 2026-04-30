@@ -26,7 +26,7 @@ import vn.vti.clothing_shop.services.interfaces.VoucherService;
 public class VoucherController {
     private final VoucherService voucherService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllVouchers() {
         return ResponseHandler.successBuilder(HttpStatus.OK, voucherService.getAllVouchers());
 
@@ -55,7 +55,7 @@ public class VoucherController {
         return ResponseHandler.successBuilder(HttpStatus.OK, voucherService.getAllAvailableVouchers());
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> createVoucher(@RequestBody @NotNull(message = "{messages.validation.required}") VoucherCreateRequest voucherCreateRequest) {
         try {
             voucherService.createVoucher(voucherCreateRequest);

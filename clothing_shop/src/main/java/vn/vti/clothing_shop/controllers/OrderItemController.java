@@ -31,7 +31,7 @@ public class OrderItemController {
     private final OrderItemServiceImpl orderItemService;
     private final OrderItemMapper orderItemMapper;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllOrderItem() {
         return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.getAllOrderItems());
     }
@@ -50,7 +50,7 @@ public class OrderItemController {
         }
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addOrderItem(@RequestBody @Valid @NotNull(message = "{messages.validation.required}") OrderItemCreateRequest orderItemCreateRequest) {
         try {
             orderItemService.addOrderItem(orderItemCreateRequest);

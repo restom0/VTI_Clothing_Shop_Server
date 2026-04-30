@@ -29,7 +29,7 @@ import vn.vti.clothing_shop.services.interfaces.CommentService;
 public class CommentController {
     private final CommentService commentService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllComment() {
         return ResponseHandler.successBuilder(HttpStatus.OK, commentService.getAllComments());
     }
@@ -39,7 +39,7 @@ public class CommentController {
         return ResponseHandler.successBuilder(HttpStatus.OK, commentService.getCommentByProductId(id));
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addComment(@RequestBody @Valid CommentCreateRequest commentCreateRequest) {
         try {
 

@@ -26,7 +26,7 @@ import vn.vti.clothing_shop.services.interfaces.InputSaleService;
 public class InputSaleController {
     private final InputSaleService inputSaleService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllInputSale() {
         return ResponseHandler.successBuilder(HttpStatus.OK, inputSaleService.getAllInputSale());
     }
@@ -40,7 +40,7 @@ public class InputSaleController {
         }
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> createInputSale(@RequestBody @Valid @NotNull(message = "{messages.validation.required}") InputSaleCreateRequest inputSaleCreateRequest) {
         inputSaleService.createInputSale(inputSaleCreateRequest);
         return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.inputSales.created");

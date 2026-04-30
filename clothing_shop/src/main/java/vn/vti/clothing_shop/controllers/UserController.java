@@ -67,12 +67,12 @@ public class UserController {
         }
     }
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllUsers() {
         return ResponseHandler.successBuilder(HttpStatus.OK, userService.getUsers());
     }
 
-    @PutMapping("/")
+    @PutMapping
     public ResponseEntity<BaseMessageResponse> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -108,7 +108,7 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping
     public ResponseEntity<BaseMessageResponse> deleteAccount() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

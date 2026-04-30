@@ -30,11 +30,11 @@ public class InputSale extends BaseEntity {
 
 	private Long filterId;
 
-	@Column(nullable = false, precision = 3, columnDefinition = "CHECK sale_percentage >= 0")
-	private Integer salePercentage;
+	@Column(nullable = false, columnDefinition = "REAL CHECK (sale_percentage >= 0)")
+	private Float salePercentage;
 
-	@Column(nullable = false, columnDefinition = "SMALLINT CHECK (discount >= 0 AND discount <= 100)")
-	private Byte discount;
+	@Column(nullable = false, columnDefinition = "REAL CHECK (discount >= 0 AND discount <= 100)")
+	private Float discount;
 
 	@Column(nullable = false)
 	private LocalDate startDate;

@@ -8,17 +8,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record CommentCreateRequest(
-        @NotNull(message = "Vui lòng chọn sản phẩm")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Long productId,
 
-        @NotBlank(message = "Vui lòng nhập nội dung")
-        @Size(max = 255, message = "Nội dung không được vượt quá 255 ký tự")
+        @NotBlank(message = "{messages.validation.required}")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String content,
 
         @PositiveOrZero
-        @DecimalMax(value = "5.0", message = "Số sao không hợp lệ")
-        @NotNull(message = "Vui lòng nhập đánh giá")
+        @DecimalMax(value = "5.0", message = "{messages.validation.rating.invalid}")
+        @NotNull(message = "{messages.validation.required}")
         Float star
 ) {
 }

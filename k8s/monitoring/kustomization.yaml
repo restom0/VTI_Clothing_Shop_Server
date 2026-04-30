@@ -1,0 +1,41 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vti-clothing-shop-monitoring
+
+resources:
+  - namespace.yaml
+  - grafana-secret.yaml
+  - otel-collector.yaml
+  - prometheus.yaml
+  - grafana.yaml
+  - loki.yaml
+  - tempo.yaml
+  - elasticsearch.yaml
+  - logstash.yaml
+  - kibana.yaml
+
+configMapGenerator:
+  - name: otel-collector-config
+    files:
+      - config.yml=../../docker/observability/otel-collector-config.yml
+  - name: prometheus-config
+    files:
+      - prometheus.yml=../../docker/observability/prometheus.yml
+  - name: loki-config
+    files:
+      - loki.yml=../../docker/observability/loki-config.yml
+  - name: tempo-config
+    files:
+      - tempo.yml=../../docker/observability/tempo-config.yml
+  - name: grafana-datasources
+    files:
+      - datasources.yml=../../docker/observability/grafana/provisioning/datasources/datasources.yml
+  - name: logstash-pipeline
+    files:
+      - logstash.conf=../../docker/observability/logstash/pipeline/logstash.conf
+
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    app.kubernetes.io/part-of: vti-clothing-shop
+    app.kubernetes.io/component: monitoring

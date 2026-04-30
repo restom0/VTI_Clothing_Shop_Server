@@ -9,18 +9,18 @@ import java.time.LocalDate;
 
 public record InputSaleUpdateRequest(
 
-        @NotNull(message = "Sale price is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Float salePercentage,
 
-        @NotNull(message = "Discount is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
-        @DecimalMax(value = "100.00", message = "Discount must be less than or equal to 100")
+        @DecimalMax(value = "100.00", message = "{messages.validation.discount.max}")
         Float discount,
 
         LocalDate availableDate,
 
-        @Future(message = "End date must be in the future")
+        @Future(message = "{messages.validation.future}")
         LocalDate endDate,
 
         @NotNull

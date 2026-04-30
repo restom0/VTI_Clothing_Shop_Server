@@ -15,7 +15,7 @@ public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
     Optional<Voucher> findByDeletedAtIsNullAndCode(String code);
 
-    List<Voucher> findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateGreaterThanEqualAndEndDateLessThanEqual(
+    List<Voucher> findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateLessThanEqualAndEndDateGreaterThanEqual(
             Integer stock, Long availableDate, Long endDate);
 
     Optional<Voucher> findByDeletedAtIsNullAndId(Long id);

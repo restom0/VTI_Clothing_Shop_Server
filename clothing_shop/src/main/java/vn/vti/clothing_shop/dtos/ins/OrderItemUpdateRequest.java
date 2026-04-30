@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record OrderItemUpdateRequest(
-        @NotNull(message = "Id is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Long productId,
 
-        @NotNull(message = "Quantity is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Integer quantity,
 

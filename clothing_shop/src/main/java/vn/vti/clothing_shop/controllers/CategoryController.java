@@ -30,13 +30,13 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<BaseMessageResponse> getAllCategories() {
         List<CategoryDTO> categories = categoryService.getAllCategories();
         return ResponseHandler.successBuilder(HttpStatus.OK, categories);
     }
 
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<BaseMessageResponse> addCategory(@RequestBody @Valid CategoryCreateRequest categoryCreateRequest) {
         try {
             CategoryDTO categoryDTO = categoryService.addCategory(categoryCreateRequest);
@@ -47,7 +47,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateCategory(@RequestBody @Valid CategoryUpdateRequest categoryUpdateRequest, @PathVariable @NotNull(message = "Vui lòng chọn category") Long id) {
+    public ResponseEntity<BaseMessageResponse> updateCategory(@RequestBody @Valid CategoryUpdateRequest categoryUpdateRequest, @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             CategoryDTO categoryDTO = categoryService.updateCategory(categoryUpdateRequest, id);
             return ResponseHandler.successBuilder(HttpStatus.OK, categoryDTO);
@@ -57,17 +57,17 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteCategory(@PathVariable @NotNull(message = "Vui lòng chọn category") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteCategory(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             categoryService.deleteCategory(id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa danh mục thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.categories.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> getCategoryById(@PathVariable @NotNull(message = "Vui lòng chọn brand") Long id) {
+    public ResponseEntity<BaseMessageResponse> getCategoryById(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             CategoryDTO categoryDTO = categoryService.getCategoryById(id);
             return ResponseHandler.successBuilder(HttpStatus.OK, categoryDTO);

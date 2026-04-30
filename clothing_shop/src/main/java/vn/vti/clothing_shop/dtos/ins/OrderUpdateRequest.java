@@ -7,22 +7,22 @@ import vn.vti.clothing_shop.constants.PaymentMethod;
 import vn.vti.clothing_shop.validators.PhoneNumber;
 
 public record OrderUpdateRequest(
-        @NotBlank(message = "Address is required")
+        @NotBlank(message = "{messages.validation.required}")
 
         String address,
 
-        @NotBlank(message = "Phone_number is required")
+        @NotBlank(message = "{messages.validation.required}")
         @PhoneNumber
         String phoneNumber,
 
-        @NotBlank(message = "receiver_name is required")
+        @NotBlank(message = "{messages.validation.required}")
         @Size(max = 255)
         String receiverName,
 
-        @NotNull(message = "isPresent is required")
+        @NotNull(message = "{messages.validation.required}")
         Boolean isPresent,
 
-        @NotBlank(message = "payment_method is required")
+        @NotNull(message = "{messages.validation.required}")
         PaymentMethod paymentMethod,
 
         Long voucherId

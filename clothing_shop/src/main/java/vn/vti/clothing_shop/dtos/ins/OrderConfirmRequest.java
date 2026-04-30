@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record OrderConfirmRequest(
-        @NotNull(message = "Order id is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Long orderCode,
 
-        @NotNull(message = "Status is required")
+        @NotNull(message = "{messages.validation.required}")
         Boolean status
 ) {
 }

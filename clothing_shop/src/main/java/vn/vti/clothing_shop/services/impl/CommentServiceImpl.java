@@ -51,8 +51,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void createComment(Long userId, CommentCreateRequest commentCreateRequest) throws WrapperException {
         try {
-            final Product product = productRepository.findByIdAndDeletedAtIsNull(commentCreateRequest.productId()).orElseThrow(() -> new NotFoundException("Product not found"));
-            final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            final Product product = productRepository.findByIdAndDeletedAtIsNull(commentCreateRequest.productId()).orElseThrow(() -> new NotFoundException("messages.products.notfound"));
+            final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
             final Comment comment = commentMapper.createRequestToEntity(commentCreateRequest, user, product);
             commentRepository.save(comment);
         } catch (NotFoundException ex) {
@@ -66,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
     public void updateComment(Long id, Long userId, CommentUpdateRequest commentUpdateRequest) throws WrapperException {
         try {
             Comment comment = commentRepository.findByDeletedAtIsNullAndIdAndProductIdAndUserId(id, commentUpdateRequest.productId(), userId)
-                    .orElseThrow(() -> new NotFoundException("Comment not found"));
+                    .orElseThrow(() -> new NotFoundException("messages.comments.notfound"));
 
             commentRepository.save(commentMapper.updateRequestToEntity(commentUpdateRequest, comment));
         } catch (NotFoundException ex) {
@@ -79,7 +79,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public void deleteComment(Long id, Long userId) throws WrapperException {
         try {
-            Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(() -> new NotFoundException("Comment not found"));
+            Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(() -> new NotFoundException("messages.comments.notfound"));
             comment.setDeletedAt(Instant.now().toEpochMilli());
             commentRepository.save(comment);
         } catch (NotFoundException ex) {

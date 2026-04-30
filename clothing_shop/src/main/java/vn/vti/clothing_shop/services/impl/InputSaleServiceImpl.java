@@ -3,6 +3,9 @@ package vn.vti.clothing_shop.services.impl;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import vn.vti.clothing_shop.dtos.ins.InputSaleCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.InputSaleUpdateRequest;
@@ -32,7 +35,7 @@ public class InputSaleServiceImpl implements InputSaleService {
     private final InputSaleMapper inputSaleMapper;
     private final OnSaleProductMapper onSaleProductMapper;
 
-    //@Cacheable(value = "inputSales")
+    @Cacheable(value = "inputSales", key = "'all'")
     @Override
     public List<InputSaleDTO> getAllInputSale() {
         return inputSaleRepository.findByDeletedAtIsNull()
@@ -41,11 +44,11 @@ public class InputSaleServiceImpl implements InputSaleService {
                 .toList();
     }
 
-    //@Cacheable(value = "inputSales", key = "#id")
+    @Cacheable(value = "inputSales", key = "'id:' + #id")
     @Override
     public InputSaleDTO getInputSaleById(Long id) throws WrapperException {
         try {
-            InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new NotFoundException("InputSale not found"));
+            InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new NotFoundException("messages.inputSales.notfound"));
             return inputSaleMapper.entityToDTO(inputSale);
         } catch (NotFoundException e) {
             throw new WrapperException(e);
@@ -85,7 +88,10 @@ public class InputSaleServiceImpl implements InputSaleService {
         });
     }
 
-    //@CacheEvict(value = "inputSales", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "inputSales", allEntries = true),
+            @CacheEvict(value = "onSaleProducts", allEntries = true)
+    })
     @Transactional
     @Override
     public void createInputSale(InputSaleCreateRequest inputSaleCreateRequest) {
@@ -120,18 +126,21 @@ public class InputSaleServiceImpl implements InputSaleService {
         if (onSaleProducts.isEmpty()) return;
         onSaleProducts.forEach(onSaleProduct -> {
             if (isValidToSave(onSaleProduct.getProduct(), inputSale)) return;
-            onSaleProduct.setSalePrice(onSaleProduct.getSalePrice() * inputSale.getSalePercentage() / 100);
+            onSaleProduct.setSalePrice(Math.round(onSaleProduct.getSalePrice() * inputSale.getSalePercentage() / 100.0));
             onSaleProduct.getInputSale().setDiscount(inputSale.getDiscount());
             onSaleProductRepository.save(onSaleProduct);
         });
     }
 
-    //@CachePut(value = "inputSales")
+    @Caching(evict = {
+            @CacheEvict(value = "inputSales", allEntries = true),
+            @CacheEvict(value = "onSaleProducts", allEntries = true)
+    })
     @Transactional
     @Override
     public void updateInputSale(InputSaleUpdateRequest inputSaleUpdateRequest, Long inputSaleId) throws WrapperException {
         try {
-            InputSale inputSale = inputSaleRepository.findById(inputSaleId).orElseThrow(() -> new NotFoundException("InputSale not found"));
+            InputSale inputSale = inputSaleRepository.findById(inputSaleId).orElseThrow(() -> new NotFoundException("messages.inputSales.notfound"));
             List<OnSaleProduct> onSaleProducts = onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(inputSaleId, LocalDate.now());
             updateListOnSaleProduct(onSaleProducts, inputSale);
             inputSaleRepository.save(inputSaleMapper.updateRequestToEntity(inputSaleUpdateRequest, inputSale));
@@ -140,11 +149,14 @@ public class InputSaleServiceImpl implements InputSaleService {
         }
     }
 
-    //@CacheEvict(value = "inputSales", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "inputSales", allEntries = true),
+            @CacheEvict(value = "onSaleProducts", allEntries = true)
+    })
     @Transactional
     @Override
     public void deleteInputSale(Long id) {
-        InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new RuntimeException("InputSale not found"));
+        InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(() -> new RuntimeException("messages.inputSales.notfound"));
         List<OnSaleProduct> onSaleProducts =
                 onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(id, LocalDate.now());
 

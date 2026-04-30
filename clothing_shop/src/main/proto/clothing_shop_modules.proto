@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package vti.clothing_shop.modules.v1;
+
+option java_multiple_files = true;
+option java_outer_classname = "ClothingShopModulesProto";
+option java_package = "vn.vti.clothing_shop.grpc";
+
+service AuthModuleService {
+  rpc Login(GrpcAuthLoginRequest) returns (GrpcAuthLoginResponse);
+  rpc ValidateToken(GrpcValidateTokenRequest) returns (GrpcValidateTokenResponse);
+}
+
+service PaymentModuleService {
+  rpc CreateCheckout(GrpcPaymentCheckoutRequest) returns (GrpcPaymentCheckoutResponse);
+}
+
+service ReadModuleService {
+  rpc Query(GrpcReadRequest) returns (GrpcReadResponse);
+}
+
+service WriteModuleService {
+  rpc ExecuteCommand(GrpcWriteCommandRequest) returns (GrpcWriteCommandResponse);
+}
+
+message GrpcAuthLoginRequest {
+  string username_or_email_or_phone_number = 1;
+  string password = 2;
+}
+
+message GrpcAuthLoginResponse {
+  bool success = 1;
+  string message = 2;
+  string token = 3;
+  string user_json = 4;
+}
+
+message GrpcValidateTokenRequest {
+  string token = 1;
+}
+
+message GrpcValidateTokenResponse {
+  bool valid = 1;
+  string message = 2;
+  string subject = 3;
+  int64 expires_at_epoch_ms = 4;
+}
+
+message GrpcPaymentCheckoutRequest {
+  string order_json = 1;
+}
+
+message GrpcPaymentCheckoutResponse {
+  bool success = 1;
+  string message = 2;
+  string checkout_json = 3;
+}
+
+message GrpcReadRequest {
+  string model = 1;
+  int64 entity_id = 2;
+  int64 owner_id = 3;
+  string lookup_key = 4;
+}
+
+message GrpcReadResponse {
+  bool success = 1;
+  string message = 2;
+  string item_json = 3;
+  repeated string items_json = 4;
+}
+
+message GrpcWriteCommandRequest {
+  string aggregate = 1;
+  string action = 2;
+  string payload_json = 3;
+  int64 actor_id = 4;
+}
+
+message GrpcWriteCommandResponse {
+  bool success = 1;
+  string message = 2;
+  string result_json = 3;
+}

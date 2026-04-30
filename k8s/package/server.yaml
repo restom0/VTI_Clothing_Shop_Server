@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clothing-shop-server
+  labels:
+    app.kubernetes.io/name: clothing-shop-server
+    app.kubernetes.io/component: package
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: clothing-shop-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: clothing-shop-server
+        app.kubernetes.io/component: package
+    spec:
+      containers:
+        - name: server
+          image: vti-clothing-shop-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: grpc
+              containerPort: 9091
+          envFrom:
+            - configMapRef:
+                name: clothing-shop-server-config
+            - secretRef:
+                name: clothing-shop-server-secret
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 35
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 12
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            timeoutSeconds: 3
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clothing-shop-server
+  labels:
+    app.kubernetes.io/name: clothing-shop-server
+    app.kubernetes.io/component: package
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: clothing-shop-server
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+    - name: grpc
+      port: 9091
+      targetPort: grpc

@@ -23,6 +23,7 @@ import vn.vti.clothing_shop.services.interfaces.UserService;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 @AllArgsConstructor
@@ -47,10 +48,10 @@ public class UserServiceImpl implements UserService {
         try {
             final String keyword = userLoginRequest.usernameOrEmailOrPhoneNumber();
             final User user = userRepository.findOneByDeletedAtIsNullAndUsernameOrEmailOrPhoneNumber(keyword, keyword, keyword)
-                    .orElseThrow(() -> new NotFoundException("Tài khoản không tồn tại"));
+                    .orElseThrow(() -> new NotFoundException("messages.users.accountNotFound"));
 
             if (!passwordEncoder.matches(userLoginRequest.password(), user.getPassword())) {
-                throw new BadRequestException("Tên đăng nhập hoặc mật khẩu không đúng");
+                throw new BadRequestException("messages.users.invalidCredentials");
             }
             return userMapper.entityToLoginDTO(user, jwtService.generateToken(user));
         } catch (NotFoundException | BadRequestException ex) {
@@ -64,15 +65,16 @@ public class UserServiceImpl implements UserService {
     public void addUser(UserCreateRequest userCreateRequest) throws WrapperException {
         try {
             if (userRepository.existsByDeletedAtIsNullAndUsername(userCreateRequest.username())) {
-                throw new BadRequestException("Tên đăng nhập đã tồn tại");
+                throw new BadRequestException("messages.users.usernameExists");
             }
             if (userRepository.existsByDeletedAtIsNullAndEmail(userCreateRequest.email())) {
-                throw new BadRequestException("Email đã tồn tại");
+                throw new BadRequestException("messages.users.emailExists");
             }
             if (userRepository.existsByDeletedAtIsNullAndPhoneNumber(userCreateRequest.phoneNumber())) {
-                throw new BadRequestException("Số điện thoại đã tồn tại");
+                throw new BadRequestException("messages.users.phoneExists");
             }
             User user = userMapper.createRequestToEntity(userCreateRequest, UserRole.USER);
+            user.setSalt(UUID.randomUUID().toString());
             user.setPassword(passwordEncoder.encode(userCreateRequest.password()));
             userRepository.save(user);
         } catch (BadRequestException e) {
@@ -90,7 +92,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDTO getUserById(Long id) throws WrapperException {
         try {
-            User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
+            User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
             return userMapper.entityToDTO(user);
         } catch (NotFoundException e) {
             throw new WrapperException(e);
@@ -102,13 +104,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) throws WrapperException {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
+            User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
             if (!Objects.equals(user.getEmail(), userUpdateRequest.email())
                     && userRepository.existsByDeletedAtIsNullAndEmail(userUpdateRequest.email())) {
-                throw new BadRequestException("Email đã tồn tại");
+                throw new BadRequestException("messages.users.emailExists");
             }
             if (userRepository.existsByDeletedAtIsNullAndPhoneNumber(userUpdateRequest.phoneNumber()) && !Objects.equals(user.getPhoneNumber(), userUpdateRequest.phoneNumber())) {
-                    throw new BadRequestException("Số điện thoại đã tồn tại");
+                    throw new BadRequestException("messages.users.phoneExists");
                 }
             userRepository.save(userMapper.updateRequestToEntity(userUpdateRequest, user));
         } catch (NotFoundException | BadRequestException e) {
@@ -123,10 +125,10 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository
                     .findById(userId)
-                    .orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
+                    .orElseThrow(() -> new NotFoundException("messages.users.notfound"));
 
             if (!passwordEncoder.matches(userUpdatePasswordRequest.oldPassword(), user.getPassword())) {
-                throw new BadRequestException("Mật khẩu không đúng");
+                throw new BadRequestException("messages.users.passwordInvalid");
             }
 
             user.setPassword(passwordEncoder.encode(userUpdatePasswordRequest.password()));
@@ -141,7 +143,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Long id) throws WrapperException {
         try {
-            User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("Người dùng không tồn tại"));
+            User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
             user.setDeletedAt(Instant.now().toEpochMilli());
             userRepository.save(user);
         } catch (NotFoundException e) {

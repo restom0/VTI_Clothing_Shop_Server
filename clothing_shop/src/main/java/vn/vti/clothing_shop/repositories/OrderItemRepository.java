@@ -23,6 +23,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
 	Optional<OrderItem> findByDeletedAtIsNullAndIdAndOrder_Id(Long id, Long orderId);
 
+	Optional<OrderItem> findByDeletedAtIsNullAndProduct_IdAndOrder_Id(Long productId, Long orderId);
+
 	@Query("SELECT SUM(oi.quantity) FROM OrderItem oi WHERE oi.order.paymentStatus = :status AND oi.deletedAt IS NULL")
 	Optional<Long> sumQuantityByPaymentStatus(PaymentStatus status);
 }

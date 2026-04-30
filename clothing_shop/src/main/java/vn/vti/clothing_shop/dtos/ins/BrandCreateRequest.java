@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record BrandCreateRequest(
-        @NotBlank(message = "Vui lòng nhập tên thương hiệu")
-        @Size(max = 255, message = "Tên thương hiệu không được vượt quá 255 ký tự")
+        @NotBlank(message = "{messages.validation.required}")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String name,
 
-        @Size(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String description
 ) {
 }

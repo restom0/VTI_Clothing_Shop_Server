@@ -1,7 +1,11 @@
 package vn.vti.clothing_shop.services.impl;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import vn.vti.clothing_shop.dtos.ins.OrderItemCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemUpdateRequest;
@@ -14,6 +18,7 @@ import vn.vti.clothing_shop.exceptions.BadRequestException;
 import vn.vti.clothing_shop.exceptions.NotFoundException;
 import vn.vti.clothing_shop.exceptions.WrapperException;
 import vn.vti.clothing_shop.mappers.OrderItemMapper;
+import vn.vti.clothing_shop.readmodels.ReadModelType;
 import vn.vti.clothing_shop.repositories.ImportedProductRepository;
 import vn.vti.clothing_shop.repositories.OnSaleProductRepository;
 import vn.vti.clothing_shop.repositories.OrderItemRepository;
@@ -22,7 +27,7 @@ import vn.vti.clothing_shop.services.interfaces.OrderItemService;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -33,8 +38,9 @@ public class OrderItemServiceImpl implements OrderItemService {
     private final OrderRepository orderRepository;
     private final OnSaleProductRepository onSaleProductRepository;
     private final ImportedProductRepository importedProductRepository;
+    private final PostgresToMongoReadModelSyncService readModelSyncService;
 
-    //@Cacheable(value = "orderItems")
+    @Cacheable(value = "orderItems", key = "'all'")
     @Override
     public List<OrderItemDTO> getAllOrderItems() {
         return orderItemRepository.findByDeletedAtIsNullOrderByIdDesc()
@@ -43,7 +49,7 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .toList();
     }
 
-    //@Cacheable(value = "orderItems", key = "#orderId")
+    @Cacheable(value = "orderItems", key = "'order:' + #orderId")
     @Override
     public List<OrderItemDTO> getAllOrderItemsByOrderId(Long orderId) {
         return orderItemRepository.findByDeletedAtIsNullAndOrder_Id(orderId)
@@ -52,11 +58,11 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .toList();
     }
 
-    //@Cacheable(value = "orderItems", key = "#id,#orderId")
+    @Cacheable(value = "orderItems", key = "'id:' + #id + ':order:' + #orderId")
     @Override
     public OrderItemDTO findOrderItemByIdAndOrderId(Long id, Long orderId) throws WrapperException {
         try {
-            return orderItemMapper.entityToDTO(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId).orElseThrow(() -> new NotFoundException("OrderItem not found")));
+            return orderItemMapper.entityToDTO(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId).orElseThrow(() -> new NotFoundException("messages.orderItems.notfound")));
         } catch (NotFoundException ex) {
             throw new WrapperException(ex);
         }
@@ -66,132 +72,133 @@ public class OrderItemServiceImpl implements OrderItemService {
         return products.stream().mapToLong(ImportedProduct::getStock).sum();
     }
 
-    //@CacheEvict(value = "orderItems", allEntries = true)
+    private List<ImportedProduct> findStockProducts(OnSaleProduct onSaleProduct) {
+        return importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(
+                NumberUtils.INTEGER_ZERO,
+                onSaleProduct.getProduct().getId()
+        );
+    }
+
+    private void reserveStock(List<ImportedProduct> products, Integer quantity) {
+        int remainingQuantity = quantity;
+        for (ImportedProduct product : products) {
+            if (remainingQuantity <= 0) {
+                break;
+            }
+            int reservedQuantity = Math.min(product.getStock(), remainingQuantity);
+            product.setStock(product.getStock() - reservedQuantity);
+            remainingQuantity -= reservedQuantity;
+        }
+        importedProductRepository.saveAll(products);
+    }
+
+    private void refundStock(OrderItem orderItem, Integer quantity) {
+        ImportedProduct importedProduct = orderItem.getProduct().getProduct();
+        int stockAfterRefund = Math.min(importedProduct.getImportNumber(), importedProduct.getStock() + quantity);
+        importedProduct.setStock(stockAfterRefund);
+        importedProductRepository.save(importedProduct);
+    }
+
+    private Long calculateLineTotal(Integer quantity, OnSaleProduct onSaleProduct) {
+        double discount = onSaleProduct.getInputSale() == null || onSaleProduct.getInputSale().getDiscount() == null
+                ? 0
+                : onSaleProduct.getInputSale().getDiscount();
+        return Math.round(quantity * onSaleProduct.getSalePrice() * (1 - discount / 100.0));
+    }
+
+    @Caching(evict = {
+            @CacheEvict(value = "orderItems", allEntries = true),
+            @CacheEvict(value = "orders", allEntries = true)
+    })
+    @Transactional
     @Override
     public void addOrderItem(OrderItemCreateRequest orderItemCreateRequest) throws WrapperException {
         try {
-            Order order = orderRepository.findById(orderItemCreateRequest.orderId()).orElseThrow(() -> new NotFoundException("Order not found"));
-            OnSaleProduct onSaleProduct = onSaleProductRepository.findById(orderItemCreateRequest.productId()).orElseThrow(() -> new NotFoundException("OnSaleProduct not found"));
-            List<ImportedProduct> importedProduct = importedProductRepository.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(onSaleProduct.getProduct().getId(), NumberUtils.INTEGER_ZERO);
+            Order order = orderRepository.findById(orderItemCreateRequest.orderId()).orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+            OnSaleProduct onSaleProduct = onSaleProductRepository.findById(orderItemCreateRequest.productId()).orElseThrow(() -> new NotFoundException("messages.onSaleProducts.notfound"));
+            List<ImportedProduct> importedProduct = findStockProducts(onSaleProduct);
             if (calcSumProducts(importedProduct) < orderItemCreateRequest.quantity()) {
-                throw new BadRequestException("Not enough stock");
+                throw new BadRequestException("messages.stock.notEnough");
             }
 
-            AtomicReference<Integer> totalQuantity = new AtomicReference<>(0);
-            importedProduct.forEach(product -> {
-                totalQuantity.updateAndGet(v -> v + product.getStock());
-                if (totalQuantity.get() >= orderItemCreateRequest.quantity()) {
-                    product.setStock(totalQuantity.get() - orderItemCreateRequest.quantity());
-                } else {
-                    product.setStock(NumberUtils.INTEGER_ZERO);
-                }
-
-            });
-            importedProductRepository.saveAll(importedProduct);
+            reserveStock(importedProduct, orderItemCreateRequest.quantity());
             OrderItem orderItem = orderItemRepository
-                    .findByDeletedAtIsNullAndIdAndOrder_Id(order.getId(), orderItemCreateRequest.orderId())
+                    .findByDeletedAtIsNullAndProduct_IdAndOrder_Id(onSaleProduct.getId(), orderItemCreateRequest.orderId())
                     .map(existing -> {
                         existing.setQuantity(existing.getQuantity() + orderItemCreateRequest.quantity());
                         return existing;
                     })
-                    .orElseGet(() -> orderItemMapper.createRequestToEntity(onSaleProduct, order));
-            order.setTotalPrice(order.getTotalPrice() +
-                    orderItemCreateRequest.quantity() *
-                            orderItem.getProduct().getSalePrice() *
-                            (1 - orderItem.getProduct().getInputSale().getDiscount() / 100));
+                    .orElseGet(() -> orderItemMapper.createRequestToEntity(orderItemCreateRequest, onSaleProduct, order));
+            order.setTotalPrice(order.getTotalPrice() + calculateLineTotal(orderItemCreateRequest.quantity(), onSaleProduct));
             orderRepository.save(order);
             orderItemRepository.save(orderItem);
+            readModelSyncService.syncAfterCommit(ReadModelType.ORDER, order.getId());
         } catch (NotFoundException | BadRequestException ex) {
             throw new WrapperException(ex);
         }
     }
 
-    //@CachePut(value = "orderItems")
+    @Caching(evict = {
+            @CacheEvict(value = "orderItems", allEntries = true),
+            @CacheEvict(value = "orders", allEntries = true)
+    })
+    @Transactional
     @Override
     public void updateOrderItem(OrderItemUpdateRequest orderItemUpdateRequest, Long userId, Long orderId, Long orderItemId) throws WrapperException {
         try {
-            Order order = orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(orderId, userId).orElseThrow(() -> new NotFoundException("Order not found"));
-            OrderItem orderItem = orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(orderItemId, order.getId()).orElseThrow(() -> new NotFoundException("OrderItem not found"));
-            List<ImportedProduct> importedProduct = importedProductRepository.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(orderItemUpdateRequest.productId(), NumberUtils.INTEGER_ZERO);
-            OnSaleProduct onSaleProduct = onSaleProductRepository.findByIdAndDeletedAtIsNull(orderItemUpdateRequest.productId()).orElseThrow(() -> new NotFoundException("OnSaleProduct not found"));
+            Order order = orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(orderId, userId).orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+            OrderItem orderItem = orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(orderItemId, order.getId()).orElseThrow(() -> new NotFoundException("messages.orderItems.notfound"));
+            OnSaleProduct onSaleProduct = onSaleProductRepository.findByIdAndDeletedAtIsNull(orderItemUpdateRequest.productId()).orElseThrow(() -> new NotFoundException("messages.onSaleProducts.notfound"));
+            boolean productChanged = !Objects.equals(orderItem.getProduct().getId(), onSaleProduct.getId());
+            Long oldLineTotal = calculateLineTotal(orderItem.getQuantity(), orderItem.getProduct());
+            Long newLineTotal = calculateLineTotal(orderItemUpdateRequest.quantity(), onSaleProduct);
 
-            if (calcSumProducts(importedProduct) < orderItemUpdateRequest.quantity()) {
-                throw new BadRequestException("Not enough stock");
-            }
-            if (orderItem.getQuantity() >= orderItemUpdateRequest.quantity()) {
-                AtomicReference<Integer> refundQuantity = new AtomicReference<>(orderItem.getQuantity() - orderItemUpdateRequest.quantity());
-                if (importedProduct.get(0).getStock() + orderItem.getQuantity() - orderItemUpdateRequest.quantity() > importedProduct.get(0).getImportNumber()) {
-                    importedProduct.get(0).setStock(importedProduct.get(0).getImportNumber());
-                    importedProductRepository.save(importedProduct.get(0));
-                    List<ImportedProduct> zeroStockProduct = importedProductRepository.findByDeletedAtIsNullAndStockAndIdOrderByCreatedAtAsc(NumberUtils.INTEGER_ZERO, orderItem.getProduct().getId());
-                    zeroStockProduct.forEach(product -> {
-                        if (refundQuantity.get() > 0) {
-                            if (product.getStock() + refundQuantity.get() <= product.getImportNumber()) {
-                                product.setStock(product.getStock() + refundQuantity.get());
-                                importedProductRepository.save(product);
-                                refundQuantity.set(0);
-                            } else {
-                                refundQuantity.updateAndGet(v -> v - product.getImportNumber() - product.getStock());
-                                product.setStock(product.getImportNumber());
-                                importedProductRepository.save(product);
-                            }
-                        }
-                    });
-                } else {
-                    importedProduct.get(0).setStock(importedProduct.get(0).getStock() + orderItem.getQuantity() - orderItemUpdateRequest.quantity());
-                    importedProductRepository.save(importedProduct.get(0));
+            if (productChanged) {
+                refundStock(orderItem, orderItem.getQuantity());
+                List<ImportedProduct> importedProduct = findStockProducts(onSaleProduct);
+                if (calcSumProducts(importedProduct) < orderItemUpdateRequest.quantity()) {
+                    throw new BadRequestException("messages.stock.notEnough");
                 }
+                reserveStock(importedProduct, orderItemUpdateRequest.quantity());
             } else {
-                AtomicReference<Integer> refundQuantity = new AtomicReference<>(orderItemUpdateRequest.quantity() - orderItem.getQuantity());
-                importedProduct.forEach(product -> {
-                    if (product.getStock() >= refundQuantity.get()) {
-                        product.setStock(product.getStock() - refundQuantity.get());
-                        importedProductRepository.save(product);
-                        refundQuantity.set(0);
-                    } else {
-                        refundQuantity.updateAndGet(v -> v - product.getStock());
-                        product.setStock(0);
-
-                        importedProductRepository.save(product);
+                int quantityDelta = orderItemUpdateRequest.quantity() - orderItem.getQuantity();
+                if (quantityDelta > 0) {
+                    List<ImportedProduct> importedProduct = findStockProducts(onSaleProduct);
+                    if (calcSumProducts(importedProduct) < quantityDelta) {
+                        throw new BadRequestException("messages.stock.notEnough");
                     }
-                });
+                    reserveStock(importedProduct, quantityDelta);
+                } else if (quantityDelta < 0) {
+                    refundStock(orderItem, Math.abs(quantityDelta));
+                }
             }
-            order.setTotalPrice(order.getTotalPrice() + (orderItemUpdateRequest.quantity() - orderItem.getQuantity()) * orderItem.getProduct().getSalePrice());
+
+            order.setTotalPrice(order.getTotalPrice() - oldLineTotal + newLineTotal);
+            orderRepository.save(order);
             orderItemRepository.save(orderItemMapper.updateRequestToEntity(orderItemUpdateRequest, onSaleProduct, orderItem));
+            readModelSyncService.syncAfterCommit(ReadModelType.ORDER, order.getId());
         } catch (NotFoundException | BadRequestException ex) {
             throw new WrapperException(ex);
         }
     }
 
-    private void refundStock(OrderItem orderItem) {
-        List<ImportedProduct> importedProduct = importedProductRepository.findByDeletedAtIsNullAndStockAndIdOrderByCreatedAtAsc(NumberUtils.INTEGER_ZERO, orderItem.getProduct().getId());
-        AtomicReference<Integer> refundQuantity = new AtomicReference<>(orderItem.getQuantity());
-        importedProduct.forEach(product -> {
-            if (product.getStock() + refundQuantity.get() <= product.getImportNumber()) {
-                product.setStock(product.getStock() + refundQuantity.get());
-                importedProductRepository.save(product);
-            } else {
-                refundQuantity.updateAndGet(v -> v - product.getImportNumber() - product.getStock());
-                product.setStock(product.getImportNumber());
-                importedProductRepository.save(product);
-            }
-        });
-    }
-
-    //@CacheEvict(value = "orderItems", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "orderItems", allEntries = true),
+            @CacheEvict(value = "orders", allEntries = true)
+    })
+    @Transactional
     @Override
     public void deleteOrderItem(Long id, Long orderId) throws WrapperException {
         try {
-            final Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
-            final List<OrderItem> orderItems = orderItemRepository.findByDeletedAtIsNullAndOrder_Id(orderId);
-
-            orderItems.forEach(orderItem -> {
-                orderItem.setDeletedAt(Instant.now().toEpochMilli());
-                refundStock(orderItem);
-                orderItemRepository.save(orderItem);
-            });
-            order.setTotalPrice(order.getTotalPrice() - orderItems.stream().mapToLong(orderItem -> (orderItem.getQuantity() * orderItem.getProduct().getSalePrice())).sum());
-
+            final OrderItem orderItem = orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId)
+                    .orElseThrow(() -> new NotFoundException("messages.orderItems.notfound"));
+            final Order order = orderItem.getOrder();
+            orderItem.setDeletedAt(Instant.now().toEpochMilli());
+            refundStock(orderItem, orderItem.getQuantity());
+            orderItemRepository.save(orderItem);
+            order.setTotalPrice(Math.max(NumberUtils.LONG_ZERO, order.getTotalPrice() - calculateLineTotal(orderItem.getQuantity(), orderItem.getProduct())));
+            orderRepository.save(order);
+            readModelSyncService.syncAfterCommit(ReadModelType.ORDER, order.getId());
         } catch (NotFoundException ex) {
             throw new WrapperException(ex);
         }

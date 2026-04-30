@@ -53,7 +53,7 @@ public class BrandController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateBrand(@RequestBody @Valid BrandUpdateRequest brandUpdateRequest, @PathVariable @NotNull(message = "Vui lòng chọn brand") Long id) {
+    public ResponseEntity<BaseMessageResponse> updateBrand(@RequestBody @Valid BrandUpdateRequest brandUpdateRequest, @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             final BrandDTO updatedBrand = brandService.updateBrand(brandUpdateRequest, id);
             return ResponseHandler.successBuilder(
@@ -66,12 +66,12 @@ public class BrandController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteBrand(@PathVariable @Valid @NotNull(message = "Vui lòng chọn brand") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteBrand(@PathVariable @Valid @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             brandService.deleteBrand(id);
             return ResponseHandler.successBuilder(
                     HttpStatus.OK,
-                    "Xoá thương hiệu thành công"
+                    "messages.brands.deleted"
             );
         } catch (WrapperException ex) {
             return ResponseHandler.exceptionBuilder(ex);
@@ -79,7 +79,7 @@ public class BrandController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> getBrandById(@PathVariable @Valid @NotNull(message = "Vui lòng chọn brand") Long id) {
+    public ResponseEntity<BaseMessageResponse> getBrandById(@PathVariable @Valid @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             final BrandDTO brand = brandService.findBrandById(id);
             return ResponseHandler.successBuilder(

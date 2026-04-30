@@ -35,6 +35,6 @@ public class Voucher extends BaseEntity {
     @Column(nullable = false)
     private Integer stock;
 
-    @Column(nullable = false)
+    @Column(name = "voucher_value", nullable = false)
     private Float value;
 }

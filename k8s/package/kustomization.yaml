@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: vti-clothing-shop
+
+resources:
+  - namespace.yaml
+  - app-config.yaml
+  - app-secret.yaml
+  - postgres.yaml
+  - valkey.yaml
+  - mongo.yaml
+  - server.yaml
+  - nginx-gateway.yaml
+
+configMapGenerator:
+  - name: postgres-init
+    files:
+      - 01_dummy_data.sql=../../docker/postgres/init/01_dummy_data.sql
+  - name: nginx-gateway-config
+    files:
+      - nginx.conf=../../docker/nginx/nginx.conf
+
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    app.kubernetes.io/part-of: vti-clothing-shop
+    app.kubernetes.io/component: package

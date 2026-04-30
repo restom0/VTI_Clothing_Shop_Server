@@ -35,7 +35,7 @@ public class AuditServiceImpl implements AuditService {
     @Override
     public void createAudit(AuditDTO auditDTO, Long userId) throws WrapperException {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new ForbiddenException("User not found"));
+            User user = userRepository.findById(userId).orElseThrow(() -> new ForbiddenException("messages.users.notfound"));
             auditRepository.save(auditMapper.dtoToEntity(auditDTO, user));
         } catch (ForbiddenException ex) {
             throw new WrapperException(ex);

@@ -23,6 +23,6 @@ public class StatController {
     public ResponseEntity<BaseMessageResponse> getStatisticalAnalysis() {
         Map<String, Object> response = new HashMap<>();
         response.put("generalStats", statService.getStat());
-        return ResponseHandler.successBuilder(HttpStatus.OK, "Lấy dữ liệu thống kê thành công", response);
+        return ResponseHandler.successBuilder(HttpStatus.OK, "messages.stats.fetched", response);
     }
 }

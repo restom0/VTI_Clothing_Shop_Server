@@ -2,7 +2,6 @@ package vn.vti.clothing_shop.controllers;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +52,7 @@ public class ChatController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             chatService.addChat(userId, chatCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Tin nhắn được gửi thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.chats.sent");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -65,7 +64,7 @@ public class ChatController {
             @Valid
             ChatUpdateRequest chatUpdateRequest,
             @PathVariable
-            @NotNull(message = "Vui lòng chọn tin nhắn")
+            @NotNull(message = "{messages.validation.required}")
             Long id
     ) {
         try {
@@ -73,7 +72,7 @@ public class ChatController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             chatService.updateChat(id, userId, chatUpdateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Tin nhắn được cập nhật thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -82,8 +81,7 @@ public class ChatController {
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseMessageResponse> deleteChat(
             @PathVariable
-            @NotNull(message = "Vui lòng chọn tin nhắn")
-            @Pattern(regexp = "^\\d+$", message = "Id tin nhắn không hợp lệ")
+            @NotNull(message = "{messages.validation.required}")
             Long id
     ) {
         try {
@@ -91,7 +89,7 @@ public class ChatController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             chatService.deleteChat(id, userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa tin nhắn thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -103,7 +101,7 @@ public class ChatController {
             @Valid
             ChatReplyRequest chatReplyRequest,
             @PathVariable
-            @NotNull(message = "Vui lòng chọn tin nhắn")
+            @NotNull(message = "{messages.validation.required}")
             Long id
     ) {
         try {
@@ -111,7 +109,7 @@ public class ChatController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             chatService.replyChat(id, userId, chatReplyRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Trả lời tin nhắn thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.replied");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

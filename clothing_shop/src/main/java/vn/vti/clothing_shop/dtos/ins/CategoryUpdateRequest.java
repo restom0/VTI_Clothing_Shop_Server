@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CategoryUpdateRequest(
-        @NotBlank(message = "Vui lòng nhập tên danh mục")
-        @Size(max = 255, message = "Tên danh mục không được vượt quá 255 ký tự")
+        @NotBlank(message = "{messages.validation.required}")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String name,
 
-        @Size(max = 255, message = "Mô tả không được vượt quá 255 ký tự")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String description,
 
         @NotNull

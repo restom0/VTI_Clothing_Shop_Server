@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,34 +47,34 @@ public class CommentController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             commentService.createComment(userId, commentCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Bình luận đã được gửi");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.comments.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateComment(@PathVariable @NotNull(message = "Hãy chọn bình luận") Long id, @RequestBody @Valid CommentUpdateRequest commentUpdateRequest) {
+    public ResponseEntity<BaseMessageResponse> updateComment(@PathVariable @NotNull(message = "{messages.validation.required}") Long id, @RequestBody @Valid CommentUpdateRequest commentUpdateRequest) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             commentService.updateComment(id, userId, commentUpdateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Bình luận đã được gửi");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.comments.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteComment(@PathVariable @NotNull(message = "Hãy chọn bình luận") Long id, BindingResult bindingResult) {
+    public ResponseEntity<BaseMessageResponse> deleteComment(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
 
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             commentService.deleteComment(id, userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Bình luận đã được xóa");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.comments.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

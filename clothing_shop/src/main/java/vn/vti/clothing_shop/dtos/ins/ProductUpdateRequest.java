@@ -5,16 +5,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record ProductUpdateRequest(
-        @NotBlank(message = "Name is required")
+        @NotBlank(message = "{messages.validation.required}")
         String name,
 
         String shortDescription,
 
-        @NotNull(message = "Category is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Long categoryId,
 
-        @NotNull(message = "Brand is required")
+        @NotNull(message = "{messages.validation.required}")
         @Positive
         Long brandId,
 

@@ -28,41 +28,41 @@ public class ProductController {
 
     @GetMapping(value = "/")
     public ResponseEntity<BaseMessageResponse> getAllProducts() {
-        return ResponseHandler.successBuilder(HttpStatus.OK, "Lấy danh sách sản phẩm thành công", productService.getAllProducts());
+        return ResponseHandler.successBuilder(HttpStatus.OK, "messages.products.listFetched", productService.getAllProducts());
     }
 
     @PostMapping("/")
     public ResponseEntity<BaseMessageResponse> addProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest) {
         try {
             productService.addProduct(productCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Thêm sản phẩm thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.products.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest, @PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
+    public ResponseEntity<BaseMessageResponse> updateProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest, @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             productService.updateProduct(productUpdateRequest, id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật sản phẩm thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.products.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteProduct(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteProduct(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             productService.deleteProduct(id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa sản phẩm thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.products.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> getProductById(@PathVariable @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
+    public ResponseEntity<BaseMessageResponse> getProductById(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             return ResponseHandler.successBuilder(HttpStatus.OK, productService.getProductById(id));
         } catch (WrapperException e) {

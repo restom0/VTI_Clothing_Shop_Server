@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HexCode {
-    String message() default "Invalid hex code format";
+    String message() default "{messages.validation.hex.invalid}";
 
     Class<?>[] groups() default {};
 

@@ -5,14 +5,14 @@ import jakarta.validation.constraints.Size;
 import vn.vti.clothing_shop.validators.PhoneNumber;
 
 public record OrderCreateRequest(
-        @NotBlank(message = "Address is required")
-        @Size(max = 255, message = "Address must be less than 255 characters")
+        @NotBlank(message = "{messages.validation.required}")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String address,
 
         @PhoneNumber
         String phoneNumber,
 
-        @NotBlank(message = "Receiver Name is required")
+        @NotBlank(message = "{messages.validation.required}")
         String receiverName
 ) {
 

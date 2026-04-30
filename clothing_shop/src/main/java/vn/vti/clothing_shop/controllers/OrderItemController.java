@@ -37,12 +37,12 @@ public class OrderItemController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<BaseMessageResponse> getAllOrderItemsByOrderId(@PathVariable @NotNull(message = "Vui lòng chọn đơn hàng") Long orderId) {
+    public ResponseEntity<BaseMessageResponse> getAllOrderItemsByOrderId(@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
         return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.getAllOrderItemsByOrderId(orderId));
     }
 
     @GetMapping("/{orderId}/{id}")
-    public ResponseEntity<BaseMessageResponse> getOrderItemByIdAndOrderId(@PathVariable @NotNull(message = "Vui lòng chọn id") Long id, @PathVariable @NotNull(message = "Vui lòng chọn đơn hàng") Long orderId) {
+    public ResponseEntity<BaseMessageResponse> getOrderItemByIdAndOrderId(@PathVariable @NotNull(message = "{messages.validation.required}") Long id, @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
         try {
             return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.findOrderItemByIdAndOrderId(id, orderId));
         } catch (WrapperException ex) {
@@ -51,10 +51,10 @@ public class OrderItemController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<BaseMessageResponse> addOrderItem(@RequestBody @Valid @NotNull(message = "Vui lòng nhập thông tin") OrderItemCreateRequest orderItemCreateRequest) {
+    public ResponseEntity<BaseMessageResponse> addOrderItem(@RequestBody @Valid @NotNull(message = "{messages.validation.required}") OrderItemCreateRequest orderItemCreateRequest) {
         try {
             orderItemService.addOrderItem(orderItemCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Thêm order item thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -62,14 +62,14 @@ public class OrderItemController {
 
     @PutMapping("/{orderId}/{id}")
     public ResponseEntity<BaseMessageResponse> updateOrderItem(@RequestBody @Valid OrderItemUpdateRequest orderItemUpdateRequest
-            , @PathVariable @NotNull(message = "Vui lòng chọn đơn hàng") Long orderId
-            , @PathVariable @NotNull(message = "Vui lòng chọn id") Long id) {
+            , @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId
+            , @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             orderItemService.updateOrderItem(orderItemUpdateRequest, userId, orderId, id);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Cập nhật order item thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -77,11 +77,11 @@ public class OrderItemController {
 
     @DeleteMapping("/{orderId}/{id}")
     public ResponseEntity<BaseMessageResponse> deleteOrderItem(
-            @PathVariable @NotNull(message = "Vui lòng chọn đơn hàng") Long orderId,
-            @PathVariable @NotNull(message = "Vui lòng chọn id") Long id) {
+            @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId,
+            @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             orderItemService.deleteOrderItem(id, orderId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa order item thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.orderItems.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

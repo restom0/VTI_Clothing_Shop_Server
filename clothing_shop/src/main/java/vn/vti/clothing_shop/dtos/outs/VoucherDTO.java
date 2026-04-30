@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,7 +12,7 @@ import java.time.LocalDate;
 public class VoucherDTO {
     private Long id;
     private Integer stock;
-    private Integer value;
+    private Float value;
     private String code;
     private Long availableDate;
     private Long endDate;

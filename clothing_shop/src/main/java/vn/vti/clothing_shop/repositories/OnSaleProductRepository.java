@@ -51,7 +51,7 @@ public interface OnSaleProductRepository extends JpaRepository<OnSaleProduct, Lo
             "AND onSaleProduct.deletedAt IS NULL " +
             "AND inputSale.deletedAt IS NULL " +
             "AND inputSale.endDate IS NULL ")
-    Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNullEndDate(Long id, @Future(message = "Available date must be in the future") @NotNull(message = "Available date is required") LocalDate availableDate);
+    Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNullEndDate(Long id, @Future(message = "{messages.validation.future}") @NotNull(message = "{messages.validation.required}") LocalDate availableDate);
 
     List<OnSaleProduct> findDistinctByDeletedAtIsNull();
 }

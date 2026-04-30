@@ -40,7 +40,7 @@ public class ImportedProductController {
             ImportedProductCreateRequest importedProductCreateRequest) {
         try {
             importedProductService.addImportedProduct(importedProductCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Thêm sản phẩm nhập khẩu thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.importedProducts.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -52,11 +52,11 @@ public class ImportedProductController {
             @Valid
             ImportedProductUpdateRequest importedProductUpdateRequest,
             @PathVariable
-            @NotNull(message = "Vui lòng chọn sản phẩm")
+            @NotNull(message = "{messages.validation.required}")
             Long id) {
         try {
             importedProductService.updateImportedProduct(id, importedProductUpdateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật sản phẩm nhập khẩu thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.importedProducts.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -65,11 +65,11 @@ public class ImportedProductController {
     @DeleteMapping("/{id}")
     public ResponseEntity<BaseMessageResponse> deleteImportedProduct(
             @PathVariable
-            @NotNull(message = "Vui lòng chọn sản phẩm")
+            @NotNull(message = "{messages.validation.required}")
             Long id) {
         try {
             importedProductService.deleteImportedProduct(id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa sản phẩm nhập khẩu thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.importedProducts.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -78,12 +78,12 @@ public class ImportedProductController {
     @GetMapping("/{filter}/{id}")
     public ResponseEntity<BaseMessageResponse> getImportedProductById(
             @PathVariable
-            @NotNull(message = "Vui lòng chọn bộ lọc")
+            @NotNull(message = "{messages.validation.required}")
             Filter filter,
             @PathVariable
-            @NotNull(message = "Vui lòng chọn sản phẩm") Long id) {
+            @NotNull(message = "{messages.validation.required}") Long id) {
         try {
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Lấy sản phẩm nhập khẩu thành công", importedProductService.getImportedProductByFilter(filter, id));
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.importedProducts.fetched", importedProductService.getImportedProductByFilter(filter, id));
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

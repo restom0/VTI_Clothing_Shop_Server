@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,7 +22,8 @@ public class OnSaleProduct extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private transient Long salePrice;
+    @Transient
+    private Long salePrice;
 
     @ManyToOne
     @JoinColumn
@@ -31,4 +33,13 @@ public class OnSaleProduct extends BaseEntity {
     @JoinColumn
     private InputSale inputSale;
 
+    public Long getSalePrice() {
+        if (salePrice != null) {
+            return salePrice;
+        }
+        if (product == null || product.getImportPrice() == null || inputSale == null || inputSale.getSalePercentage() == null) {
+            return 0L;
+        }
+        return Math.round(product.getImportPrice() * inputSale.getSalePercentage() / 100.0);
+    }
 }

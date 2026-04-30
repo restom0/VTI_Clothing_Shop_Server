@@ -6,22 +6,22 @@ import vn.vti.clothing_shop.exceptions.WrapperException;
 
 public class ResponseHandler {
     public static ResponseEntity<BaseMessageResponse> successBuilder(HttpStatus status, Object data) {
-        SuccessMessageResponse response = new SuccessMessageResponse(status.value(), data);
+        SuccessMessageResponse response = new SuccessMessageResponse(status.value(), MessageResolver.resolveIfMessageKey(data));
         return new ResponseEntity<>(response, status);
     }
 
     public static ResponseEntity<BaseMessageResponse> successBuilder(HttpStatus status, Object data, Object metadata) {
-        SuccessMessageResponseWithMetadata response = new SuccessMessageResponseWithMetadata(status.value(), data, metadata);
+        SuccessMessageResponseWithMetadata response = new SuccessMessageResponseWithMetadata(status.value(), MessageResolver.resolveIfMessageKey(data), metadata);
         return new ResponseEntity<>(response, status);
     }
 
     public static ResponseEntity<BaseMessageResponse> exceptionBuilder(WrapperException ex) {
-        ExceptionMessageResponse response = new ExceptionMessageResponse(ex.statusCode.value(), ex.message);
+        ExceptionMessageResponse response = new ExceptionMessageResponse(ex.statusCode.value(), MessageResolver.resolve(ex.message));
         return new ResponseEntity<>(response, ex.statusCode);
     }
 
     public static ResponseEntity<BaseMessageResponse> exceptionBuilder(String message, HttpStatus status) {
-        ExceptionMessageResponse response = new ExceptionMessageResponse(status.value(), message);
+        ExceptionMessageResponse response = new ExceptionMessageResponse(status.value(), MessageResolver.resolve(message));
         return new ResponseEntity<>(response, status);
     }
 }

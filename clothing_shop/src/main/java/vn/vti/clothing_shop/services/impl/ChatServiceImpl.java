@@ -43,7 +43,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void addChat(Long userId, ChatCreateRequest chatCreateRequest) throws WrapperException {
         try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+            User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
             Chat chat = chatMapper.createRequestToEntity(chatCreateRequest, user);
             chatRepository.save(chat);
         } catch (NotFoundException ex) {
@@ -56,7 +56,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void updateChat(Long chatId, Long userId, ChatUpdateRequest chatUpdateRequest) throws WrapperException {
         try {
-            final Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(chatId, userId).orElseThrow(() -> new NotFoundException("Chat not found"));
+            final Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(chatId, userId).orElseThrow(() -> new NotFoundException("messages.chats.notfound"));
             chatRepository.save(chatMapper.updateRequestToEntity(chatUpdateRequest, chat));
         } catch (NotFoundException ex) {
             throw new WrapperException(ex);
@@ -68,7 +68,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void deleteChat(Long id, Long userId) throws WrapperException {
         try {
-            Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(id, userId).orElseThrow(() -> new NotFoundException("Chat not found"));
+            Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(id, userId).orElseThrow(() -> new NotFoundException("messages.chats.notfound"));
             chat.setDeletedAt(Instant.now().toEpochMilli());
             chatRepository.save(chat);
         } catch (NotFoundException ex) {
@@ -81,8 +81,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public void replyChat(Long chatId, Long userId, ChatReplyRequest chatReplyRequest) throws WrapperException {
         try {
-            User user = userRepository.findByDeletedAtIsNullAndId(userId).orElseThrow(() -> new NotFoundException("User not found"));
-            Chat chat = chatRepository.findByDeletedAtIsNullAndId(chatId).orElseThrow(() -> new NotFoundException("Chat not found"));
+            User user = userRepository.findByDeletedAtIsNullAndId(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
+            Chat chat = chatRepository.findByDeletedAtIsNullAndId(chatId).orElseThrow(() -> new NotFoundException("messages.chats.notfound"));
             Chat replyChat = chatMapper.replyRequestToEntity(chatReplyRequest, user);
             chatRepository.save(replyChat);
             chat.setReply(replyChat);

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: vti-clothing-shop
+  labels:
+    app.kubernetes.io/name: vti-clothing-shop
+    app.kubernetes.io/part-of: vti-clothing-shop
+    app.kubernetes.io/component: package

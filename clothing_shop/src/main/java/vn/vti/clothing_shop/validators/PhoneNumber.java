@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PhoneNumber {
-    String message() default "Invalid phone number";
+    String message() default "{messages.validation.phone.invalid}";
 
     Class<?>[] groups() default {};
 

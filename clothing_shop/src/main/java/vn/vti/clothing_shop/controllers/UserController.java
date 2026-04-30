@@ -48,7 +48,7 @@ public class UserController {
     public ResponseEntity<BaseMessageResponse> registerUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
         try {
             userService.addUser(userCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "Đăng ký thành công");
+            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.users.registered");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -79,7 +79,7 @@ public class UserController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             userService.updateUser(userUpdateRequest, userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật thông tin người dùng thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.users.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -92,17 +92,17 @@ public class UserController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             userService.updateUserPassword(userUpdateRequest, userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật mật khẩu thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.users.passwordUpdated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteUser(@PathVariable @NotNull(message = "Vui lòng chọn người dùng") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteUser(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             userService.deleteUser(id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa người dùng thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.users.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -115,7 +115,7 @@ public class UserController {
             User user = (User) authentication.getPrincipal();
             Long userId = user.getId();
             userService.deleteUser(userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa người dùng thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.users.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

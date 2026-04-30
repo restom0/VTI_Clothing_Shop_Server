@@ -10,19 +10,19 @@ import vn.vti.clothing_shop.validators.PhoneNumber;
 import java.time.LocalDate;
 
 public record UserCreateRequest(
-        @NotBlank(message = "Name is required")
+        @NotBlank(message = "{messages.validation.required}")
         String name,
 
-        @NotBlank(message = "Username is required")
+        @NotBlank(message = "{messages.validation.required}")
         String username,
 
-        @NotBlank(message = "Password is required")
+        @NotBlank(message = "{messages.validation.required}")
         String password,
 
-        @Email(message = "Invalid email format")
+        @Email(message = "{messages.validation.email.invalid}")
         String email,
 
-        @NotBlank(message = "Phone number is required") @PhoneNumber
+        @NotBlank(message = "{messages.validation.required}") @PhoneNumber
         String phoneNumber,
 
         String address,
@@ -34,7 +34,7 @@ public record UserCreateRequest(
 
         String publicIdAvatarUrl,
 
-        @NotNull(message = "Gender is required")
+        @NotNull(message = "{messages.validation.required}")
         UserGender gender
 ) {
 

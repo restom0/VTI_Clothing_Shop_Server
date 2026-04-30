@@ -33,7 +33,7 @@ public class VoucherController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> getVoucherById(@PathVariable @NotNull(message = "Vui lòng chọn voucher") Long id) {
+    public ResponseEntity<BaseMessageResponse> getVoucherById(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             return ResponseHandler.successBuilder(HttpStatus.OK, voucherService.findVoucherById(id));
         } catch (WrapperException ex) {
@@ -42,9 +42,9 @@ public class VoucherController {
     }
 
     @GetMapping("/code/{code}")
-    public ResponseEntity<BaseMessageResponse> getVoucherByCode(@PathVariable @Valid @NotNull(message = "Vui lòng nhập mã voucher") String code) {
+    public ResponseEntity<BaseMessageResponse> getVoucherByCode(@PathVariable @Valid @NotNull(message = "{messages.validation.required}") String code) {
         try {
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Lấy voucher thành công", voucherService.findVoucherByCode(code));
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.vouchers.fetched", voucherService.findVoucherByCode(code));
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
@@ -56,30 +56,30 @@ public class VoucherController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<BaseMessageResponse> createVoucher(@RequestBody @NotNull(message = "Vui lòng nhập thông tin voucher") VoucherCreateRequest voucherCreateRequest) {
+    public ResponseEntity<BaseMessageResponse> createVoucher(@RequestBody @NotNull(message = "{messages.validation.required}") VoucherCreateRequest voucherCreateRequest) {
         try {
             voucherService.createVoucher(voucherCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Tạo voucher thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.vouchers.created");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateVoucher(@PathVariable @NotNull(message = "Vui lòng chọn voucher") Long id, @RequestBody @NotNull(message = "Vui lòng nhập thông tin voucher") VoucherUpdateRequest voucherUpdateRequest) {
+    public ResponseEntity<BaseMessageResponse> updateVoucher(@PathVariable @NotNull(message = "{messages.validation.required}") Long id, @RequestBody @NotNull(message = "{messages.validation.required}") VoucherUpdateRequest voucherUpdateRequest) {
         try {
             voucherService.updateVoucher(voucherUpdateRequest, id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật voucher thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.vouchers.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteVoucher(@PathVariable @NotNull(message = "Vui lòng chọn voucher") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteVoucher(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             voucherService.deleteVoucher(id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa voucher thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.vouchers.deleted");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }

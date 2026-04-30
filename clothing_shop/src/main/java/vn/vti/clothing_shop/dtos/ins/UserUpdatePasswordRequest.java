@@ -6,9 +6,9 @@ import vn.vti.clothing_shop.validators.NewPasswordNotEqualOldPassword;
 
 @NewPasswordNotEqualOldPassword
 public record UserUpdatePasswordRequest(
-        @NotBlank(message = "Old password is required")
+        @NotBlank(message = "{messages.validation.required}")
         String oldPassword,
-        @NotBlank(message = "New password is required")
+        @NotBlank(message = "{messages.validation.required}")
         String password,
         @NotNull
         Long version

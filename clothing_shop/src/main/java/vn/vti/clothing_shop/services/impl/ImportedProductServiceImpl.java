@@ -3,6 +3,9 @@ package vn.vti.clothing_shop.services.impl;
 import java.util.List;
 
 import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -46,7 +49,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 	private final SizeMapper sizeMapper;
 	private final MaterialMapper materialMapper;
 
-	//@Cacheable(value = "importedProducts")
+	@Cacheable(value = "importedProducts", key = "'all'")
 	@Override
 	public List<ImportedProductDTO> getAllImportedProducts() {
 		return importedProductRepository
@@ -56,7 +59,12 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 				.toList();
 	}
 
-	//@CacheEvict(value = "importedProducts", allEntries = true)
+	@Caching(evict = {
+			@CacheEvict(value = "importedProducts", allEntries = true),
+			@CacheEvict(value = "colors", allEntries = true),
+			@CacheEvict(value = "materials", allEntries = true),
+			@CacheEvict(value = "sizes", allEntries = true)
+	})
 	@Transactional
 	@Override
 	public void addImportedProduct(ImportedProductCreateRequest request) throws WrapperException {
@@ -68,12 +76,12 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 			final String weight = request.weight();
 			final String materialName = request.material();
 
-			// Truy xuất product một lần
+			// Fetch the product once
 			final Product product = productRepository
 					.findByIdAndDeletedAtIsNull(productId)
-					.orElseThrow(() -> new NotFoundException("Product not found"));
+					.orElseThrow(() -> new NotFoundException("messages.products.notfound"));
 
-			// Truy xuất hoặc tạo mới Color
+			// Fetch or create a color
 			final Color color = colorRepository
 					.findByDeletedAtIsNullAndCode(colorCode)
 					.orElseGet(() -> {
@@ -104,21 +112,26 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
-	//@CacheEvict(value = "importedProducts", allEntries = true)
+	@CacheEvict(value = "importedProducts", allEntries = true)
 	@Transactional
 	@Override
 	public void deleteImportedProduct(Long id) throws WrapperException {
 		try {
 			ImportedProduct importedProduct = importedProductRepository
 					.findById(id)
-					.orElseThrow(() -> new NotFoundException("Imported product not found"));
+					.orElseThrow(() -> new NotFoundException("messages.importedProducts.notfound"));
 			importedProductRepository.delete(importedProduct);
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
 	}
 
-	//@CachePut(value = "importedProducts")
+	@Caching(evict = {
+			@CacheEvict(value = "importedProducts", allEntries = true),
+			@CacheEvict(value = "colors", allEntries = true),
+			@CacheEvict(value = "materials", allEntries = true),
+			@CacheEvict(value = "sizes", allEntries = true)
+	})
 	@Transactional
 	@Override
 	public void updateImportedProduct(Long id, ImportedProductUpdateRequest importedProductUpdateRequest)
@@ -126,19 +139,19 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		try {
 			ImportedProduct importedProduct = importedProductRepository
 					.findById(id)
-					.orElseThrow(() -> new NotFoundException("Imported product not found"));
+					.orElseThrow(() -> new NotFoundException("messages.importedProducts.notfound"));
 			final Product product = productRepository
 					.findById(importedProductUpdateRequest.productId())
-					.orElseThrow(() -> new NotFoundException("Product not found"));
+					.orElseThrow(() -> new NotFoundException("messages.products.notfound"));
 			final Color color = colorRepository
 					.findById(importedProductUpdateRequest.colorId())
-					.orElseThrow(() -> new NotFoundException("Color not found"));
+					.orElseThrow(() -> new NotFoundException("messages.colors.notfound"));
 			final Size size = sizeRepository
 					.findById(importedProductUpdateRequest.sizeId())
-					.orElseThrow(() -> new NotFoundException("Size not found"));
+					.orElseThrow(() -> new NotFoundException("messages.sizes.notfound"));
 			final Material material = materialRepository
 					.findById(importedProductUpdateRequest.materialId())
-					.orElseThrow(() -> new NotFoundException("Material not found"));
+					.orElseThrow(() -> new NotFoundException("messages.materials.notfound"));
 
 			final Color newColor = colorRepository.save(colorMapper
 					                                            .updateRequestToEntity(importedProductUpdateRequest,
@@ -160,19 +173,19 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
-	//@Cacheable(value = "importedProducts", key = "#id")
+	@Cacheable(value = "importedProducts", key = "'id:' + #id")
 	@Override
 	public ImportedProductDTO findImportedProductById(Long id) throws WrapperException {
 		try {
 			return importedProductMapper.entityToDTO(importedProductRepository.findById(id)
 			                                                                  .orElseThrow(() -> new NotFoundException(
-					                                                                  "Imported product not found")));
+					                                                                  "messages.importedProducts.notfound")));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
 	}
 
-	//@Cacheable(value = "importedProducts", key = "#filter, #id")
+	@Cacheable(value = "importedProducts", key = "'filter:' + #filter + ':id:' + #id")
 	@Override
 	public List<ImportedProductDTO> getImportedProductByFilter(Filter filter, Long id) {
 		return switch (filter) {
@@ -210,7 +223,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		};
 	}
 
-	//@Cacheable(value = "colors")
+	@Cacheable(value = "colors", key = "'all'")
 	@Override
 	public List<ColorDTO> getColors() {
 		return colorRepository.findByDeletedAtIsNull().stream()
@@ -218,7 +231,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		                      .toList();
 	}
 
-	//@Cacheable(value = "materials")
+	@Cacheable(value = "materials", key = "'all'")
 	@Override
 	public List<MaterialDTO> getMaterials() {
 		return materialRepository.findByDeletedAtIsNull()
@@ -227,7 +240,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		                         .toList();
 	}
 
-	//@Cacheable(value = "sizes")
+	@Cacheable(value = "sizes", key = "'all'")
 	@Override
 	public List<SizeDTO> getSizes() {
 		return sizeRepository.findByDeletedAtIsNull()

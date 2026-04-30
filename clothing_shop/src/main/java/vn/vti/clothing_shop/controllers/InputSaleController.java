@@ -32,7 +32,7 @@ public class InputSaleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> getInputSaleById(@PathVariable @NotNull(message = "Vui lòng nhập id") Long id) {
+    public ResponseEntity<BaseMessageResponse> getInputSaleById(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         try {
             return ResponseHandler.successBuilder(HttpStatus.OK, inputSaleService.getInputSaleById(id));
         } catch (WrapperException e) {
@@ -41,24 +41,24 @@ public class InputSaleController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<BaseMessageResponse> createInputSale(@RequestBody @Valid @NotNull(message = "Vui lòng nhập thông tin sản phẩm nhập") InputSaleCreateRequest inputSaleCreateRequest) {
+    public ResponseEntity<BaseMessageResponse> createInputSale(@RequestBody @Valid @NotNull(message = "{messages.validation.required}") InputSaleCreateRequest inputSaleCreateRequest) {
         inputSaleService.createInputSale(inputSaleCreateRequest);
-        return ResponseHandler.successBuilder(HttpStatus.CREATED, "Thêm sản phẩm nhập thành công");
+        return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.inputSales.created");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateInputSale(@PathVariable @NotNull(message = "Vui lòng nhập id") Long id, @RequestBody @Valid @NotNull(message = "Vui lòng nhập thông tin sản phẩm nhập") InputSaleUpdateRequest inputSaleUpdateRequest) {
+    public ResponseEntity<BaseMessageResponse> updateInputSale(@PathVariable @NotNull(message = "{messages.validation.required}") Long id, @RequestBody @Valid @NotNull(message = "{messages.validation.required}") InputSaleUpdateRequest inputSaleUpdateRequest) {
         try {
             inputSaleService.updateInputSale(inputSaleUpdateRequest, id);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "Cập nhật sản phẩm nhập thành công");
+            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.inputSales.updated");
         } catch (WrapperException e) {
             return ResponseHandler.exceptionBuilder(e);
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteInputSale(@PathVariable @NotNull(message = "Vui lòng nhập id") Long id) {
+    public ResponseEntity<BaseMessageResponse> deleteInputSale(@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
         inputSaleService.deleteInputSale(id);
-        return ResponseHandler.successBuilder(HttpStatus.OK, "Xóa sản phẩm nhập thành công");
+        return ResponseHandler.successBuilder(HttpStatus.OK, "messages.inputSales.deleted");
     }
 }

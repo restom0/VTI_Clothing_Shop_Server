@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ChatUpdateRequest(
-        @NotBlank(message = "Vui lòng nhập tin nhắn")
-        @Size(max = 255, message = "Tin nhắn không được vượt quá 255 ký tự")
+        @NotBlank(message = "{messages.validation.required}")
+        @Size(max = 255, message = "{messages.validation.max255}")
         String content,
 
         @NotNull

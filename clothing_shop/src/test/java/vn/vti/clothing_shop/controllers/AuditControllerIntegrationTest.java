@@ -8,27 +8,27 @@ import java.util.stream.Stream;
 
 class AuditControllerIntegrationTest extends ControllerIntegrationTestSupport {
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldReachAuditEndpoints(ApiEndpoint endpoint) throws Exception {
-        shouldReach(endpoint);
-    }
+	static Stream<ApiEndpoint> endpoints() {
+		return Stream.of(
+				endpoint("GET /audit/", HttpMethod.GET, "/audit/", null, 200, Auth.ADMIN, true, true)
+		);
+	}
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldRejectAuditEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
-        shouldRejectWithoutToken(endpoint);
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldReachAuditEndpoints(ApiEndpoint endpoint) throws Exception {
+		shouldReach(endpoint);
+	}
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldRejectAuditEndpointsForRegularUser(ApiEndpoint endpoint) throws Exception {
-        shouldRejectUser(endpoint);
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldRejectAuditEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
+		shouldRejectWithoutToken(endpoint);
+	}
 
-    static Stream<ApiEndpoint> endpoints() {
-        return Stream.of(
-                endpoint("GET /audit/", HttpMethod.GET, "/audit/", null, 200, Auth.ADMIN, true, true)
-        );
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldRejectAuditEndpointsForRegularUser(ApiEndpoint endpoint) throws Exception {
+		shouldRejectUser(endpoint);
+	}
 }

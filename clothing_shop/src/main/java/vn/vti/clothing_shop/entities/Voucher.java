@@ -16,25 +16,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 public class Voucher extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String code;
+	@Column(unique = true, nullable = false)
+	private String code;
 
-    @Column(nullable = false)
-    private Long availableDate;
+	@Column(nullable = false)
+	private Long availableDate;
 
-    @Column(nullable = false)
-    private Long endDate;
+	@Column(nullable = false)
+	private Long endDate;
 
-    @Column(nullable = false)
-    private Integer inputStock;
+	@Column(nullable = false)
+	private Integer inputStock;
 
-    @Column(nullable = false)
-    private Integer stock;
+	@Column(nullable = false)
+	private Integer stock;
 
-    @Column(name = "voucher_value", nullable = false)
-    private Float value;
+	@Column(name = "voucher_value", nullable = false)
+	private Float value;
 }

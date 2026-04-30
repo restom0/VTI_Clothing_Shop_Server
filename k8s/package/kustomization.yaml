@@ -5,12 +5,16 @@ namespace: vti-clothing-shop
 resources:
   - namespace.yaml
   - app-config.yaml
-  - app-secret.yaml
   - postgres.yaml
   - valkey.yaml
   - mongo.yaml
   - server.yaml
   - nginx-gateway.yaml
+
+secretGenerator:
+  - name: clothing-shop-server-secret
+    envs:
+      - app-secret.env
 
 configMapGenerator:
   - name: postgres-init

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import vn.vti.clothing_shop.mappers.OnSaleProductMapper;
 import vn.vti.clothing_shop.responses.BaseMessageResponse;
 import vn.vti.clothing_shop.responses.ResponseHandler;
 import vn.vti.clothing_shop.services.interfaces.OnSaleProductService;
@@ -18,14 +19,17 @@ import vn.vti.clothing_shop.services.interfaces.OnSaleProductService;
 @RequiredArgsConstructor
 public class OnSaleProductController {
 	private final OnSaleProductService onSaleProductService;
+	private final OnSaleProductMapper onSaleProductMapper;
 
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllOnSaleProducts() {
-		return ResponseHandler.successBuilder(HttpStatus.OK, onSaleProductService.getAllOnSaleProducts());
+		return ResponseHandler.successBuilder(HttpStatus.OK,
+		                                      onSaleProductMapper.entityToDTO(onSaleProductService.getAllOnSaleProducts()));
 	}
 
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getOnSaleProductById(@PathVariable Long id) {
-		return ResponseHandler.successBuilder(HttpStatus.OK, onSaleProductService.getOnSaleProductById(id));
+		return ResponseHandler.successBuilder(HttpStatus.OK,
+		                                      onSaleProductMapper.entityToDTO(onSaleProductService.getOnSaleProductById(id)));
 	}
 }

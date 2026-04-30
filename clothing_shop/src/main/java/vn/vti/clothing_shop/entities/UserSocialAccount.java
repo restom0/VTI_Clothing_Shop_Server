@@ -24,31 +24,31 @@ import vn.vti.clothing_shop.constants.SocialAuthProvider;
 @AllArgsConstructor
 @Entity
 @Table(
-        name = "user_social_accounts",
-        uniqueConstraints = @UniqueConstraint(
-                name = "uk_user_social_accounts_provider_user",
-                columnNames = {"provider", "provider_user_id"}
-        )
+		name = "user_social_accounts",
+		uniqueConstraints = @UniqueConstraint(
+				name = "uk_user_social_accounts_provider_user",
+				columnNames = { "provider", "provider_user_id" }
+		)
 )
 public class UserSocialAccount extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 32)
-    private SocialAuthProvider provider;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 32)
+	private SocialAuthProvider provider;
 
-    @Column(name = "provider_user_id", nullable = false)
-    private String providerUserId;
+	@Column(name = "provider_user_id", nullable = false)
+	private String providerUserId;
 
-    private String email;
+	private String email;
 
-    private String name;
+	private String name;
 
-    private String avatarUrl;
+	private String avatarUrl;
 }

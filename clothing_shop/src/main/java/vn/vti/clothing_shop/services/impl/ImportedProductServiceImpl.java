@@ -13,10 +13,6 @@ import lombok.AllArgsConstructor;
 import vn.vti.clothing_shop.constants.Filter;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
-import vn.vti.clothing_shop.dtos.outs.ColorDTO;
-import vn.vti.clothing_shop.dtos.outs.ImportedProductDTO;
-import vn.vti.clothing_shop.dtos.outs.MaterialDTO;
-import vn.vti.clothing_shop.dtos.outs.SizeDTO;
 import vn.vti.clothing_shop.entities.Color;
 import vn.vti.clothing_shop.entities.ImportedProduct;
 import vn.vti.clothing_shop.entities.Material;
@@ -48,16 +44,6 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 	private final ColorMapper colorMapper;
 	private final SizeMapper sizeMapper;
 	private final MaterialMapper materialMapper;
-
-	@Cacheable(value = "importedProducts", key = "'all'")
-	@Override
-	public List<ImportedProductDTO> getAllImportedProducts() {
-		return importedProductRepository
-				.findAll()
-				.stream()
-				.map(importedProductMapper::entityToDTO)
-				.toList();
-	}
 
 	@Caching(evict = {
 			@CacheEvict(value = "importedProducts", allEntries = true),
@@ -175,11 +161,11 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 
 	@Cacheable(value = "importedProducts", key = "'id:' + #id")
 	@Override
-	public ImportedProductDTO findImportedProductById(Long id) throws WrapperException {
+	public ImportedProduct findImportedProductById(Long id) throws WrapperException {
 		try {
-			return importedProductMapper.entityToDTO(importedProductRepository.findById(id)
-			                                                                  .orElseThrow(() -> new NotFoundException(
-					                                                                  "messages.importedProducts.notfound")));
+			return importedProductRepository.findById(id)
+			                                .orElseThrow(() -> new NotFoundException(
+					                                "messages.importedProducts.notfound"));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
@@ -187,65 +173,45 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 
 	@Cacheable(value = "importedProducts", key = "'filter:' + #filter + ':id:' + #id")
 	@Override
-	public List<ImportedProductDTO> getImportedProductByFilter(Filter filter, Long id) {
+	public List<ImportedProduct> getImportedProductByFilter(Filter filter, Long id) {
 		return switch (filter) {
 			case ALL -> getAllImportedProducts();
 			case PRODUCT -> importedProductRepository
-					.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 			case CATEGORY -> importedProductRepository
-					.findByDeletedAtIsNullAndProduct_Category_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndProduct_Category_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 			case BRAND -> importedProductRepository
-					.findByDeletedAtIsNullAndProduct_Brand_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndProduct_Brand_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 			case COLOR -> importedProductRepository
-					.findByDeletedAtIsNullAndColor_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndColor_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 			case SIZE -> importedProductRepository
-					.findByDeletedAtIsNullAndSize_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndSize_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 			case MATERIAL -> importedProductRepository
-					.findByDeletedAtIsNullAndMaterial_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO)
-					.stream()
-					.map(importedProductMapper::entityToDTO)
-					.toList();
+					.findByDeletedAtIsNullAndMaterial_IdAndStockGreaterThan(id, NumberUtils.INTEGER_ZERO);
 		};
+	}
+
+	@Cacheable(value = "importedProducts", key = "'all'")
+	@Override
+	public List<ImportedProduct> getAllImportedProducts() {
+		return importedProductRepository.findAll();
 	}
 
 	@Cacheable(value = "colors", key = "'all'")
 	@Override
-	public List<ColorDTO> getColors() {
-		return colorRepository.findByDeletedAtIsNull().stream()
-		                      .map(colorMapper::entityToDTO)
-		                      .toList();
+	public List<Color> getColors() {
+		return colorRepository.findByDeletedAtIsNull();
 	}
 
 	@Cacheable(value = "materials", key = "'all'")
 	@Override
-	public List<MaterialDTO> getMaterials() {
-		return materialRepository.findByDeletedAtIsNull()
-		                         .stream()
-		                         .map(materialMapper::entityToDTO)
-		                         .toList();
+	public List<Material> getMaterials() {
+		return materialRepository.findByDeletedAtIsNull();
 	}
 
 	@Cacheable(value = "sizes", key = "'all'")
 	@Override
-	public List<SizeDTO> getSizes() {
-		return sizeRepository.findByDeletedAtIsNull()
-		                     .stream()
-		                     .map(sizeMapper::entityToDTO)
-		                     .toList();
+	public List<Size> getSizes() {
+		return sizeRepository.findByDeletedAtIsNull();
 	}
 }

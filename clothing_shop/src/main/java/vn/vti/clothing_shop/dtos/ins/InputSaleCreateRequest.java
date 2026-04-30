@@ -10,27 +10,27 @@ import vn.vti.clothing_shop.constants.InputSaleFilter;
 import java.time.LocalDate;
 
 public record InputSaleCreateRequest(
-        @NotNull(message = "{messages.validation.required}")
-        InputSaleFilter filter,
+		@NotNull(message = "{messages.validation.required}")
+		InputSaleFilter filter,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Long filterId,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Long filterId,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Float salePercentage,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Float salePercentage,
 
-        @NotNull(message = "{messages.validation.required}")
-        @PositiveOrZero
-        @DecimalMax(value = "100.00", message = "{messages.validation.discount.max}")
-        Float discount,
+		@NotNull(message = "{messages.validation.required}")
+		@PositiveOrZero
+		@DecimalMax(value = "100.00", message = "{messages.validation.discount.max}")
+		Float discount,
 
-        @NotNull(message = "{messages.validation.required}")
-        LocalDate availableDate,
+		@NotNull(message = "{messages.validation.required}")
+		LocalDate availableDate,
 
-        @Future(message = "{messages.validation.future}")
-        LocalDate endDate
+		@Future(message = "{messages.validation.future}")
+		LocalDate endDate
 ) implements DateRange {
 
 }

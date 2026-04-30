@@ -20,21 +20,21 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"code", "category_id"}),
-        @UniqueConstraint(columnNames = {"name", "category_id"})
+		@UniqueConstraint(columnNames = { "code", "category_id" }),
+		@UniqueConstraint(columnNames = { "name", "category_id" })
 })
 public class Color extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String code;
+	@Column(nullable = false)
+	private String code;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @ManyToOne
-    @JoinColumn
-    private Category category;
+	@ManyToOne
+	@JoinColumn
+	private Category category;
 }

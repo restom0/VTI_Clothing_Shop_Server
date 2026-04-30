@@ -17,25 +17,25 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 public class Comment extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    private User user;
+	@ManyToOne
+	private User user;
 
-    @ManyToOne
-    private Product product;
+	@ManyToOne
+	private Product product;
 
-    @Column(nullable = false)
-    private String content;
+	@Column(nullable = false)
+	private String content;
 
-    private Boolean status;
+	private Boolean status;
 
-    @Column(
-            nullable = false,
-            columnDefinition = "REAL CHECK (star >= 0.0 AND star <= 5.0)"
-    )
-    private Float star;
+	@Column(
+			nullable = false,
+			columnDefinition = "REAL CHECK (star >= 0.0 AND star <= 5.0)"
+	)
+	private Float star;
 
 }

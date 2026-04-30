@@ -18,20 +18,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 public class Product extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String name;
+	@Column(unique = true, nullable = false)
+	private String name;
 
-    private String shortDescription;
+	private String shortDescription;
 
-    @ManyToOne
-    @JoinColumn
-    private Category category;
+	@ManyToOne
+	@JoinColumn
+	private Category category;
 
-    @ManyToOne
-    @JoinColumn
-    private Brand brand;
+	@ManyToOne
+	@JoinColumn
+	private Brand brand;
 }

@@ -9,23 +9,23 @@ import java.time.LocalDate;
 
 public record InputSaleUpdateRequest(
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Float salePercentage,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Float salePercentage,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        @DecimalMax(value = "100.00", message = "{messages.validation.discount.max}")
-        Float discount,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		@DecimalMax(value = "100.00", message = "{messages.validation.discount.max}")
+		Float discount,
 
-        LocalDate availableDate,
+		LocalDate availableDate,
 
-        @Future(message = "{messages.validation.future}")
-        LocalDate endDate,
+		@Future(message = "{messages.validation.future}")
+		LocalDate endDate,
 
-        @NotNull
-        @Positive
-        Long version
+		@NotNull
+		@Positive
+		Long version
 ) implements DateRange {
 
 }

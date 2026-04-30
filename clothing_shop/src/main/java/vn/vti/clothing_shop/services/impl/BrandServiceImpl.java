@@ -13,7 +13,6 @@ import lombok.AllArgsConstructor;
 import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.BrandCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.BrandUpdateRequest;
-import vn.vti.clothing_shop.dtos.outs.BrandDTO;
 import vn.vti.clothing_shop.entities.Brand;
 import vn.vti.clothing_shop.exceptions.ConflictException;
 import vn.vti.clothing_shop.exceptions.NotFoundException;
@@ -33,20 +32,17 @@ public class BrandServiceImpl implements BrandService {
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
 	@Cacheable(value = "brands", key = "'all'")
-	public List<BrandDTO> getBrands() {
-		List<BrandDTO> mongoBrands = readModelQueryService.findAll(ReadModelType.BRAND, BrandDTO.class);
+	public List<Brand> getBrands() {
+		List<Brand> mongoBrands = readModelQueryService.findAll(ReadModelType.BRAND, Brand.class);
 		if (mongoBrands != null && !mongoBrands.isEmpty()) {
 			return mongoBrands;
 		}
-		return brandRepository.findByDeletedAtIsNullOrderByIdDesc()
-		                      .stream()
-		                      .map(brandMapper::entityToDTO)
-		                      .toList();
+		return brandRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
 	@CacheEvict(value = "brands", allEntries = true)
 	@Transactional
-	public BrandDTO createBrand(BrandCreateRequest brandCreateRequest) throws WrapperException {
+	public Brand createBrand(BrandCreateRequest brandCreateRequest) throws WrapperException {
 		try {
 			if (brandRepository.existsByDeletedAtIsNullAndName(brandCreateRequest.name())) {
 				throw new ConflictException("messages.brands.exists");
@@ -54,7 +50,7 @@ public class BrandServiceImpl implements BrandService {
 			final Brand newBrand = brandMapper.createRequestToEntity(brandCreateRequest);
 			Brand savedBrand = brandRepository.save(newBrand);
 			readModelSyncService.syncAfterCommit(ReadModelType.BRAND, savedBrand.getId());
-			return brandMapper.entityToDTO(savedBrand);
+			return savedBrand;
 		} catch (ConflictException e) {
 			throw new WrapperException(e);
 		}
@@ -66,7 +62,7 @@ public class BrandServiceImpl implements BrandService {
 	})
 	@Transactional
 	@Override
-	public BrandDTO updateBrand(BrandUpdateRequest brandUpdateRequest, Long id) throws WrapperException {
+	public Brand updateBrand(BrandUpdateRequest brandUpdateRequest, Long id) throws WrapperException {
 		try {
 			Brand oldBrand = brandRepository.findById(id)
 			                                .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_BRAND_NOTFOUND));
@@ -77,7 +73,7 @@ public class BrandServiceImpl implements BrandService {
 			Brand savedBrand = brandRepository.save(newBrand);
 			readModelSyncService.syncAfterCommit(ReadModelType.BRAND, savedBrand.getId());
 			readModelSyncService.syncAllProductsAfterCommit();
-			return brandMapper.entityToDTO(savedBrand);
+			return savedBrand;
 		} catch (NotFoundException | ConflictException e) {
 			throw new WrapperException(e);
 		}
@@ -104,15 +100,14 @@ public class BrandServiceImpl implements BrandService {
 
 	@Cacheable(value = "brands", key = "'id:' + #id")
 	@Override
-	public BrandDTO findBrandById(Long id) throws WrapperException {
+	public Brand findBrandById(Long id) throws WrapperException {
 		try {
-			var mongoBrand = readModelQueryService.findById(ReadModelType.BRAND, id, BrandDTO.class);
+			var mongoBrand = readModelQueryService.findById(ReadModelType.BRAND, id, Brand.class);
 			if (mongoBrand != null && mongoBrand.isPresent()) {
 				return mongoBrand.get();
 			}
-			final Brand brand = brandRepository.findByDeletedAtIsNullAndId(id)
-			                                   .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_BRAND_NOTFOUND));
-			return brandMapper.entityToDTO(brand);
+			return brandRepository.findByDeletedAtIsNullAndId(id)
+			                      .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_BRAND_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}

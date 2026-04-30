@@ -8,13 +8,13 @@ import java.util.Optional;
 
 @Repository
 public interface ReadModelRepository extends MongoRepository<ReadModelDocument, String> {
-    List<ReadModelDocument> findByModelAndDeletedFalseOrderBySortValueDesc(String model);
+	List<ReadModelDocument> findByModelAndDeletedFalseOrderBySortValueDesc(String model);
 
-    List<ReadModelDocument> findByModelAndOwnerIdAndDeletedFalseOrderBySortValueDesc(String model, Long ownerId);
+	List<ReadModelDocument> findByModelAndOwnerIdAndDeletedFalseOrderBySortValueDesc(String model, Long ownerId);
 
-    Optional<ReadModelDocument> findByModelAndEntityIdAndDeletedFalse(String model, Long entityId);
+	Optional<ReadModelDocument> findByModelAndEntityIdAndDeletedFalse(String model, Long entityId);
 
-    Optional<ReadModelDocument> findByModelAndEntityIdAndOwnerIdAndDeletedFalse(String model, Long entityId, Long ownerId);
+	Optional<ReadModelDocument> findByModelAndEntityIdAndOwnerIdAndDeletedFalse(String model, Long entityId, Long ownerId);
 
-    Optional<ReadModelDocument> findByModelAndLookupKeyAndDeletedFalse(String model, String lookupKey);
+	Optional<ReadModelDocument> findByModelAndLookupKeyAndDeletedFalse(String model, String lookupKey);
 }

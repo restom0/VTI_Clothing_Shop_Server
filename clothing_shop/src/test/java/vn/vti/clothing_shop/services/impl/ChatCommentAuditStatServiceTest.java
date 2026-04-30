@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.constants.UserRole;
 import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
@@ -41,164 +42,164 @@ import static org.mockito.Mockito.when;
 
 class ChatCommentAuditStatServiceTest {
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class AuditServiceTest {
-        @Mock
-        AuditMapper auditMapper;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class AuditServiceTest {
+		@Mock
+		AuditMapper auditMapper;
 
-        @Mock
-        AuditRepository auditRepository;
+		@Mock
+		AuditRepository auditRepository;
 
-        @Mock
-        UserRepository userRepository;
+		@Mock
+		UserRepository userRepository;
 
-        @InjectMocks
-        AuditServiceImpl service;
+		@InjectMocks
+		AuditServiceImpl service;
 
-        @Test
-        void createAuditSavesMappedAudit() throws WrapperException {
-            AuditDTO dto = new AuditDTO();
-            User user = new User();
-            Audit audit = new Audit();
+		@Test
+		void createAuditSavesMappedAudit() throws WrapperException {
+			AuditDTO dto = new AuditDTO();
+			User user = new User();
+			Audit audit = new Audit();
 
-            when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-            when(auditMapper.dtoToEntity(dto, user)).thenReturn(audit);
+			when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+			when(auditMapper.dtoToEntity(dto, user)).thenReturn(audit);
 
-            service.createAudit(dto, 1L);
+			service.createAudit(dto, 1L);
 
-            verify(auditRepository).save(audit);
-        }
+			verify(auditRepository).save(audit);
+		}
 
-        @Test
-        void createAuditWrapsMissingUser() {
-            when(userRepository.findById(1L)).thenReturn(Optional.empty());
+		@Test
+		void createAuditWrapsMissingUser() {
+			when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.createAudit(new AuditDTO(), 1L))
-                    .isInstanceOf(WrapperException.class);
-        }
-    }
+			assertThatThrownBy(() -> service.createAudit(new AuditDTO(), 1L))
+					.isInstanceOf(WrapperException.class);
+		}
+	}
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class ChatServiceTest {
-        @Mock
-        ChatRepository chatRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class ChatServiceTest {
+		@Mock
+		ChatRepository chatRepository;
 
-        @Mock
-        UserRepository userRepository;
+		@Mock
+		UserRepository userRepository;
 
-        @Mock
-        ChatMapper chatMapper;
+		@Mock
+		ChatMapper chatMapper;
 
-        @InjectMocks
-        ChatServiceImpl service;
+		@InjectMocks
+		ChatServiceImpl service;
 
-        @Test
-        void replyChatSavesReplyAndUpdatesOriginalChat() throws WrapperException {
-            User user = new User();
-            Chat original = new Chat();
-            Chat reply = new Chat();
-            ChatReplyRequest request = new ChatReplyRequest("hello");
+		@Test
+		void replyChatSavesReplyAndUpdatesOriginalChat() throws WrapperException {
+			User user = new User();
+			Chat original = new Chat();
+			Chat reply = new Chat();
+			ChatReplyRequest request = new ChatReplyRequest("hello");
 
-            when(userRepository.findByDeletedAtIsNullAndId(9L)).thenReturn(Optional.of(user));
-            when(chatRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(original));
-            when(chatMapper.replyRequestToEntity(request, user)).thenReturn(reply);
+			when(userRepository.findByDeletedAtIsNullAndId(9L)).thenReturn(Optional.of(user));
+			when(chatRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(original));
+			when(chatMapper.replyRequestToEntity(request, user)).thenReturn(reply);
 
-            service.replyChat(1L, 9L, request);
+			service.replyChat(1L, 9L, request);
 
-            assertThat(original.getReply()).isSameAs(reply);
-            verify(chatRepository).save(reply);
-            verify(chatRepository).save(original);
-        }
-    }
+			assertThat(original.getReply()).isSameAs(reply);
+			verify(chatRepository).save(reply);
+			verify(chatRepository).save(original);
+		}
+	}
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class CommentServiceTest {
-        @Mock
-        CommentRepository commentRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class CommentServiceTest {
+		@Mock
+		CommentRepository commentRepository;
 
-        @Mock
-        ProductRepository productRepository;
+		@Mock
+		ProductRepository productRepository;
 
-        @Mock
-        UserRepository userRepository;
+		@Mock
+		UserRepository userRepository;
 
-        @Mock
-        CommentMapper commentMapper;
+		@Mock
+		CommentMapper commentMapper;
 
-        @InjectMocks
-        CommentServiceImpl service;
+		@InjectMocks
+		CommentServiceImpl service;
 
-        @Test
-        void createCommentSavesMappedComment() throws WrapperException {
-            CommentCreateRequest request = new CommentCreateRequest(1L, "good", 5F);
-            Product product = new Product();
-            User user = new User();
-            Comment comment = new Comment();
+		@Test
+		void createCommentSavesMappedComment() throws WrapperException {
+			CommentCreateRequest request = new CommentCreateRequest(1L, "good", 5F);
+			Product product = new Product();
+			User user = new User();
+			Comment comment = new Comment();
 
-            when(productRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(product));
-            when(userRepository.findById(9L)).thenReturn(Optional.of(user));
-            when(commentMapper.createRequestToEntity(request, user, product)).thenReturn(comment);
+			when(productRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(product));
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(commentMapper.createRequestToEntity(request, user, product)).thenReturn(comment);
 
-            service.createComment(9L, request);
+			service.createComment(9L, request);
 
-            verify(commentRepository).save(comment);
-        }
+			verify(commentRepository).save(comment);
+		}
 
-        @Test
-        void createCommentWrapsMissingProduct() {
-            CommentCreateRequest request = new CommentCreateRequest(1L, "good", 5F);
-            when(productRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.empty());
+		@Test
+		void createCommentWrapsMissingProduct() {
+			CommentCreateRequest request = new CommentCreateRequest(1L, "good", 5F);
+			when(productRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.createComment(9L, request))
-                    .isInstanceOf(WrapperException.class);
-        }
-    }
+			assertThatThrownBy(() -> service.createComment(9L, request))
+					.isInstanceOf(WrapperException.class);
+		}
+	}
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class StatServiceTest {
-        @Mock
-        OrderRepository orderRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class StatServiceTest {
+		@Mock
+		OrderRepository orderRepository;
 
-        @Mock
-        UserRepository userRepository;
+		@Mock
+		UserRepository userRepository;
 
-        @Mock
-        OrderItemRepository orderItemRepository;
+		@Mock
+		OrderItemRepository orderItemRepository;
 
-        @InjectMocks
-        StatServiceImpl service;
+		@InjectMocks
+		StatServiceImpl service;
 
-        @Test
-        void getStatCollectsDashboardCounters() {
-            when(orderRepository.sumTotalPriceByDeletedAtIsNullAndPaymentStatus(PaymentStatus.COMPLETED)).thenReturn(1000L);
-            when(orderRepository.count()).thenReturn(3L);
-            when(orderRepository.countByDeletedAtIsNullAndPaymentStatus(PaymentStatus.COMPLETED)).thenReturn(2L);
-            when(userRepository.countByDeletedAtIsNullAndRole(UserRole.USER)).thenReturn(4L);
-            when(orderItemRepository.countByDeletedAtIsNullAndOrder_PaymentStatus(PaymentStatus.COMPLETED)).thenReturn(5L);
+		@Test
+		void getStatCollectsDashboardCounters() {
+			when(orderRepository.sumTotalPriceByDeletedAtIsNullAndPaymentStatus(PaymentStatus.COMPLETED)).thenReturn(1000L);
+			when(orderRepository.count()).thenReturn(3L);
+			when(orderRepository.countByDeletedAtIsNullAndPaymentStatus(PaymentStatus.COMPLETED)).thenReturn(2L);
+			when(userRepository.countByDeletedAtIsNullAndRole(UserRole.USER)).thenReturn(4L);
+			when(orderItemRepository.countByDeletedAtIsNullAndOrder_PaymentStatus(PaymentStatus.COMPLETED)).thenReturn(5L);
 
-            Map<String, Long> stat = service.getStat();
+			Map<String, Long> stat = service.getStat();
 
-            assertThat(stat).containsEntry("income", 1000L)
-                    .containsEntry("order", 3L)
-                    .containsEntry("completed", 2L)
-                    .containsEntry("user", 4L)
-                    .containsEntry("product", 5L);
-        }
+			assertThat(stat).containsEntry("income", 1000L)
+			                .containsEntry("order", 3L)
+			                .containsEntry("completed", 2L)
+			                .containsEntry("user", 4L)
+			                .containsEntry("product", 5L);
+		}
 
-        @Test
-        void getMonthlyIncomeForLastFiveYearsReturnsTwelveMonthsEach() {
-            int currentYear = LocalDate.now().getYear();
-            when(orderRepository.sumTotalPriceByMonthAndYear(1, currentYear)).thenReturn(100L);
+		@Test
+		void getMonthlyIncomeForLastFiveYearsReturnsTwelveMonthsEach() {
+			int currentYear = LocalDate.now().getYear();
+			when(orderRepository.sumTotalPriceByMonthAndYear(1, currentYear)).thenReturn(100L);
 
-            Map<Integer, ArrayList<Long>> result = service.getMonthlyIncomeForLast5Years();
+			Map<Integer, ArrayList<Long>> result = service.getMonthlyIncomeForLast5Years();
 
-            assertThat(result).hasSize(5);
-            assertThat(result.get(currentYear)).hasSize(12);
-            assertThat(result.get(currentYear).get(0)).isEqualTo(100L);
-        }
-    }
+			assertThat(result).hasSize(5);
+			assertThat(result.get(currentYear)).hasSize(12);
+			assertThat(result.get(currentYear).get(0)).isEqualTo(100L);
+		}
+	}
 }

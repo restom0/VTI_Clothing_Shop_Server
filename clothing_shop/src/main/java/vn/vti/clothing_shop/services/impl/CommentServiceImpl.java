@@ -2,10 +2,11 @@ package vn.vti.clothing_shop.services.impl;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+
 import org.springframework.stereotype.Service;
+
 import vn.vti.clothing_shop.dtos.ins.CommentCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.CommentUpdateRequest;
-import vn.vti.clothing_shop.dtos.outs.CommentDTO;
 import vn.vti.clothing_shop.entities.Comment;
 import vn.vti.clothing_shop.entities.Product;
 import vn.vti.clothing_shop.entities.User;
@@ -24,68 +25,67 @@ import java.util.List;
 @AllArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
-    private final CommentRepository commentRepository;
-    private final ProductRepository productRepository;
-    private final UserRepository userRepository;
-    private final CommentMapper commentMapper;
+	private final CommentRepository commentRepository;
+	private final ProductRepository productRepository;
+	private final UserRepository userRepository;
+	private final CommentMapper commentMapper;
 
+	//@Cacheable(value = "comments")
+	@Override
+	public List<Comment> getAllComments() {
+		return commentRepository.findAll();
+	}
 
-    //@Cacheable(value = "comments")
-    @Override
-    public List<CommentDTO> getAllComments() {
-        return commentRepository.findAll().stream()
-                .map(commentMapper::entityToDTO)
-                .toList();
-    }
+	//@Cacheable(value = "comments", key = "#productId")
+	@Override
+	public List<Comment> getCommentByProductId(Long productId) {
+		return commentRepository.findByDeletedAtIsNullAndProductIdOrderByCreatedAtDesc(productId);
+	}
 
-    //@Cacheable(value = "comments", key = "#productId")
-    @Override
-    public List<CommentDTO> getCommentByProductId(Long productId) {
-        return commentRepository.findByDeletedAtIsNullAndProductIdOrderByCreatedAtDesc(productId).stream()
-                .map(commentMapper::entityToDTO)
-                .toList();
-    }
+	//@CacheEvict(value = "comments", allEntries = true)
+	@Transactional
+	@Override
+	public void createComment(Long userId, CommentCreateRequest commentCreateRequest) throws WrapperException {
+		try {
+			final Product product = productRepository.findByIdAndDeletedAtIsNull(commentCreateRequest.productId()).orElseThrow(
+					() -> new NotFoundException("messages.products.notfound"));
+			final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
+			final Comment comment = commentMapper.createRequestToEntity(commentCreateRequest, user, product);
+			commentRepository.save(comment);
+		} catch (NotFoundException ex) {
+			throw new WrapperException(ex);
+		}
+	}
 
-    //@CacheEvict(value = "comments", allEntries = true)
-    @Transactional
-    @Override
-    public void createComment(Long userId, CommentCreateRequest commentCreateRequest) throws WrapperException {
-        try {
-            final Product product = productRepository.findByIdAndDeletedAtIsNull(commentCreateRequest.productId()).orElseThrow(() -> new NotFoundException("messages.products.notfound"));
-            final User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
-            final Comment comment = commentMapper.createRequestToEntity(commentCreateRequest, user, product);
-            commentRepository.save(comment);
-        } catch (NotFoundException ex) {
-            throw new WrapperException(ex);
-        }
-    }
+	//@CachePut(value = "comments")
+	@Transactional
+	@Override
+	public void updateComment(Long id, Long userId, CommentUpdateRequest commentUpdateRequest) throws WrapperException {
+		try {
+			Comment comment = commentRepository.findByDeletedAtIsNullAndIdAndProductIdAndUserId(id,
+			                                                                                    commentUpdateRequest.productId(),
+			                                                                                    userId)
+			                                   .orElseThrow(() -> new NotFoundException("messages.comments.notfound"));
 
-    //@CachePut(value = "comments")
-    @Transactional
-    @Override
-    public void updateComment(Long id, Long userId, CommentUpdateRequest commentUpdateRequest) throws WrapperException {
-        try {
-            Comment comment = commentRepository.findByDeletedAtIsNullAndIdAndProductIdAndUserId(id, commentUpdateRequest.productId(), userId)
-                    .orElseThrow(() -> new NotFoundException("messages.comments.notfound"));
+			commentRepository.save(commentMapper.updateRequestToEntity(commentUpdateRequest, comment));
+		} catch (NotFoundException ex) {
+			throw new WrapperException(ex);
+		}
+	}
 
-            commentRepository.save(commentMapper.updateRequestToEntity(commentUpdateRequest, comment));
-        } catch (NotFoundException ex) {
-            throw new WrapperException(ex);
-        }
-    }
-
-    //@CacheEvict(value = "comments", allEntries = true)
-    @Transactional
-    @Override
-    public void deleteComment(Long id, Long userId) throws WrapperException {
-        try {
-            Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(() -> new NotFoundException("messages.comments.notfound"));
-            comment.setDeletedAt(Instant.now().toEpochMilli());
-            commentRepository.save(comment);
-        } catch (NotFoundException ex) {
-            throw new WrapperException(ex);
-        }
-    }
+	//@CacheEvict(value = "comments", allEntries = true)
+	@Transactional
+	@Override
+	public void deleteComment(Long id, Long userId) throws WrapperException {
+		try {
+			Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(
+					() -> new NotFoundException("messages.comments.notfound"));
+			comment.setDeletedAt(Instant.now().toEpochMilli());
+			commentRepository.save(comment);
+		} catch (NotFoundException ex) {
+			throw new WrapperException(ex);
+		}
+	}
 }
 
 

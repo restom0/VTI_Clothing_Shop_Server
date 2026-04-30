@@ -5,15 +5,15 @@ import jakarta.validation.constraints.Size;
 import vn.vti.clothing_shop.validators.PhoneNumber;
 
 public record OrderCreateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String address,
+		@NotBlank(message = "{messages.validation.required}")
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String address,
 
-        @PhoneNumber
-        String phoneNumber,
+		@PhoneNumber
+		String phoneNumber,
 
-        @NotBlank(message = "{messages.validation.required}")
-        String receiverName
+		@NotBlank(message = "{messages.validation.required}")
+		String receiverName
 ) {
 
 }

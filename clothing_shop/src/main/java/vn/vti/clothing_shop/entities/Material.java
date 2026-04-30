@@ -19,16 +19,16 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name", "category_id"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "category_id" }))
 public class Material extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @ManyToOne
-    @JoinColumn
-    private Category category;
+	@ManyToOne
+	@JoinColumn
+	private Category category;
 }

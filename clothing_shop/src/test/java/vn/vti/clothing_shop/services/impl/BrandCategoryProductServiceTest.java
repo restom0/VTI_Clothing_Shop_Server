@@ -6,12 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import vn.vti.clothing_shop.dtos.ins.BrandCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ProductCreateRequest;
-import vn.vti.clothing_shop.dtos.outs.BrandDTO;
-import vn.vti.clothing_shop.dtos.outs.CategoryDTO;
-import vn.vti.clothing_shop.dtos.outs.ProductDTO;
 import vn.vti.clothing_shop.entities.Brand;
 import vn.vti.clothing_shop.entities.Category;
 import vn.vti.clothing_shop.entities.Product;
@@ -33,169 +31,163 @@ import static org.mockito.Mockito.when;
 
 class BrandCategoryProductServiceTest {
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class BrandServiceTest {
-        @Mock
-        BrandRepository brandRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class BrandServiceTest {
+		@Mock
+		BrandRepository brandRepository;
 
-        @Mock
-        BrandMapper brandMapper;
+		@Mock
+		BrandMapper brandMapper;
 
-        @Mock
-        MongoReadModelQueryService readModelQueryService;
+		@Mock
+		MongoReadModelQueryService readModelQueryService;
 
-        @Mock
-        PostgresToMongoReadModelSyncService readModelSyncService;
+		@Mock
+		PostgresToMongoReadModelSyncService readModelSyncService;
 
-        @InjectMocks
-        BrandServiceImpl service;
+		@InjectMocks
+		BrandServiceImpl service;
 
-        @Test
-        void createBrandSavesAndReturnsDto() throws WrapperException {
-            BrandCreateRequest request = new BrandCreateRequest("Nike", "Sport");
-            Brand brand = new Brand();
-            Brand saved = new Brand();
-            BrandDTO dto = new BrandDTO(1L, "Nike", "Sport");
+		@Test
+		void createBrandSavesAndReturnsEntity() throws WrapperException {
+			BrandCreateRequest request = new BrandCreateRequest("Nike", "Sport");
+			Brand brand = new Brand();
+			Brand saved = new Brand();
 
-            when(brandRepository.existsByDeletedAtIsNullAndName("Nike")).thenReturn(false);
-            when(brandMapper.createRequestToEntity(request)).thenReturn(brand);
-            when(brandRepository.save(brand)).thenReturn(saved);
-            when(brandMapper.entityToDTO(saved)).thenReturn(dto);
+			when(brandRepository.existsByDeletedAtIsNullAndName("Nike")).thenReturn(false);
+			when(brandMapper.createRequestToEntity(request)).thenReturn(brand);
+			when(brandRepository.save(brand)).thenReturn(saved);
 
-            BrandDTO result = service.createBrand(request);
+			Brand result = service.createBrand(request);
 
-            assertThat(result).isSameAs(dto);
-            verify(brandRepository).save(brand);
-        }
+			assertThat(result).isSameAs(saved);
+			verify(brandRepository).save(brand);
+		}
 
-        @Test
-        void createBrandWrapsDuplicateName() {
-            BrandCreateRequest request = new BrandCreateRequest("Nike", "Sport");
-            when(brandRepository.existsByDeletedAtIsNullAndName("Nike")).thenReturn(true);
+		@Test
+		void createBrandWrapsDuplicateName() {
+			BrandCreateRequest request = new BrandCreateRequest("Nike", "Sport");
+			when(brandRepository.existsByDeletedAtIsNullAndName("Nike")).thenReturn(true);
 
-            assertThatThrownBy(() -> service.createBrand(request))
-                    .isInstanceOf(WrapperException.class);
-        }
+			assertThatThrownBy(() -> service.createBrand(request))
+					.isInstanceOf(WrapperException.class);
+		}
 
-        @Test
-        void deleteBrandSoftDeletesBrand() throws WrapperException {
-            Brand brand = new Brand();
-            when(brandRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(brand));
+		@Test
+		void deleteBrandSoftDeletesBrand() throws WrapperException {
+			Brand brand = new Brand();
+			when(brandRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(brand));
 
-            service.deleteBrand(1L);
+			service.deleteBrand(1L);
 
-            assertThat(brand.getDeletedAt()).isNotNull();
-            verify(brandRepository).save(brand);
-        }
-    }
+			assertThat(brand.getDeletedAt()).isNotNull();
+			verify(brandRepository).save(brand);
+		}
+	}
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class CategoryServiceTest {
-        @Mock
-        CategoryRepository categoryRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class CategoryServiceTest {
+		@Mock
+		CategoryRepository categoryRepository;
 
-        @Mock
-        CategoryMapper categoryMapper;
+		@Mock
+		CategoryMapper categoryMapper;
 
-        @Mock
-        MongoReadModelQueryService readModelQueryService;
+		@Mock
+		MongoReadModelQueryService readModelQueryService;
 
-        @Mock
-        PostgresToMongoReadModelSyncService readModelSyncService;
+		@Mock
+		PostgresToMongoReadModelSyncService readModelSyncService;
 
-        @InjectMocks
-        CategoryServiceImpl service;
+		@InjectMocks
+		CategoryServiceImpl service;
 
-        @Test
-        void addCategorySavesWhenNameIsUnique() throws WrapperException {
-            CategoryCreateRequest request = new CategoryCreateRequest("Shirt", "Top");
-            Category category = new Category();
-            Category saved = new Category();
-            CategoryDTO dto = new CategoryDTO(1L, "Shirt", "Top");
+		@Test
+		void addCategorySavesWhenNameIsUnique() throws WrapperException {
+			CategoryCreateRequest request = new CategoryCreateRequest("Shirt", "Top");
+			Category category = new Category();
+			Category saved = new Category();
 
-            when(categoryRepository.existsByDeletedAtIsNullAndName("Shirt")).thenReturn(false);
-            when(categoryMapper.createRequestToEntity(request)).thenReturn(category);
-            when(categoryRepository.save(category)).thenReturn(saved);
-            when(categoryMapper.entityToDTO(saved)).thenReturn(dto);
+			when(categoryRepository.existsByDeletedAtIsNullAndName("Shirt")).thenReturn(false);
+			when(categoryMapper.createRequestToEntity(request)).thenReturn(category);
+			when(categoryRepository.save(category)).thenReturn(saved);
 
-            CategoryDTO result = service.addCategory(request);
+			Category result = service.addCategory(request);
 
-            assertThat(result).isSameAs(dto);
-            verify(categoryRepository).save(category);
-        }
+			assertThat(result).isSameAs(saved);
+			verify(categoryRepository).save(category);
+		}
 
-        @Test
-        void deleteCategorySoftDeletesExistingCategory() throws WrapperException {
-            Category category = new Category();
-            when(categoryRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(category));
+		@Test
+		void deleteCategorySoftDeletesExistingCategory() throws WrapperException {
+			Category category = new Category();
+			when(categoryRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(category));
 
-            service.deleteCategory(1L);
+			service.deleteCategory(1L);
 
-            assertThat(category.getDeletedAt()).isNotNull();
-        }
-    }
+			assertThat(category.getDeletedAt()).isNotNull();
+		}
+	}
 
-    @ExtendWith(MockitoExtension.class)
-    @Nested
-    class ProductServiceTest {
-        @Mock
-        ProductRepository productRepository;
+	@ExtendWith(MockitoExtension.class)
+	@Nested
+	class ProductServiceTest {
+		@Mock
+		ProductRepository productRepository;
 
-        @Mock
-        BrandRepository brandRepository;
+		@Mock
+		BrandRepository brandRepository;
 
-        @Mock
-        CategoryRepository categoryRepository;
+		@Mock
+		CategoryRepository categoryRepository;
 
-        @Mock
-        ProductMapper productMapper;
+		@Mock
+		ProductMapper productMapper;
 
-        @Mock
-        MongoReadModelQueryService readModelQueryService;
+		@Mock
+		MongoReadModelQueryService readModelQueryService;
 
-        @Mock
-        PostgresToMongoReadModelSyncService readModelSyncService;
+		@Mock
+		PostgresToMongoReadModelSyncService readModelSyncService;
 
-        @InjectMocks
-        ProductServiceImpl service;
+		@InjectMocks
+		ProductServiceImpl service;
 
-        @Test
-        void getAllProductsMapsRepositoryResults() {
-            Product product = new Product();
-            ProductDTO dto = new ProductDTO();
-            when(productRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(product));
-            when(productMapper.entityToDTO(product)).thenReturn(dto);
+		@Test
+		void getAllProductsReturnsRepositoryResults() {
+			Product product = new Product();
+			when(productRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(product));
 
-            assertThat(service.getAllProducts()).containsExactly(dto);
-        }
+			assertThat(service.getAllProducts()).containsExactly(product);
+		}
 
-        @Test
-        void addProductSavesMappedEntityWhenReferencesExist() throws WrapperException {
-            ProductCreateRequest request = new ProductCreateRequest("T-Shirt", "Cotton", 1L, 2L);
-            Brand brand = new Brand();
-            Category category = new Category();
-            Product product = new Product();
-            product.setId(1L);
+		@Test
+		void addProductSavesMappedEntityWhenReferencesExist() throws WrapperException {
+			ProductCreateRequest request = new ProductCreateRequest("T-Shirt", "Cotton", 1L, 2L);
+			Brand brand = new Brand();
+			Category category = new Category();
+			Product product = new Product();
+			product.setId(1L);
 
-            when(brandRepository.findById(2L)).thenReturn(Optional.of(brand));
-            when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
-            when(productMapper.createRequestToEntity(request, category, brand)).thenReturn(product);
-            when(productRepository.save(product)).thenReturn(product);
+			when(brandRepository.findById(2L)).thenReturn(Optional.of(brand));
+			when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+			when(productMapper.createRequestToEntity(request, category, brand)).thenReturn(product);
+			when(productRepository.save(product)).thenReturn(product);
 
-            service.addProduct(request);
+			service.addProduct(request);
 
-            verify(productRepository).save(product);
-        }
+			verify(productRepository).save(product);
+		}
 
-        @Test
-        void addProductWrapsMissingBrand() {
-            ProductCreateRequest request = new ProductCreateRequest("T-Shirt", "Cotton", 1L, 2L);
-            when(brandRepository.findById(2L)).thenReturn(Optional.empty());
+		@Test
+		void addProductWrapsMissingBrand() {
+			ProductCreateRequest request = new ProductCreateRequest("T-Shirt", "Cotton", 1L, 2L);
+			when(brandRepository.findById(2L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.addProduct(request))
-                    .isInstanceOf(WrapperException.class);
-        }
-    }
+			assertThatThrownBy(() -> service.addProduct(request))
+					.isInstanceOf(WrapperException.class);
+		}
+	}
 }

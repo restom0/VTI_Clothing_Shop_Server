@@ -20,26 +20,26 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 @Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "category_id"}),
-                @UniqueConstraint(columnNames = {"weight", "category_id"}),
-                @UniqueConstraint(columnNames = {"height", "category_id"})})
+		uniqueConstraints = {
+				@UniqueConstraint(columnNames = { "name", "category_id" }),
+				@UniqueConstraint(columnNames = { "weight", "category_id" }),
+				@UniqueConstraint(columnNames = { "height", "category_id" }) })
 public class Size extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @Column(nullable = false)
-    private String height;
+	@Column(nullable = false)
+	private String height;
 
-    @Column(nullable = false)
-    private String weight;
+	@Column(nullable = false)
+	private String weight;
 
-    @ManyToOne
-    @JoinColumn
-    private Category category;
+	@ManyToOne
+	@JoinColumn
+	private Category category;
 
 }

@@ -2,6 +2,7 @@ package vn.vti.clothing_shop.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import vn.vti.clothing_shop.constants.UserRole;
 import vn.vti.clothing_shop.entities.User;
 
@@ -11,21 +12,21 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    List<User> findByDeletedAtIsNull();
+	List<User> findByDeletedAtIsNull();
 
-    List<User> findByDeletedAtIsNullAndRole(String role);
+	List<User> findByDeletedAtIsNullAndRole(String role);
 
-    Optional<User> findByDeletedAtIsNullAndId(Long id);
+	Optional<User> findByDeletedAtIsNullAndId(Long id);
 
-    Optional<User> findByDeletedAtIsNullAndEmail(String email);
+	Optional<User> findByDeletedAtIsNullAndEmail(String email);
 
-    Optional<User> findOneByDeletedAtIsNullAndUsernameOrEmailOrPhoneNumber(String username, String email, String phoneNumber);
+	Optional<User> findOneByDeletedAtIsNullAndUsernameOrEmailOrPhoneNumber(String username, String email, String phoneNumber);
 
-    long countByDeletedAtIsNullAndRole(UserRole role);
+	long countByDeletedAtIsNullAndRole(UserRole role);
 
-    boolean existsByDeletedAtIsNullAndUsername(String username);
+	boolean existsByDeletedAtIsNullAndUsername(String username);
 
-    boolean existsByDeletedAtIsNullAndEmail(String email);
+	boolean existsByDeletedAtIsNullAndEmail(String email);
 
-    boolean existsByDeletedAtIsNullAndPhoneNumber(String phoneNumber);
+	boolean existsByDeletedAtIsNullAndPhoneNumber(String phoneNumber);
 }

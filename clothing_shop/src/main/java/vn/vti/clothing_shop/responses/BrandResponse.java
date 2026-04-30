@@ -16,8 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BrandResponse {
-    private BrandDTO brandDTO;
-    private List<ColorDTO> colorDTO;
-    private List<SizeDTO> sizeDTO;
-    private List<MaterialDTO> materialDTO;
+	private BrandDTO brandDTO;
+	private List<ColorDTO> colorDTO;
+	private List<SizeDTO> sizeDTO;
+	private List<MaterialDTO> materialDTO;
 }

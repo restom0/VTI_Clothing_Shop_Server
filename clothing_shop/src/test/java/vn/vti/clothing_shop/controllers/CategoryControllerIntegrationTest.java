@@ -8,29 +8,30 @@ import java.util.stream.Stream;
 
 class CategoryControllerIntegrationTest extends ControllerIntegrationTestSupport {
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldReachCategoryEndpoints(ApiEndpoint endpoint) throws Exception {
-        shouldReach(endpoint);
-    }
+	static Stream<ApiEndpoint> protectedEndpoints() {
+		return endpoints().filter(ApiEndpoint::protectedEndpoint);
+	}
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("protectedEndpoints")
-    void shouldRejectProtectedCategoryEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
-        shouldRejectWithoutToken(endpoint);
-    }
+	static Stream<ApiEndpoint> endpoints() {
+		return Stream.of(
+				endpoint("GET /categories", HttpMethod.GET, "/categories", null, 200, Auth.NONE, false, false),
+				endpoint("POST /categories", HttpMethod.POST, "/categories", categoryCreateJson(), 201, Auth.USER, true, false),
+				endpoint("PUT /categories/{id}", HttpMethod.PUT, "/categories/1", categoryUpdateJson(), 200, Auth.USER, true,
+				         false),
+				endpoint("DELETE /categories/{id}", HttpMethod.DELETE, "/categories/1", null, 200, Auth.USER, true, false),
+				endpoint("GET /categories/{id}", HttpMethod.GET, "/categories/1", null, 200, Auth.NONE, false, false)
+		);
+	}
 
-    static Stream<ApiEndpoint> endpoints() {
-        return Stream.of(
-                endpoint("GET /categories", HttpMethod.GET, "/categories", null, 200, Auth.NONE, false, false),
-                endpoint("POST /categories", HttpMethod.POST, "/categories", categoryCreateJson(), 201, Auth.USER, true, false),
-                endpoint("PUT /categories/{id}", HttpMethod.PUT, "/categories/1", categoryUpdateJson(), 200, Auth.USER, true, false),
-                endpoint("DELETE /categories/{id}", HttpMethod.DELETE, "/categories/1", null, 200, Auth.USER, true, false),
-                endpoint("GET /categories/{id}", HttpMethod.GET, "/categories/1", null, 200, Auth.NONE, false, false)
-        );
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldReachCategoryEndpoints(ApiEndpoint endpoint) throws Exception {
+		shouldReach(endpoint);
+	}
 
-    static Stream<ApiEndpoint> protectedEndpoints() {
-        return endpoints().filter(ApiEndpoint::protectedEndpoint);
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("protectedEndpoints")
+	void shouldRejectProtectedCategoryEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
+		shouldRejectWithoutToken(endpoint);
+	}
 }

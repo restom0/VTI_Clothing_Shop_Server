@@ -8,16 +8,16 @@ import java.util.stream.Stream;
 
 class OnSaleProductControllerIntegrationTest extends ControllerIntegrationTestSupport {
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldReachOnSaleProductEndpoints(ApiEndpoint endpoint) throws Exception {
-        shouldReach(endpoint);
-    }
+	static Stream<ApiEndpoint> endpoints() {
+		return Stream.of(
+				endpoint("GET /on-sale-product", HttpMethod.GET, "/on-sale-product", null, 200, Auth.NONE, false, false),
+				endpoint("GET /on-sale-product/{id}", HttpMethod.GET, "/on-sale-product/1", null, 200, Auth.NONE, false, false)
+		);
+	}
 
-    static Stream<ApiEndpoint> endpoints() {
-        return Stream.of(
-                endpoint("GET /on-sale-product", HttpMethod.GET, "/on-sale-product", null, 200, Auth.NONE, false, false),
-                endpoint("GET /on-sale-product/{id}", HttpMethod.GET, "/on-sale-product/1", null, 200, Auth.NONE, false, false)
-        );
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldReachOnSaleProductEndpoints(ApiEndpoint endpoint) throws Exception {
+		shouldReach(endpoint);
+	}
 }

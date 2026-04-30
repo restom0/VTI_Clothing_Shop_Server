@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record OrderCheckoutRequest(
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Long orderId
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Long orderId
 ) {
 }

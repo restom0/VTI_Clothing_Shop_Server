@@ -14,13 +14,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDTO {
-    private String name;
-    private LocalDate birthday;
-    private String avatarUrl;
-    private String publicIdAvatarUrl;
-    private String email;
-    private String phoneNumber;
-    private UserRole role;
-    private String address;
-    private UserGender gender;
+	private String name;
+	private LocalDate birthday;
+	private String avatarUrl;
+	private String publicIdAvatarUrl;
+	private String email;
+	private String phoneNumber;
+	private UserRole role;
+	private String address;
+	private UserGender gender;
 }

@@ -8,17 +8,17 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record CommentCreateRequest(
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Long productId,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Long productId,
 
-        @NotBlank(message = "{messages.validation.required}")
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String content,
+		@NotBlank(message = "{messages.validation.required}")
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String content,
 
-        @PositiveOrZero
-        @DecimalMax(value = "5.0", message = "{messages.validation.rating.invalid}")
-        @NotNull(message = "{messages.validation.required}")
-        Float star
+		@PositiveOrZero
+		@DecimalMax(value = "5.0", message = "{messages.validation.rating.invalid}")
+		@NotNull(message = "{messages.validation.required}")
+		Float star
 ) {
 }

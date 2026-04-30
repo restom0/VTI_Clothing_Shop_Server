@@ -9,27 +9,27 @@ import vn.vti.clothing_shop.validators.PhoneNumber;
 import java.time.LocalDate;
 
 public record UserUpdateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        String name,
+		@NotBlank(message = "{messages.validation.required}")
+		String name,
 
-        @NotBlank(message = "{messages.validation.required}")
-        @Email
-        String email,
+		@NotBlank(message = "{messages.validation.required}")
+		@Email
+		String email,
 
-        @NotNull(message = "{messages.validation.required}")
-        @PhoneNumber
-        String phoneNumber,
+		@NotNull(message = "{messages.validation.required}")
+		@PhoneNumber
+		String phoneNumber,
 
-        String address,
+		String address,
 
-        LocalDate birthday,
+		LocalDate birthday,
 
-        String avatarUrl,
+		String avatarUrl,
 
-        String publicIdAvatarUrl,
+		String publicIdAvatarUrl,
 
-        @NotNull(message = "{messages.validation.required}")
-        UserGender gender
+		@NotNull(message = "{messages.validation.required}")
+		UserGender gender
 ) {
 
 }

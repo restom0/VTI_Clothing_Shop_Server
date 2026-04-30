@@ -1,7 +1,7 @@
 package vn.vti.clothing_shop.constants;
 
 public enum ClothGender {
-    MALE,
-    FEMALE,
-    UNISEX
+	MALE,
+	FEMALE,
+	UNISEX
 }

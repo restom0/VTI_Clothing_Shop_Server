@@ -5,18 +5,17 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record ProductCreateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        String name,
-        String shortDescription,
+		@NotBlank(message = "{messages.validation.required}")
+		String name,
+		String shortDescription,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Long categoryId,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Long categoryId,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Long brandId
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Long brandId
 ) {
-
 
 }

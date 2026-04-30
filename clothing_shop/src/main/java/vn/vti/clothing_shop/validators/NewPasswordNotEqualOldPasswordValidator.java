@@ -4,15 +4,16 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
 
-public class NewPasswordNotEqualOldPasswordValidator implements ConstraintValidator<NewPasswordNotEqualOldPassword, UserUpdatePasswordRequest> {
+public class NewPasswordNotEqualOldPasswordValidator
+		implements ConstraintValidator<NewPasswordNotEqualOldPassword, UserUpdatePasswordRequest> {
 
-    @Override
-    public boolean isValid(UserUpdatePasswordRequest dto, ConstraintValidatorContext context) {
-        if (dto == null || dto.password() == null || dto.oldPassword() == null) {
-            return true;
-        }
-        return !dto.password().equals(dto.oldPassword());
-    }
+	@Override
+	public boolean isValid(UserUpdatePasswordRequest dto, ConstraintValidatorContext context) {
+		if (dto == null || dto.password() == null || dto.oldPassword() == null) {
+			return true;
+		}
+		return !dto.password().equals(dto.oldPassword());
+	}
 
 }
 

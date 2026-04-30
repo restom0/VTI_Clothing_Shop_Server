@@ -10,8 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserLoginDTO {
-    private String avatarUrl;
-    private String name;
-    private String token;
-    private String url;
+	private String avatarUrl;
+	private String name;
+	private String token;
+	private String url;
 }

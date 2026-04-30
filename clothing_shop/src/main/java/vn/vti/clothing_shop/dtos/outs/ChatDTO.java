@@ -10,8 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatDTO {
-    private Long id;
-    private UserDTO sender;
-    private String content;
-    private String reply;
+	private Long id;
+	private UserDTO sender;
+	private String content;
+	private String reply;
 }

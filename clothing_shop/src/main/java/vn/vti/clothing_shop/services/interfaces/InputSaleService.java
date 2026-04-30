@@ -2,19 +2,19 @@ package vn.vti.clothing_shop.services.interfaces;
 
 import vn.vti.clothing_shop.dtos.ins.InputSaleCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.InputSaleUpdateRequest;
-import vn.vti.clothing_shop.dtos.outs.InputSaleDTO;
+import vn.vti.clothing_shop.entities.InputSale;
 import vn.vti.clothing_shop.exceptions.WrapperException;
 
 import java.util.List;
 
 public interface InputSaleService {
-    List<InputSaleDTO> getAllInputSale();
+	List<InputSale> getAllInputSale();
 
-    InputSaleDTO getInputSaleById(Long id) throws WrapperException;
+	InputSale getInputSaleById(Long id) throws WrapperException;
 
-    void createInputSale(InputSaleCreateRequest inputSaleCreateRequest);
+	void createInputSale(InputSaleCreateRequest inputSaleCreateRequest);
 
-    void updateInputSale(InputSaleUpdateRequest inputSaleUpdateRequest, Long inputSaleId) throws WrapperException;
+	void updateInputSale(InputSaleUpdateRequest inputSaleUpdateRequest, Long inputSaleId) throws WrapperException;
 
-    void deleteInputSale(Long id);
+	void deleteInputSale(Long id);
 }

@@ -11,12 +11,12 @@ import java.lang.annotation.Target;
 
 @Documented
 @Constraint(validatedBy = EndDateAfterStartDateValidator.class)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EndDateAfterStartDate {
-    String message() default "{messages.validation.endDateAfterStart}";
+	String message() default "{messages.validation.endDateAfterStart}";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
 }

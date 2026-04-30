@@ -22,3 +22,10 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Local environment and secret material
+.env
+.env.*
+!.env.example
+k8s/package/app-secret.env
+k8s/monitoring/grafana-secret.env

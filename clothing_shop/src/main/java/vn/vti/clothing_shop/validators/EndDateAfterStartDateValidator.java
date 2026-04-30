@@ -8,13 +8,15 @@ import java.time.LocalDate;
 
 public class EndDateAfterStartDateValidator implements ConstraintValidator<EndDateAfterStartDate, DateRange> {
 
-    @Override
-    public boolean isValid(DateRange dateRange, ConstraintValidatorContext context) {
-        LocalDate start = dateRange.availableDate();
-        LocalDate end = dateRange.endDate();
-        if (start == null || end == null) return true;
-        return !end.isBefore(start);
-    }
+	@Override
+	public boolean isValid(DateRange dateRange, ConstraintValidatorContext context) {
+		LocalDate start = dateRange.availableDate();
+		LocalDate end = dateRange.endDate();
+		if (start == null || end == null) {
+			return true;
+		}
+		return !end.isBefore(start);
+	}
 
 }
 

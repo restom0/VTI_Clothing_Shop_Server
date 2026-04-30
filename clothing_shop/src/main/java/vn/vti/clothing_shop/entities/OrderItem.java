@@ -18,18 +18,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Entity
 public class OrderItem extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn
-    private OnSaleProduct product;
+	@ManyToOne
+	@JoinColumn
+	private OnSaleProduct product;
 
-    @ManyToOne
-    @JoinColumn
-    private Order order;
+	@ManyToOne
+	@JoinColumn
+	private Order order;
 
-    @Column(nullable = false)
-    private Integer quantity;
+	@Column(nullable = false)
+	private Integer quantity;
 }

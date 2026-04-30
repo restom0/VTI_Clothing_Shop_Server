@@ -13,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryResponse {
-    private CategoryDTO categoryDTO;
-    private List<ColorDTO> colorDTO;
-    private List<SizeDTO> sizeDTO;
-    private List<MaterialDTO> materialDTO;
+	private CategoryDTO categoryDTO;
+	private List<ColorDTO> colorDTO;
+	private List<SizeDTO> sizeDTO;
+	private List<MaterialDTO> materialDTO;
 }

@@ -11,23 +11,23 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SwaggerDocumentationIntegrationTest extends ControllerIntegrationTestSupport {
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @Test
-    void shouldExposeProfessionalOpenApiDefinition() throws Exception {
-        mockMvc.perform(get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.info.title").value("VTI Clothing Shop API"))
-                .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.type").value("http"))
-                .andExpect(jsonPath("$.tags[*].name", hasItem("Catalog")))
-                .andExpect(jsonPath("$.tags[*].name", hasItem("Commerce")))
-                .andExpect(jsonPath("$.paths['/oauth2/authorization/google'].get.summary").value("Start Google OAuth2 login"));
-    }
+	@Test
+	void shouldExposeProfessionalOpenApiDefinition() throws Exception {
+		mockMvc.perform(get("/v3/api-docs").accept(MediaType.APPLICATION_JSON))
+		       .andExpect(status().isOk())
+		       .andExpect(jsonPath("$.info.title").value("VTI Clothing Shop API"))
+		       .andExpect(jsonPath("$.components.securitySchemes.bearerAuth.type").value("http"))
+		       .andExpect(jsonPath("$.tags[*].name", hasItem("Catalog")))
+		       .andExpect(jsonPath("$.tags[*].name", hasItem("Commerce")))
+		       .andExpect(jsonPath("$.paths['/oauth2/authorization/google'].get.summary").value("Start Google OAuth2 login"));
+	}
 
-    @Test
-    void shouldExposeSwaggerUi() throws Exception {
-        mockMvc.perform(get("/swagger-ui.html"))
-                .andExpect(status().is3xxRedirection());
-    }
+	@Test
+	void shouldExposeSwaggerUi() throws Exception {
+		mockMvc.perform(get("/swagger-ui.html"))
+		       .andExpect(status().is3xxRedirection());
+	}
 }

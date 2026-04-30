@@ -10,8 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ColorDTO {
-    private Long id;
-    private String code;
-    private String name;
-    private CategoryDTO category;
+	private Long id;
+	private String code;
+	private String name;
+	private CategoryDTO category;
 }

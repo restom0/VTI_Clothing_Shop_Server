@@ -3,6 +3,7 @@ package vn.vti.clothing_shop.controllers;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import vn.vti.clothing_shop.dtos.ins.OrderItemCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemUpdateRequest;
 import vn.vti.clothing_shop.entities.User;
@@ -28,62 +30,70 @@ import vn.vti.clothing_shop.services.impl.OrderItemServiceImpl;
 @RequestMapping("/order-items")
 @AllArgsConstructor
 public class OrderItemController {
-    private final OrderItemServiceImpl orderItemService;
-    private final OrderItemMapper orderItemMapper;
+	private final OrderItemServiceImpl orderItemService;
+	private final OrderItemMapper orderItemMapper;
 
-    @GetMapping
-    public ResponseEntity<BaseMessageResponse> getAllOrderItem() {
-        return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.getAllOrderItems());
-    }
+	@GetMapping
+	public ResponseEntity<BaseMessageResponse> getAllOrderItem() {
+		return ResponseHandler.successBuilder(HttpStatus.OK,
+		                                      orderItemMapper.listEntityToListDTO(orderItemService.getAllOrderItems()));
+	}
 
-    @GetMapping("/{orderId}")
-    public ResponseEntity<BaseMessageResponse> getAllOrderItemsByOrderId(@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
-        return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.getAllOrderItemsByOrderId(orderId));
-    }
+	@GetMapping("/{orderId}")
+	public ResponseEntity<BaseMessageResponse> getAllOrderItemsByOrderId(
+			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
+		return ResponseHandler.successBuilder(HttpStatus.OK, orderItemMapper.listEntityToListDTO(
+				orderItemService.getAllOrderItemsByOrderId(orderId)));
+	}
 
-    @GetMapping("/{orderId}/{id}")
-    public ResponseEntity<BaseMessageResponse> getOrderItemByIdAndOrderId(@PathVariable @NotNull(message = "{messages.validation.required}") Long id, @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
-        try {
-            return ResponseHandler.successBuilder(HttpStatus.OK, orderItemService.findOrderItemByIdAndOrderId(id, orderId));
-        } catch (WrapperException ex) {
-            return ResponseHandler.exceptionBuilder(ex);
-        }
-    }
+	@GetMapping("/{orderId}/{id}")
+	public ResponseEntity<BaseMessageResponse> getOrderItemByIdAndOrderId(
+			@PathVariable @NotNull(message = "{messages.validation.required}") Long id,
+			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
+		try {
+			return ResponseHandler.successBuilder(HttpStatus.OK, orderItemMapper.entityToDTO(
+					orderItemService.findOrderItemByIdAndOrderId(id, orderId)));
+		} catch (WrapperException ex) {
+			return ResponseHandler.exceptionBuilder(ex);
+		}
+	}
 
-    @PostMapping
-    public ResponseEntity<BaseMessageResponse> addOrderItem(@RequestBody @Valid @NotNull(message = "{messages.validation.required}") OrderItemCreateRequest orderItemCreateRequest) {
-        try {
-            orderItemService.addOrderItem(orderItemCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.created");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@PostMapping
+	public ResponseEntity<BaseMessageResponse> addOrderItem(
+			@RequestBody @Valid @NotNull(message = "{messages.validation.required}")
+			OrderItemCreateRequest orderItemCreateRequest) {
+		try {
+			orderItemService.addOrderItem(orderItemCreateRequest);
+			return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.created");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 
-    @PutMapping("/{orderId}/{id}")
-    public ResponseEntity<BaseMessageResponse> updateOrderItem(@RequestBody @Valid OrderItemUpdateRequest orderItemUpdateRequest
-            , @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId
-            , @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            orderItemService.updateOrderItem(orderItemUpdateRequest, userId, orderId, id);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.updated");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@PutMapping("/{orderId}/{id}")
+	public ResponseEntity<BaseMessageResponse> updateOrderItem(@RequestBody @Valid OrderItemUpdateRequest orderItemUpdateRequest
+			, @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId
+			, @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User) authentication.getPrincipal();
+			Long userId = user.getId();
+			orderItemService.updateOrderItem(orderItemUpdateRequest, userId, orderId, id);
+			return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.orderItems.updated");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 
-    @DeleteMapping("/{orderId}/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteOrderItem(
-            @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId,
-            @PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
-        try {
-            orderItemService.deleteOrderItem(id, orderId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.orderItems.deleted");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@DeleteMapping("/{orderId}/{id}")
+	public ResponseEntity<BaseMessageResponse> deleteOrderItem(
+			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId,
+			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
+		try {
+			orderItemService.deleteOrderItem(id, orderId);
+			return ResponseHandler.successBuilder(HttpStatus.OK, "messages.orderItems.deleted");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 }

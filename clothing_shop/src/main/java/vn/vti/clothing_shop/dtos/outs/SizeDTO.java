@@ -10,9 +10,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SizeDTO {
-    private Long id;
-    private String size;
-    private String height;
-    private String weight;
-    private CategoryDTO category;
+	private Long id;
+	private String size;
+	private String height;
+	private String weight;
+	private CategoryDTO category;
 }

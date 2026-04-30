@@ -5,12 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ChatUpdateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String content,
+		@NotBlank(message = "{messages.validation.required}")
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String content,
 
-        @NotNull
-        Long version
+		@NotNull
+		Long version
 ) {
 
 }

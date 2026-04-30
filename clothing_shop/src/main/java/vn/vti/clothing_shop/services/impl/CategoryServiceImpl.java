@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.CategoryUpdateRequest;
-import vn.vti.clothing_shop.dtos.outs.CategoryDTO;
 import vn.vti.clothing_shop.entities.Category;
 import vn.vti.clothing_shop.exceptions.ConflictException;
 import vn.vti.clothing_shop.exceptions.NotFoundException;
@@ -34,14 +33,12 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Cacheable(value = "categories", key = "'all'")
 	@Override
-	public List<CategoryDTO> getAllCategories() {
-		List<CategoryDTO> mongoCategories = readModelQueryService.findAll(ReadModelType.CATEGORY, CategoryDTO.class);
+	public List<Category> getAllCategories() {
+		List<Category> mongoCategories = readModelQueryService.findAll(ReadModelType.CATEGORY, Category.class);
 		if (mongoCategories != null && !mongoCategories.isEmpty()) {
 			return mongoCategories;
 		}
-		return categoryRepository.findAllByDeletedAtIsNullOrderByIdDesc().stream()
-		                         .map(categoryMapper::entityToDTO)
-		                         .toList();
+		return categoryRepository.findAllByDeletedAtIsNullOrderByIdDesc();
 	}
 
 	@Caching(evict = {
@@ -50,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 	})
 	@Transactional
 	@Override
-	public CategoryDTO addCategory(CategoryCreateRequest categoryCreateRequest) throws WrapperException {
+	public Category addCategory(CategoryCreateRequest categoryCreateRequest) throws WrapperException {
 		try {
 			if (categoryRepository.existsByDeletedAtIsNullAndName(categoryCreateRequest.name())) {
 				throw new ConflictException("messages.categories.exists");
@@ -58,7 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
 			final Category category = categoryMapper.createRequestToEntity(categoryCreateRequest);
 			Category savedCategory = categoryRepository.save(category);
 			readModelSyncService.syncAfterCommit(ReadModelType.CATEGORY, savedCategory.getId());
-			return categoryMapper.entityToDTO(savedCategory);
+			return savedCategory;
 		} catch (ConflictException ex) {
 			throw new WrapperException(ex);
 		}
@@ -67,7 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
 	@CacheEvict(value = "categories", allEntries = true)
 	@Transactional
 	@Override
-	public CategoryDTO updateCategory(CategoryUpdateRequest categoryUpdateRequest, Long id) throws WrapperException {
+	public Category updateCategory(CategoryUpdateRequest categoryUpdateRequest, Long id) throws WrapperException {
 		try {
 			if (categoryRepository.existsByDeletedAtIsNullAndNameAndIdNot(categoryUpdateRequest.name(), id)) {
 				throw new ConflictException("messages.categories.exists");
@@ -78,7 +75,7 @@ public class CategoryServiceImpl implements CategoryService {
 					categoryMapper.updateRequestToEntity(categoryUpdateRequest, category));
 			readModelSyncService.syncAfterCommit(ReadModelType.CATEGORY, savedCategory.getId());
 			readModelSyncService.syncAllProductsAfterCommit();
-			return categoryMapper.entityToDTO(savedCategory);
+			return savedCategory;
 		} catch (ConflictException | NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
@@ -104,15 +101,14 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Cacheable(value = "categories", key = "'id:' + #id")
 	@Override
-	public CategoryDTO getCategoryById(Long id) throws WrapperException {
+	public Category getCategoryById(Long id) throws WrapperException {
 		try {
-			var mongoCategory = readModelQueryService.findById(ReadModelType.CATEGORY, id, CategoryDTO.class);
+			var mongoCategory = readModelQueryService.findById(ReadModelType.CATEGORY, id, Category.class);
 			if (mongoCategory != null && mongoCategory.isPresent()) {
 				return mongoCategory.get();
 			}
-			Category category = categoryRepository.findById(id).orElseThrow(
+			return categoryRepository.findById(id).orElseThrow(
 					() -> new NotFoundException("messages.categories.notfound"));
-			return categoryMapper.entityToDTO(category);
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
 		}

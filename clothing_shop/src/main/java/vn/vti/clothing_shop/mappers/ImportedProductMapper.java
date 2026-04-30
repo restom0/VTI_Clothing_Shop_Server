@@ -3,6 +3,7 @@ package vn.vti.clothing_shop.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
 import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.ImportedProductDTO;
@@ -13,9 +14,9 @@ import vn.vti.clothing_shop.entities.Product;
 import vn.vti.clothing_shop.entities.Size;
 
 @Mapper(componentModel = "spring",
-        uses = {ProductMapper.class, ColorMapper.class, SizeMapper.class, MaterialMapper.class})
+        uses = { ProductMapper.class, ColorMapper.class, SizeMapper.class, MaterialMapper.class })
 public interface ImportedProductMapper {
-    ImportedProductDTO entityToDTO(ImportedProduct importedProduct);
+	ImportedProductDTO entityToDTO(ImportedProduct importedProduct);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
@@ -27,7 +28,8 @@ public interface ImportedProductMapper {
 	@Mapping(target = "material", source = "material")
 	@Mapping(target = "product", source = "product")
 	@Mapping(target = "stock", source = "importedProductCreateRequest.importNumber")
-    ImportedProduct createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Color color, Size size, Material material, Product product);
+	ImportedProduct createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Color color, Size size,
+	                                      Material material, Product product);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
@@ -39,5 +41,6 @@ public interface ImportedProductMapper {
 	@Mapping(target = "material", source = "material")
 	@Mapping(target = "product", source = "product")
 	@Mapping(target = "stock", source = "importedProductUpdateRequest.importNumber")
-    ImportedProduct updateRequestToEntity(ImportedProductUpdateRequest importedProductUpdateRequest, Color color, Size size, Material material, Product product, @MappingTarget ImportedProduct importedProduct);
+	ImportedProduct updateRequestToEntity(ImportedProductUpdateRequest importedProductUpdateRequest, Color color, Size size,
+	                                      Material material, Product product, @MappingTarget ImportedProduct importedProduct);
 }

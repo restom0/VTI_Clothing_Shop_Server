@@ -8,29 +8,31 @@ import java.util.stream.Stream;
 
 class InputSaleControllerIntegrationTest extends ControllerIntegrationTestSupport {
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("endpoints")
-    void shouldReachInputSaleEndpoints(ApiEndpoint endpoint) throws Exception {
-        shouldReach(endpoint);
-    }
+	static Stream<ApiEndpoint> protectedEndpoints() {
+		return endpoints().filter(ApiEndpoint::protectedEndpoint);
+	}
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("protectedEndpoints")
-    void shouldRejectProtectedInputSaleEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
-        shouldRejectWithoutToken(endpoint);
-    }
+	static Stream<ApiEndpoint> endpoints() {
+		return Stream.of(
+				endpoint("GET /input-sale/", HttpMethod.GET, "/input-sale/", null, 200, Auth.NONE, false, false),
+				endpoint("GET /input-sale/{id}", HttpMethod.GET, "/input-sale/1", null, 200, Auth.NONE, false, false),
+				endpoint("POST /input-sale/", HttpMethod.POST, "/input-sale/", inputSaleCreateJson(), 201, Auth.USER, true,
+				         false),
+				endpoint("PUT /input-sale/{id}", HttpMethod.PUT, "/input-sale/1", inputSaleUpdateJson(), 200, Auth.USER, true,
+				         false),
+				endpoint("DELETE /input-sale/{id}", HttpMethod.DELETE, "/input-sale/1", null, 200, Auth.USER, true, false)
+		);
+	}
 
-    static Stream<ApiEndpoint> endpoints() {
-        return Stream.of(
-                endpoint("GET /input-sale/", HttpMethod.GET, "/input-sale/", null, 200, Auth.NONE, false, false),
-                endpoint("GET /input-sale/{id}", HttpMethod.GET, "/input-sale/1", null, 200, Auth.NONE, false, false),
-                endpoint("POST /input-sale/", HttpMethod.POST, "/input-sale/", inputSaleCreateJson(), 201, Auth.USER, true, false),
-                endpoint("PUT /input-sale/{id}", HttpMethod.PUT, "/input-sale/1", inputSaleUpdateJson(), 200, Auth.USER, true, false),
-                endpoint("DELETE /input-sale/{id}", HttpMethod.DELETE, "/input-sale/1", null, 200, Auth.USER, true, false)
-        );
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("endpoints")
+	void shouldReachInputSaleEndpoints(ApiEndpoint endpoint) throws Exception {
+		shouldReach(endpoint);
+	}
 
-    static Stream<ApiEndpoint> protectedEndpoints() {
-        return endpoints().filter(ApiEndpoint::protectedEndpoint);
-    }
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("protectedEndpoints")
+	void shouldRejectProtectedInputSaleEndpointsWithoutToken(ApiEndpoint endpoint) throws Exception {
+		shouldRejectWithoutToken(endpoint);
+	}
 }

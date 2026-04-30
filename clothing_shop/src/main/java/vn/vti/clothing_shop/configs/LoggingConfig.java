@@ -11,14 +11,15 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 public class LoggingConfig {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggingConfig.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(LoggingConfig.class);
 
-    @Pointcut("within(vn.vti.clothing_shop.controllers..*) || within(vn.vti.clothing_shop.services..*) || within(vn.vti.clothing_shop.repositories..*)")
-    public void applicationLayer() {
-    }
+	@Pointcut("within(vn.vti.clothing_shop.controllers..*) || within(vn.vti.clothing_shop.services..*) || within(vn.vti.clothing_shop.repositories..*)")
+	public void applicationLayer() {
+	}
 
-    @AfterThrowing(pointcut = "applicationLayer()", throwing = "exception")
-    public void logUncheckedException(JoinPoint joinPoint, RuntimeException exception) {
-        LOGGER.error("Unchecked exception at {}: {}", joinPoint.getSignature().toShortString(), exception.getMessage(), exception);
-    }
+	@AfterThrowing(pointcut = "applicationLayer()", throwing = "exception")
+	public void logUncheckedException(JoinPoint joinPoint, RuntimeException exception) {
+		LOGGER.error("Unchecked exception at {}: {}", joinPoint.getSignature().toShortString(), exception.getMessage(),
+		             exception);
+	}
 }

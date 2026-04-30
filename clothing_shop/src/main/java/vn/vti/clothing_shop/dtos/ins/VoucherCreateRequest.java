@@ -9,22 +9,22 @@ import java.time.LocalDate;
 
 @EndDateAfterStartDate
 public record VoucherCreateRequest(
-        @NotNull(message = "{messages.validation.required}")
-        String code,
+		@NotNull(message = "{messages.validation.required}")
+		String code,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Integer inputStock,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Integer inputStock,
 
-        @NotNull(message = "{messages.validation.required}")
-        @Positive
-        Float value,
+		@NotNull(message = "{messages.validation.required}")
+		@Positive
+		Float value,
 
-        @NotNull(message = "{messages.validation.required}")
-        LocalDate availableDate,
+		@NotNull(message = "{messages.validation.required}")
+		LocalDate availableDate,
 
-        @Future(message = "{messages.validation.future}")
-        LocalDate endDate
+		@Future(message = "{messages.validation.future}")
+		LocalDate endDate
 ) {
 
 }

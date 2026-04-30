@@ -4,7 +4,6 @@ namespace: vti-clothing-shop-monitoring
 
 resources:
   - namespace.yaml
-  - grafana-secret.yaml
   - otel-collector.yaml
   - prometheus.yaml
   - grafana.yaml
@@ -13,6 +12,11 @@ resources:
   - elasticsearch.yaml
   - logstash.yaml
   - kibana.yaml
+
+secretGenerator:
+  - name: grafana-secret
+    envs:
+      - grafana-secret.env
 
 configMapGenerator:
   - name: otel-collector-config

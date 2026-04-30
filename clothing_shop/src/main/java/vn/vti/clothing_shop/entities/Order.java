@@ -24,39 +24,39 @@ import vn.vti.clothing_shop.constants.PaymentStatus;
 @Entity
 @Table(name = "orders")
 public class Order extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String address;
-
-    @Column(nullable = false)
-    private String phoneNumber;
-
-    @Column(nullable = false)
-    private String receiverName;
-
-    @Column(columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
-    private Boolean isPresent;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
 	@Column(nullable = false)
-    private Long totalPrice;
+	private String address;
 
-    @Column(nullable = false)
-    private Long orderCode;
+	@Column(nullable = false)
+	private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus;
+	@Column(nullable = false)
+	private String receiverName;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentMethod paymentMethod;
+	@Column(columnDefinition = "BOOLEAN DEFAULT false", nullable = false)
+	private Boolean isPresent;
 
-    @ManyToOne
-    @JoinColumn
-    private User user;
+	@Column(nullable = false)
+	private Long totalPrice;
 
-    @ManyToOne
-    @JoinColumn
-    private Voucher voucher;
+	@Column(nullable = false)
+	private Long orderCode;
+
+	@Enumerated(EnumType.STRING)
+	private PaymentStatus paymentStatus;
+
+	@Enumerated(EnumType.STRING)
+	private PaymentMethod paymentMethod;
+
+	@ManyToOne
+	@JoinColumn
+	private User user;
+
+	@ManyToOne
+	@JoinColumn
+	private Voucher voucher;
 }

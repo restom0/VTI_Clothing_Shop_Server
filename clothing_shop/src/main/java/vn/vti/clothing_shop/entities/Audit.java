@@ -13,7 +13,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.hibernate.annotations.CreationTimestamp;
+
 import vn.vti.clothing_shop.constants.Filter;
 
 import java.io.Serializable;
@@ -25,22 +27,22 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 public class Audit implements Serializable {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn
-    private User user;
+	@ManyToOne
+	@JoinColumn
+	private User user;
 
-    private String method;
+	private String method;
 
 	@Enumerated(EnumType.STRING)
 	private Filter filterColumn;
 
-    private String detail;
+	private String detail;
 
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
+	@CreationTimestamp
+	@Column(updatable = false)
+	private LocalDateTime createdAt;
 }

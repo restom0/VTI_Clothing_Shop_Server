@@ -12,11 +12,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VoucherAdminDTO {
-    private Long id;
-    private Integer inputStock;
-    private Integer stock;
-    private Integer value;
-    private String code;
-    private LocalDate availableDate;
-    private LocalDate endDate;
+	private Long id;
+	private Integer inputStock;
+	private Integer stock;
+	private Integer value;
+	private String code;
+	private LocalDate availableDate;
+	private LocalDate endDate;
 }

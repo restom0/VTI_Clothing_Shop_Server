@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -18,33 +19,33 @@ import java.util.Map;
 @AllArgsConstructor
 @Document(collection = "read_models")
 @CompoundIndexes({
-        @CompoundIndex(name = "idx_model_sort", def = "{'model': 1, 'deleted': 1, 'sortValue': -1}"),
-        @CompoundIndex(name = "idx_model_owner_sort", def = "{'model': 1, 'ownerId': 1, 'deleted': 1, 'sortValue': -1}"),
-        @CompoundIndex(name = "idx_model_lookup", def = "{'model': 1, 'lookupKey': 1, 'deleted': 1}")
+		@CompoundIndex(name = "idx_model_sort", def = "{'model': 1, 'deleted': 1, 'sortValue': -1}"),
+		@CompoundIndex(name = "idx_model_owner_sort", def = "{'model': 1, 'ownerId': 1, 'deleted': 1, 'sortValue': -1}"),
+		@CompoundIndex(name = "idx_model_lookup", def = "{'model': 1, 'lookupKey': 1, 'deleted': 1}")
 })
 public class ReadModelDocument {
-    @Id
-    private String id;
+	@Id
+	private String id;
 
-    @Indexed
-    private String model;
+	@Indexed
+	private String model;
 
-    @Indexed
-    private Long entityId;
+	@Indexed
+	private Long entityId;
 
-    private Long ownerId;
+	private Long ownerId;
 
-    private String lookupKey;
+	private String lookupKey;
 
-    private Long sortValue;
+	private Long sortValue;
 
-    private boolean deleted;
+	private boolean deleted;
 
-    private Long syncedAt;
+	private Long syncedAt;
 
-    private Map<String, Object> payload;
+	private Map<String, Object> payload;
 
-    public static String documentId(ReadModelType modelType, Long entityId) {
-        return modelType.name() + ":" + entityId;
-    }
+	public static String documentId(ReadModelType modelType, Long entityId) {
+		return modelType.name() + ":" + entityId;
+	}
 }

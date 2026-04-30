@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MaterialDTO {
-    private Long id;
-    private String name;
-    private CategoryDTO category;
+	private Long id;
+	private String name;
+	private CategoryDTO category;
 }

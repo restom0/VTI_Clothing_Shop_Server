@@ -14,15 +14,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDTO {
-    private Long id;
-    private String address;
-    private String phoneNumber;
-    private String receiverName;
-    private Boolean isPresent;
-    private Long totalPrice;
-    private Long orderCode;
-    private PaymentStatus paymentStatus;
-    private PaymentMethod paymentMethod;
-    private VoucherDTO voucher;
-    private List<OrderItemDTO> orderItems;
+	private Long id;
+	private String address;
+	private String phoneNumber;
+	private String receiverName;
+	private Boolean isPresent;
+	private Long totalPrice;
+	private Long orderCode;
+	private PaymentStatus paymentStatus;
+	private PaymentMethod paymentMethod;
+	private VoucherDTO voucher;
+	private List<OrderItemDTO> orderItems;
 }

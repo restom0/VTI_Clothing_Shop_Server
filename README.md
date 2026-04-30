@@ -2,7 +2,9 @@
 
 ## Project name
 
-**VTI Clothing Shop Server** là backend cho hệ thống bán quần áo, xây dựng bằng Spring Boot. Project cung cấp API quản lý sản phẩm, danh mục, thương hiệu, người dùng, đơn hàng, voucher, nhập hàng, sale, chat/comment, thanh toán và thống kê.
+**VTI Clothing Shop Server** là backend cho hệ thống bán quần áo, xây dựng bằng Spring Boot. Project cung cấp API quản
+lý sản phẩm, danh mục, thương hiệu, người dùng, đơn hàng, voucher, nhập hàng, sale, chat/comment, thanh toán và thống
+kê.
 
 ## Ai làm
 
@@ -49,7 +51,8 @@ Kibana -> Elasticsearch
 
 ## Tính năng nổi bật
 
-- CRUD cho các domain chính: brand, category, product, user, order, order item, voucher, chat, comment, input sale, imported product.
+- CRUD cho các domain chính: brand, category, product, user, order, order item, voucher, chat, comment, input sale,
+  imported product.
 - Thanh toán qua PayOS, Stripe và ZaloPay.
 - Tách module gRPC cho `auth`, `read`, `write`, `payment`.
 - Đọc dữ liệu tối ưu qua MongoDB read model, ghi dữ liệu chính qua PostgreSQL.
@@ -147,6 +150,7 @@ Yêu cầu:
 
 ```powershell
 cd .\clothing_shop
+# Set required env vars first: POSTGRESQL_PASSWORD and JWT_SECRET_KEY.
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -161,6 +165,8 @@ http://localhost:8080
 Từ root repo:
 
 ```powershell
+Copy-Item .\.env.example .\.env
+# Fill POSTGRESQL_PASSWORD, JWT_SECRET_KEY, GRAFANA_ADMIN_PASSWORD and any provider keys in .env
 docker compose up --build
 ```
 
@@ -197,7 +203,8 @@ OpenAPI JSON:
 http://localhost:8080/v3/api-docs
 ```
 
-Swagger duoc cau hinh theo nhom API, co nut `Authorize` cho JWT bearer token, co header `Accept-Language` cho message da ngon ngu, va co cac path OAuth2 social login. O production profile, Swagger mac dinh tat; bat lai bang:
+Swagger duoc cau hinh theo nhom API, co nut `Authorize` cho JWT bearer token, co header `Accept-Language` cho message da
+ngon ngu, va co cac path OAuth2 social login. O production profile, Swagger mac dinh tat; bat lai bang:
 
 ```text
 SPRINGDOC_ENABLED=true
@@ -227,7 +234,8 @@ Sau khi login thanh cong, backend redirect ve `OAUTH2_SUCCESS_REDIRECT_URL` voi 
 #token=<jwt>&name=<display-name>&avatarUrl=<avatar-url>
 ```
 
-Neu that bai, backend redirect ve `OAUTH2_FAILURE_REDIRECT_URL?error=<code>`. Neu provider chua duoc cau hinh client id/secret thi registration do se khong duoc expose.
+Neu that bai, backend redirect ve `OAUTH2_FAILURE_REDIRECT_URL?error=<code>`. Neu provider chua duoc cau hinh client
+id/secret thi registration do se khong duoc expose.
 
 ## gRPC microservice modules
 
@@ -263,11 +271,11 @@ READ_GRPC_TARGET=read-service:9091
 WRITE_GRPC_TARGET=write-service:9091
 ```
 
-Grafana mặc định:
+Grafana credentials are read from environment variables:
 
 ```text
-username: admin
-password: admin
+GRAFANA_ADMIN_USER
+GRAFANA_ADMIN_PASSWORD
 ```
 
 ## Kubernetes
@@ -286,6 +294,9 @@ docker build -t vti-clothing-shop-server:latest .\clothing_shop
 Apply module:
 
 ```powershell
+Copy-Item .\k8s\monitoring\grafana-secret.env.example .\k8s\monitoring\grafana-secret.env
+Copy-Item .\k8s\package\app-secret.env.example .\k8s\package\app-secret.env
+# Fill both *.env files with real values before applying.
 kubectl apply -k .\k8s\monitoring
 kubectl apply -k .\k8s\package
 ```
@@ -304,41 +315,45 @@ kubectl -n vti-clothing-shop-monitoring port-forward svc/kibana 5601:5601
 
 ## Biến môi trường quan trọng
 
-| Biến | Mục đích |
-| --- | --- |
-| `POSTGRESQL_URL` | JDBC URL tới PostgreSQL |
-| `POSTGRESQL_USERNAME` | Username PostgreSQL |
-| `POSTGRESQL_PASSWORD` | Password PostgreSQL |
-| `VALKEY_HOST` | Host Valkey |
-| `VALKEY_PORT` | Port Valkey |
-| `MONGODB_URI` | URI MongoDB read model |
-| `READ_MODEL_BOOTSTRAP_ENABLED` | Bật/tắt bootstrap read model |
-| `GRPC_SERVER_ENABLED` | Bật/tắt gRPC server |
-| `GRPC_SERVER_PORT` | Port gRPC server |
-| `AUTH_GRPC_TARGET` | Target gRPC của auth module |
-| `PAYMENT_GRPC_TARGET` | Target gRPC của payment module |
-| `READ_GRPC_TARGET` | Target gRPC của read module |
-| `WRITE_GRPC_TARGET` | Target gRPC của write module |
-| `AUTH_MODULE_ENABLED` | Bật/tắt auth module trên runtime hiện tại |
-| `PAYMENT_MODULE_ENABLED` | Bật/tắt payment module trên runtime hiện tại |
-| `READ_MODULE_ENABLED` | Bật/tắt read module trên runtime hiện tại |
-| `WRITE_MODULE_ENABLED` | Bật/tắt write module trên runtime hiện tại |
-| `OAUTH2_SUCCESS_REDIRECT_URL` | Frontend URL nhan JWT sau social login thanh cong |
-| `OAUTH2_FAILURE_REDIRECT_URL` | Frontend URL nhan loi social login |
-| `GOOGLE_OAUTH_CLIENT_ID` | Google OAuth2 client id |
-| `GOOGLE_OAUTH_CLIENT_SECRET` | Google OAuth2 client secret |
-| `FACEBOOK_OAUTH_CLIENT_ID` | Facebook Login app/client id |
-| `FACEBOOK_OAUTH_CLIENT_SECRET` | Facebook Login app/client secret |
-| `TWITTER_OAUTH_CLIENT_ID` | Twitter/X OAuth2 client id |
-| `TWITTER_OAUTH_CLIENT_SECRET` | Twitter/X OAuth2 client secret |
-| `SPRINGDOC_ENABLED` | Bat/tat Swagger/OpenAPI trong production profile |
-| `PAYOS_CLIENT_ID` | PayOS client id |
-| `PAYOS_API_KEY` | PayOS API key |
-| `PAYOS_CHECKSUM_KEY` | PayOS checksum key |
-| `STRIPE_SECRET_KEY` | Stripe secret key |
-| `ZALOPAY_APP_ID` | ZaloPay app id |
-| `ZALOPAY_KEY1` | ZaloPay key1 |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | Endpoint OpenTelemetry Collector |
+| Biến                           | Mục đích                                          |
+|--------------------------------|---------------------------------------------------|
+| `POSTGRESQL_URL`               | JDBC URL tới PostgreSQL                           |
+| `POSTGRESQL_USERNAME`          | Username PostgreSQL                               |
+| `POSTGRESQL_PASSWORD`          | Password PostgreSQL                               |
+| `JWT_SECRET_KEY`               | Base64 encoded signing secret for JWT             |
+| `JWT_EXPIRATION_TIME`          | JWT expiration in milliseconds                    |
+| `VALKEY_HOST`                  | Host Valkey                                       |
+| `VALKEY_PORT`                  | Port Valkey                                       |
+| `MONGODB_URI`                  | URI MongoDB read model                            |
+| `READ_MODEL_BOOTSTRAP_ENABLED` | Bật/tắt bootstrap read model                      |
+| `GRPC_SERVER_ENABLED`          | Bật/tắt gRPC server                               |
+| `GRPC_SERVER_PORT`             | Port gRPC server                                  |
+| `AUTH_GRPC_TARGET`             | Target gRPC của auth module                       |
+| `PAYMENT_GRPC_TARGET`          | Target gRPC của payment module                    |
+| `READ_GRPC_TARGET`             | Target gRPC của read module                       |
+| `WRITE_GRPC_TARGET`            | Target gRPC của write module                      |
+| `AUTH_MODULE_ENABLED`          | Bật/tắt auth module trên runtime hiện tại         |
+| `PAYMENT_MODULE_ENABLED`       | Bật/tắt payment module trên runtime hiện tại      |
+| `READ_MODULE_ENABLED`          | Bật/tắt read module trên runtime hiện tại         |
+| `WRITE_MODULE_ENABLED`         | Bật/tắt write module trên runtime hiện tại        |
+| `OAUTH2_SUCCESS_REDIRECT_URL`  | Frontend URL nhan JWT sau social login thanh cong |
+| `OAUTH2_FAILURE_REDIRECT_URL`  | Frontend URL nhan loi social login                |
+| `GOOGLE_OAUTH_CLIENT_ID`       | Google OAuth2 client id                           |
+| `GOOGLE_OAUTH_CLIENT_SECRET`   | Google OAuth2 client secret                       |
+| `FACEBOOK_OAUTH_CLIENT_ID`     | Facebook Login app/client id                      |
+| `FACEBOOK_OAUTH_CLIENT_SECRET` | Facebook Login app/client secret                  |
+| `TWITTER_OAUTH_CLIENT_ID`      | Twitter/X OAuth2 client id                        |
+| `TWITTER_OAUTH_CLIENT_SECRET`  | Twitter/X OAuth2 client secret                    |
+| `SPRINGDOC_ENABLED`            | Bat/tat Swagger/OpenAPI trong production profile  |
+| `PAYOS_CLIENT_ID`              | PayOS client id                                   |
+| `PAYOS_API_KEY`                | PayOS API key                                     |
+| `PAYOS_CHECKSUM_KEY`           | PayOS checksum key                                |
+| `STRIPE_SECRET_KEY`            | Stripe secret key                                 |
+| `ZALOPAY_APP_ID`               | ZaloPay app id                                    |
+| `ZALOPAY_KEY1`                 | ZaloPay key1                                      |
+| `GRAFANA_ADMIN_USER`           | Grafana admin username                            |
+| `GRAFANA_ADMIN_PASSWORD`       | Grafana admin password                            |
+| `OTEL_EXPORTER_OTLP_ENDPOINT`  | Endpoint OpenTelemetry Collector                  |
 
 ## Test
 
@@ -389,27 +404,32 @@ Pipeline an toan theo mac dinh:
 
 Jenkins credentials nen tao:
 
-| Credential id | Type | Muc dich |
-| --- | --- | --- |
-| `sonar-token` | Secret text | Token cho SonarCloud |
-| `docker-registry-credentials` | Username/password | Docker registry login khi push image |
-| `kubeconfig` | Secret file | Kubeconfig cho optional Kubernetes deploy |
+| Credential id                  | Type              | Muc dich                                         |
+|--------------------------------|-------------------|--------------------------------------------------|
+| `sonar-token`                  | Secret text       | Token cho SonarCloud                             |
+| `docker-registry-credentials`  | Username/password | Docker registry login khi push image             |
+| `kubeconfig`                   | Secret file       | Kubeconfig cho optional Kubernetes deploy        |
+| `clothing-shop-app-secret-env` | Secret file       | Contents for `k8s/package/app-secret.env`        |
+| `grafana-secret-env`           | Secret file       | Contents for `k8s/monitoring/grafana-secret.env` |
 
 Tham so quan trong:
 
-| Parameter | Mac dinh | Muc dich |
-| --- | --- | --- |
-| `RUN_SONAR` | `true` | Bat/tat SonarCloud stage |
-| `DOCKER_REGISTRY` | rong | Registry host; de rong thi chi build local image |
-| `DOCKER_IMAGE_NAME` | `vti-clothing-shop-server` | Ten image |
-| `PUSH_DOCKER_IMAGE` | `false` | Push image len registry |
-| `DEPLOY_K8S` | `false` | Bat optional Kubernetes deploy |
-| `DEPLOY_ENV` | `int` | Spring profile ap dung cho Kubernetes deployment |
-| `APPLY_MONITORING` | `false` | Apply them `k8s/monitoring` truoc package |
+| Parameter           | Mac dinh                   | Muc dich                                         |
+|---------------------|----------------------------|--------------------------------------------------|
+| `RUN_SONAR`         | `true`                     | Bat/tat SonarCloud stage                         |
+| `DOCKER_REGISTRY`   | rong                       | Registry host; de rong thi chi build local image |
+| `DOCKER_IMAGE_NAME` | `vti-clothing-shop-server` | Ten image                                        |
+| `PUSH_DOCKER_IMAGE` | `false`                    | Push image len registry                          |
+| `DEPLOY_K8S`        | `false`                    | Bat optional Kubernetes deploy                   |
+| `DEPLOY_ENV`        | `int`                      | Spring profile ap dung cho Kubernetes deployment |
+| `APPLY_MONITORING`  | `false`                    | Apply them `k8s/monitoring` truoc package        |
 
-Jenkins agent can co Java 17 va Docker CLI/daemon neu build Docker image. Kubectl chi can khi chay deploy manual. Neu deploy vao cluster khong dung local image cache, hay bat `PUSH_DOCKER_IMAGE=true` va dung image tu registry.
+Jenkins agent can co Java 17 va Docker CLI/daemon neu build Docker image. Kubectl chi can khi chay deploy manual. Neu
+deploy vao cluster khong dung local image cache, hay bat `PUSH_DOCKER_IMAGE=true` va dung image tu registry.
 
 ## Ghi chú bảo mật
 
-- Các secret hiện tại trong Docker/Kubernetes là dummy/default cho môi trường development.
-- Cần thay JWT secret, payment keys, database credentials và bật security cho Elasticsearch trước khi dùng ở môi trường shared hoặc production.
+- Docker Compose reads secrets from local `.env`; Kubernetes Kustomize reads them from ignored `*.env` files under
+  `k8s`.
+- Do not commit real JWT secret, payment keys, OAuth client secrets, database credentials, or Grafana credentials.
+- Enable security for Elasticsearch before using a shared or production environment.

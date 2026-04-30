@@ -3,6 +3,7 @@ package vn.vti.clothing_shop.mappers;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+
 import vn.vti.clothing_shop.dtos.ins.OrderCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.OrderDTO;
@@ -11,9 +12,9 @@ import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.entities.Voucher;
 
 @Mapper(componentModel = "spring",
-        uses = {OrderItemMapper.class})
+        uses = { OrderItemMapper.class })
 public interface OrderMapper {
-    OrderDTO entityToDTO(Order order);
+	OrderDTO entityToDTO(Order order);
 
 	@Mapping(target = "address", source = "orderCreateRequest.address")
 	@Mapping(target = "phoneNumber", source = "orderCreateRequest.phoneNumber")
@@ -29,7 +30,7 @@ public interface OrderMapper {
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "deletedAt", ignore = true)
 	@Mapping(target = "version", ignore = true)
-    Order createRequestToEntity(OrderCreateRequest orderCreateRequest, User user);
+	Order createRequestToEntity(OrderCreateRequest orderCreateRequest, User user);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "user", ignore = true)
@@ -41,5 +42,5 @@ public interface OrderMapper {
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "deletedAt", ignore = true)
 	@Mapping(target = "version", ignore = true)
-    Order updateRequestToEntity(OrderUpdateRequest orderUpdateRequest, Voucher voucher, @MappingTarget Order order);
+	Order updateRequestToEntity(OrderUpdateRequest orderUpdateRequest, Voucher voucher, @MappingTarget Order order);
 }

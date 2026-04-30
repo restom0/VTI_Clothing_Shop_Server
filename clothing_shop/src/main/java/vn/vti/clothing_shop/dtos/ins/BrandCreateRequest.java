@@ -4,11 +4,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record BrandCreateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String name,
+		@NotBlank(message = "{messages.validation.required}")
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String name,
 
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String description
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String description
 ) {
 }

@@ -31,15 +31,18 @@ Endpoints:
 - Kibana: http://localhost:5601
 - Logstash GELF UDP input: `localhost:12201`
 
-Grafana default login:
+Grafana login is read from Docker Compose environment variables:
 
-- Username: `admin`
-- Password: `admin` by default, or the value of `GRAFANA_ADMIN_PASSWORD`
+- Username: `GRAFANA_ADMIN_USER`
+- Password: `GRAFANA_ADMIN_PASSWORD`
 
 Start the full local stack from the repository root:
 
 ```bash
+cp .env.example .env
+# Fill GRAFANA_ADMIN_PASSWORD and the other required secrets first.
 docker compose up --build
 ```
 
-This stack is configured for local development. Elasticsearch security is disabled in Docker Compose so the services can start without certificates or passwords. Enable security before using this architecture outside a local environment.
+This stack is configured for local development. Elasticsearch security is disabled in Docker Compose so the services can
+start without certificates or passwords. Enable security before using this architecture outside a local environment.

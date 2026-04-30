@@ -11,10 +11,10 @@ import vn.vti.clothing_shop.constants.Filter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditDTO {
-    private Long id;
-    private UserDTO user;
-    private String method;
-    private Filter column;
-    private String detail;
-    private Long createdAt;
+	private Long id;
+	private UserDTO user;
+	private String method;
+	private Filter column;
+	private String detail;
+	private Long createdAt;
 }

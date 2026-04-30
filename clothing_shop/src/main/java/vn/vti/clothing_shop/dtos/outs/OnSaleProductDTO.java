@@ -10,8 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OnSaleProductDTO {
-    private Long id;
-    private ImportedProductDTO product;
-    private float salePrice;
-    private float discount;
+	private Long id;
+	private ImportedProductDTO product;
+	private float salePrice;
+	private float discount;
 }

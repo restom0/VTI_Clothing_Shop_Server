@@ -24,40 +24,40 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @Column(nullable = false)
-    private String name;
+	@Column(nullable = false)
+	private String name;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+	@Column(unique = true, nullable = false)
+	private String username;
 
-    @Column(nullable = false)
-    private String password;
+	@Column(nullable = false)
+	private String password;
 
-    private LocalDate birthday;
+	private LocalDate birthday;
 
-    private String avatarUrl;
+	private String avatarUrl;
 
-    private String publicIdAvatarUrl;
+	private String publicIdAvatarUrl;
 
-    @Column(unique = true)
-    private String email;
+	@Column(unique = true)
+	private String email;
 
-    @Column(unique = true, nullable = false)
-    private String phoneNumber;
+	@Column(unique = true, nullable = false)
+	private String phoneNumber;
 
-    @Enumerated(EnumType.STRING)
-    private UserRole role;
+	@Enumerated(EnumType.STRING)
+	private UserRole role;
 
-    private String address;
+	private String address;
 
-    @Column(nullable = false)
-    private String salt;
+	@Column(nullable = false)
+	private String salt;
 
-    @Enumerated(EnumType.STRING)
-    private UserGender gender;
+	@Enumerated(EnumType.STRING)
+	private UserGender gender;
 
 }

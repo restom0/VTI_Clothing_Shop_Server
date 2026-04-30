@@ -9,31 +9,31 @@ import java.time.ZoneId;
 
 @Mapper(componentModel = "spring")
 public interface DateMapper {
-    default Long toEpochMillis(LocalDateTime value) {
-        if (value == null) {
-            return null;
-        }
-        return value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-    }
+	default Long toEpochMillis(LocalDateTime value) {
+		if (value == null) {
+			return null;
+		}
+		return value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
 
-    default Long toEpochMillis(LocalDate value) {
-        if (value == null) {
-            return null;
-        }
-        return value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-    }
+	default Long toEpochMillis(LocalDate value) {
+		if (value == null) {
+			return null;
+		}
+		return value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+	}
 
-    default LocalDateTime toLocalDateTime(Long value) {
-        if (value == null) {
-            return null;
-        }
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.systemDefault());
-    }
+	default LocalDateTime toLocalDateTime(Long value) {
+		if (value == null) {
+			return null;
+		}
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.systemDefault());
+	}
 
-    default LocalDate toLocalDate(Long value) {
-        if (value == null) {
-            return null;
-        }
-        return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate();
-    }
+	default LocalDate toLocalDate(Long value) {
+		if (value == null) {
+			return null;
+		}
+		return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate();
+	}
 }

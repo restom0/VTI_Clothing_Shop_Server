@@ -4,5 +4,5 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class BaseMessageResponse {
-    public final Integer statusCode;
+	public final Integer statusCode;
 }

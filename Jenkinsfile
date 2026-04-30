@@ -15,6 +15,9 @@ pipeline {
         string(name: 'SONAR_PROJECT_KEY', defaultValue: '', description: 'SonarCloud project key. Leave empty to skip SonarCloud safely.')
         string(name: 'SONAR_TOKEN_CREDENTIAL_ID', defaultValue: 'sonar-token', description: 'Jenkins secret text credential id for the Sonar token.')
 
+        booleanParam(name: 'RUN_DEPENDENCY_CHECK', defaultValue: true, description: 'Run OWASP Dependency-Check and archive vulnerability reports.')
+        string(name: 'NVD_API_KEY_CREDENTIAL_ID', defaultValue: '', description: 'Optional Jenkins secret text credential id for the NVD API key.')
+
         booleanParam(name: 'BUILD_DOCKER_IMAGE', defaultValue: true, description: 'Build the Docker image after Maven verify.')
         string(name: 'DOCKER_REGISTRY', defaultValue: '', description: 'Optional registry host, for example registry.example.com/team. Leave empty for local image only.')
         string(name: 'DOCKER_IMAGE_NAME', defaultValue: 'vti-clothing-shop-server', description: 'Docker image name without tag.')
@@ -25,6 +28,8 @@ pipeline {
         choice(name: 'DEPLOY_ENV', choices: ['int', 'qa', 'production'], description: 'Spring profile to set on the Kubernetes deployment.')
         booleanParam(name: 'APPLY_MONITORING', defaultValue: false, description: 'Also apply k8s/monitoring before the package deployment.')
         string(name: 'KUBECONFIG_CREDENTIAL_ID', defaultValue: 'kubeconfig', description: 'Jenkins secret file credential id containing kubeconfig.')
+        string(name: 'K8S_APP_SECRET_ENV_CREDENTIAL_ID', defaultValue: 'clothing-shop-app-secret-env', description: 'Jenkins secret file credential id for k8s/package/app-secret.env.')
+        string(name: 'K8S_GRAFANA_SECRET_ENV_CREDENTIAL_ID', defaultValue: 'grafana-secret-env', description: 'Jenkins secret file credential id for k8s/monitoring/grafana-secret.env.')
     }
 
     environment {
@@ -51,6 +56,29 @@ pipeline {
                 always {
                     junit allowEmptyResults: true, testResults: 'clothing_shop/target/surefire-reports/*.xml'
                     archiveArtifacts allowEmptyArchive: true, artifacts: 'clothing_shop/target/*.jar,clothing_shop/target/site/jacoco/jacoco.xml'
+                }
+            }
+        }
+
+        stage('Dependency Vulnerability Check') {
+            when {
+                expression { return params.RUN_DEPENDENCY_CHECK }
+            }
+            steps {
+                script {
+                    def nvdCredentialId = params.NVD_API_KEY_CREDENTIAL_ID?.trim()
+                    if (nvdCredentialId) {
+                        withCredentials([string(credentialsId: nvdCredentialId, variable: 'NVD_API_KEY')]) {
+                            runMaven('org.owasp:dependency-check-maven:check -DnvdApiKeyEnvironmentVariable=NVD_API_KEY')
+                        }
+                    } else {
+                        runMaven('org.owasp:dependency-check-maven:check')
+                    }
+                }
+            }
+            post {
+                always {
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'clothing_shop/target/dependency-check-report.*'
                 }
             }
         }
@@ -140,15 +168,31 @@ pipeline {
                     }
                 }
                 input message: "Deploy ${env.IMAGE_REF} to Kubernetes with profile ${params.DEPLOY_ENV}?", ok: 'Deploy'
-                withCredentials([file(credentialsId: params.KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE')]) {
+                withCredentials([
+                        file(credentialsId: params.KUBECONFIG_CREDENTIAL_ID, variable: 'KUBECONFIG_FILE'),
+                        file(credentialsId: params.K8S_APP_SECRET_ENV_CREDENTIAL_ID, variable: 'K8S_APP_SECRET_ENV_FILE')
+                ]) {
                     withEnv([
                             "KUBECONFIG=${env.KUBECONFIG_FILE}",
+                            "K8S_APP_SECRET_ENV_FILE=${env.K8S_APP_SECRET_ENV_FILE}",
                             "DEPLOY_IMAGE=${env.IMAGE_REF}",
                             "DEPLOY_ENV=${params.DEPLOY_ENV}"
                     ]) {
+                        runCommand(
+                                'cp "$K8S_APP_SECRET_ENV_FILE" k8s/package/app-secret.env',
+                                'copy /Y "%K8S_APP_SECRET_ENV_FILE%" "k8s\\package\\app-secret.env"'
+                        )
                         script {
                             if (params.APPLY_MONITORING) {
-                                runCommand('kubectl apply -k k8s/monitoring', 'kubectl apply -k k8s\\monitoring')
+                                withCredentials([file(credentialsId: params.K8S_GRAFANA_SECRET_ENV_CREDENTIAL_ID, variable: 'K8S_GRAFANA_SECRET_ENV_FILE')]) {
+                                    withEnv(["K8S_GRAFANA_SECRET_ENV_FILE=${env.K8S_GRAFANA_SECRET_ENV_FILE}"]) {
+                                        runCommand(
+                                                'cp "$K8S_GRAFANA_SECRET_ENV_FILE" k8s/monitoring/grafana-secret.env',
+                                                'copy /Y "%K8S_GRAFANA_SECRET_ENV_FILE%" "k8s\\monitoring\\grafana-secret.env"'
+                                        )
+                                        runCommand('kubectl apply -k k8s/monitoring', 'kubectl apply -k k8s\\monitoring')
+                                    }
+                                }
                             }
                         }
                         runCommand('kubectl apply -k k8s/package', 'kubectl apply -k k8s\\package')

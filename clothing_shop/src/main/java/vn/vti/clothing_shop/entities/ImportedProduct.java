@@ -21,57 +21,57 @@ import vn.vti.clothing_shop.constants.ClothGender;
 @AllArgsConstructor
 @Entity
 public class ImportedProduct extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn
-    private Product product;
+	@ManyToOne
+	@JoinColumn
+	private Product product;
 
-    @ManyToOne
-    @JoinColumn
-    private Size size;
+	@ManyToOne
+	@JoinColumn
+	private Size size;
 
-    @ManyToOne
-    @JoinColumn
-    private Color color;
+	@ManyToOne
+	@JoinColumn
+	private Color color;
 
-    private String imageUrl;
+	private String imageUrl;
 
-    private String sliderUrl1;
+	private String sliderUrl1;
 
-    private String sliderUrl2;
+	private String sliderUrl2;
 
-    private String sliderUrl3;
+	private String sliderUrl3;
 
-    private String sliderUrl4;
+	private String sliderUrl4;
 
-    private String publicIdUrl;
+	private String publicIdUrl;
 
-    private String publicIdSliderUrl1;
+	private String publicIdSliderUrl1;
 
-    private String publicIdSliderUrl2;
+	private String publicIdSliderUrl2;
 
-    private String publicIdSliderUrl3;
+	private String publicIdSliderUrl3;
 
-    private String publicIdSliderUrl4;
+	private String publicIdSliderUrl4;
 
-    @ManyToOne
-    @JoinColumn
-    private Material material;
+	@ManyToOne
+	@JoinColumn
+	private Material material;
 
-    private String sku;
+	private String sku;
 
-    @Enumerated(EnumType.STRING)
-    private ClothGender gender;
+	@Enumerated(EnumType.STRING)
+	private ClothGender gender;
 
-    @Column(nullable = false)
-    private Integer importPrice;
+	@Column(nullable = false)
+	private Integer importPrice;
 
-    @Column(nullable = false)
-    private Integer importNumber;
+	@Column(nullable = false)
+	private Integer importNumber;
 
-    @Column(nullable = false)
-    private Integer stock;
+	@Column(nullable = false)
+	private Integer stock;
 }

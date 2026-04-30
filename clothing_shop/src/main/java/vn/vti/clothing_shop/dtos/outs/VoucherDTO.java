@@ -10,10 +10,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VoucherDTO {
-    private Long id;
-    private Integer stock;
-    private Float value;
-    private String code;
-    private Long availableDate;
-    private Long endDate;
+	private Long id;
+	private Integer stock;
+	private Float value;
+	private String code;
+	private Long availableDate;
+	private Long endDate;
 }

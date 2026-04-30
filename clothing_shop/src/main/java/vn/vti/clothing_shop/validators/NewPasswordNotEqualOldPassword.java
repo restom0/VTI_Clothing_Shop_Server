@@ -11,12 +11,12 @@ import java.lang.annotation.Target;
 
 @Documented
 @Constraint(validatedBy = NewPasswordNotEqualOldPasswordValidator.class)
-@Target({ElementType.TYPE})
+@Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NewPasswordNotEqualOldPassword {
-    String message() default "New password must not be equal to old password";
+	String message() default "New password must not be equal to old password";
 
-    Class<?>[] groups() default {};
+	Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+	Class<? extends Payload>[] payload() default {};
 }

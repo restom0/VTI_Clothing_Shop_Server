@@ -4,8 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record ChatCreateRequest(
-        @NotBlank(message = "{messages.validation.required}")
-        @Size(max = 255, message = "{messages.validation.max255}")
-        String content
+		@NotBlank(message = "{messages.validation.required}")
+		@Size(max = 255, message = "{messages.validation.max255}")
+		String content
 ) {
 }

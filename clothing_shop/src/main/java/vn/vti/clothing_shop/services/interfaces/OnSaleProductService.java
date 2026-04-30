@@ -1,10 +1,11 @@
 package vn.vti.clothing_shop.services.interfaces;
 
-import vn.vti.clothing_shop.dtos.outs.OnSaleProductDTO;
+import vn.vti.clothing_shop.entities.OnSaleProduct;
 
 import java.util.List;
 
 public interface OnSaleProductService {
-    List<OnSaleProductDTO> getAllOnSaleProducts();
-    List<OnSaleProductDTO> getOnSaleProductById(Long id);
+	List<OnSaleProduct> getAllOnSaleProducts();
+
+	List<OnSaleProduct> getOnSaleProductById(Long id);
 }

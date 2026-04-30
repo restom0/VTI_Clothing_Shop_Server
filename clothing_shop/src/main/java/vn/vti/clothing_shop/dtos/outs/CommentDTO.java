@@ -10,11 +10,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentDTO {
-    private Long id;
-    private UserDTO userId;
-    private ProductDTO productId;
-    private String content;
-    private Boolean status;
-    private Float star;
-    private Long createdAt;
+	private Long id;
+	private UserDTO userId;
+	private ProductDTO productId;
+	private String content;
+	private Boolean status;
+	private Float star;
+	private Long createdAt;
 }

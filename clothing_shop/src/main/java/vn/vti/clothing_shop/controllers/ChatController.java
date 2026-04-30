@@ -3,6 +3,7 @@ package vn.vti.clothing_shop.controllers;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,11 +16,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
 import vn.vti.clothing_shop.entities.User;
 import vn.vti.clothing_shop.exceptions.WrapperException;
+import vn.vti.clothing_shop.mappers.ChatMapper;
 import vn.vti.clothing_shop.responses.BaseMessageResponse;
 import vn.vti.clothing_shop.responses.ResponseHandler;
 import vn.vti.clothing_shop.services.interfaces.ChatService;
@@ -29,89 +32,94 @@ import vn.vti.clothing_shop.services.interfaces.ChatService;
 @RequestMapping("/chat")
 public class ChatController {
 
-    private final ChatService chatService;
+	private final ChatService chatService;
+	private final ChatMapper chatMapper;
 
-    @GetMapping("/all")
-    public ResponseEntity<BaseMessageResponse> getAllChats() {
-        return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getAllChat());
-    }
+	@GetMapping("/all")
+	public ResponseEntity<BaseMessageResponse> getAllChats() {
+		return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getAllChat().stream()
+		                                                                .map(chatMapper::entityToDTO)
+		                                                                .toList());
+	}
 
-    @GetMapping
-    public ResponseEntity<BaseMessageResponse> getChat() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
-        Long userId = user.getId();
-        return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getChat(userId));
-    }
+	@GetMapping
+	public ResponseEntity<BaseMessageResponse> getChat() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User user = (User) authentication.getPrincipal();
+		Long userId = user.getId();
+		return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getChat(userId).stream()
+		                                                                .map(chatMapper::entityToDTO)
+		                                                                .toList());
+	}
 
-    @PostMapping
-    public ResponseEntity<BaseMessageResponse> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest) {
+	@PostMapping
+	public ResponseEntity<BaseMessageResponse> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest) {
 
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            chatService.addChat(userId, chatCreateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.chats.sent");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User) authentication.getPrincipal();
+			Long userId = user.getId();
+			chatService.addChat(userId, chatCreateRequest);
+			return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.chats.sent");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> updateChat(
-            @RequestBody
-            @Valid
-            ChatUpdateRequest chatUpdateRequest,
-            @PathVariable
-            @NotNull(message = "{messages.validation.required}")
-            Long id
-    ) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            chatService.updateChat(id, userId, chatUpdateRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.updated");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<BaseMessageResponse> updateChat(
+			@RequestBody
+			@Valid
+			ChatUpdateRequest chatUpdateRequest,
+			@PathVariable
+			@NotNull(message = "{messages.validation.required}")
+			Long id
+	) {
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User) authentication.getPrincipal();
+			Long userId = user.getId();
+			chatService.updateChat(id, userId, chatUpdateRequest);
+			return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.updated");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<BaseMessageResponse> deleteChat(
-            @PathVariable
-            @NotNull(message = "{messages.validation.required}")
-            Long id
-    ) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            chatService.deleteChat(id, userId);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.deleted");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<BaseMessageResponse> deleteChat(
+			@PathVariable
+			@NotNull(message = "{messages.validation.required}")
+			Long id
+	) {
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User) authentication.getPrincipal();
+			Long userId = user.getId();
+			chatService.deleteChat(id, userId);
+			return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.deleted");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 
-    @PutMapping("/reply/{id}")
-    public ResponseEntity<BaseMessageResponse> replyChat(
-            @RequestBody
-            @Valid
-            ChatReplyRequest chatReplyRequest,
-            @PathVariable
-            @NotNull(message = "{messages.validation.required}")
-            Long id
-    ) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            User user = (User) authentication.getPrincipal();
-            Long userId = user.getId();
-            chatService.replyChat(id, userId, chatReplyRequest);
-            return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.replied");
-        } catch (WrapperException e) {
-            return ResponseHandler.exceptionBuilder(e);
-        }
-    }
+	@PutMapping("/reply/{id}")
+	public ResponseEntity<BaseMessageResponse> replyChat(
+			@RequestBody
+			@Valid
+			ChatReplyRequest chatReplyRequest,
+			@PathVariable
+			@NotNull(message = "{messages.validation.required}")
+			Long id
+	) {
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			User user = (User) authentication.getPrincipal();
+			Long userId = user.getId();
+			chatService.replyChat(id, userId, chatReplyRequest);
+			return ResponseHandler.successBuilder(HttpStatus.OK, "messages.chats.replied");
+		} catch (WrapperException e) {
+			return ResponseHandler.exceptionBuilder(e);
+		}
+	}
 }

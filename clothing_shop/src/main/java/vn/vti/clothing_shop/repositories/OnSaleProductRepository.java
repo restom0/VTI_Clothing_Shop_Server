@@ -43,7 +43,8 @@ public interface OnSaleProductRepository extends JpaRepository<OnSaleProduct, Lo
 			"AND inputSale.startDate <= ?2 " +
 			"AND inputSale.endDate IS NOT NULL " +
 			"AND NOT (inputSale.startDate >= ?3 OR inputSale.endDate <= ?2) ")
-	Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNotNullEndDate(Long id, LocalDate availableDate, LocalDate endDate);
+	Optional<OnSaleProduct> findByProductIdAndAvailableDateAndNotNullEndDate(Long id, LocalDate availableDate,
+	                                                                         LocalDate endDate);
 
 	@Query("SELECT onSaleProduct " +
 			"FROM OnSaleProduct onSaleProduct " +

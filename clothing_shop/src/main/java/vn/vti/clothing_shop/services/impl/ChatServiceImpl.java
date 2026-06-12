@@ -16,8 +16,8 @@ import vn.vti.clothing_shop.mappers.ChatMapper;
 import vn.vti.clothing_shop.repositories.ChatRepository;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.services.interfaces.ChatService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -72,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
 		try {
 			Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(id, userId).orElseThrow(
 					() -> new NotFoundException("messages.chats.notfound"));
-			chat.setDeletedAt(Instant.now().toEpochMilli());
+			chat.setDeletedAt(TimeUtils.currentEpochMillis());
 			chatRepository.save(chat);
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);

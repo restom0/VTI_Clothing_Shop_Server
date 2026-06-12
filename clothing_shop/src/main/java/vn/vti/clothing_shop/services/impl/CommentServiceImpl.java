@@ -17,8 +17,8 @@ import vn.vti.clothing_shop.repositories.CommentRepository;
 import vn.vti.clothing_shop.repositories.ProductRepository;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.services.interfaces.CommentService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -80,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
 		try {
 			Comment comment = commentRepository.findByDeletedAtIsNullAndUserIdAndId(id, userId).orElseThrow(
 					() -> new NotFoundException("messages.comments.notfound"));
-			comment.setDeletedAt(Instant.now().toEpochMilli());
+			comment.setDeletedAt(TimeUtils.currentEpochMillis());
 			commentRepository.save(comment);
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);

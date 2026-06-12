@@ -18,8 +18,8 @@ import vn.vti.clothing_shop.mappers.CategoryMapper;
 import vn.vti.clothing_shop.readmodels.ReadModelType;
 import vn.vti.clothing_shop.repositories.CategoryRepository;
 import vn.vti.clothing_shop.services.interfaces.CategoryService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -91,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
 		try {
 			Category category = categoryRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
 					() -> new NotFoundException("messages.categories.notfound"));
-			category.setDeletedAt(Instant.now().toEpochMilli());
+			category.setDeletedAt(TimeUtils.currentEpochMillis());
 			readModelSyncService.removeAfterCommit(ReadModelType.CATEGORY, id);
 			readModelSyncService.syncAllProductsAfterCommit();
 		} catch (NotFoundException ex) {

@@ -27,8 +27,8 @@ import vn.vti.clothing_shop.repositories.OrderRepository;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.repositories.VoucherRepository;
 import vn.vti.clothing_shop.services.interfaces.OrderService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -114,9 +114,10 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
 					() -> new NotFoundException("messages.vouchers.notfound"));
+			Long now = TimeUtils.currentEpochMillis();
 			if (voucher.getStock() < 0
-					|| voucher.getEndDate() < Instant.now().toEpochMilli()
-					|| voucher.getAvailableDate() > Instant.now().toEpochMilli()) {
+					|| voucher.getEndDate() < now
+					|| voucher.getAvailableDate() > now) {
 				throw new BadRequestException("messages.vouchers.outOfStock");
 			}
 			voucher.setStock(voucher.getStock() + quantity);
@@ -138,7 +139,7 @@ public class OrderServiceImpl implements OrderService {
 			Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
 			adjustStock(order.getVoucher().getId(), NumberUtils.INTEGER_ONE);
 			order.setPaymentStatus(PaymentStatus.CANCELLED);
-			order.setDeletedAt(Instant.now().toEpochMilli());
+			order.setDeletedAt(TimeUtils.currentEpochMillis());
 			orderRepository.save(order);
 			readModelSyncService.removeAfterCommit(ReadModelType.ORDER, id);
 		} catch (NotFoundException ex) {

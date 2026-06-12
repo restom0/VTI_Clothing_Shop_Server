@@ -2,38 +2,26 @@ package vn.vti.clothing_shop.mappers;
 
 import org.mapstruct.Mapper;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+
+import vn.vti.clothing_shop.utils.TimeUtils;
 
 @Mapper(componentModel = "spring")
 public interface DateMapper {
 	default Long toEpochMillis(LocalDateTime value) {
-		if (value == null) {
-			return null;
-		}
-		return value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		return TimeUtils.toEpochMillis(value);
 	}
 
 	default Long toEpochMillis(LocalDate value) {
-		if (value == null) {
-			return null;
-		}
-		return value.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+		return TimeUtils.toEpochMillis(value);
 	}
 
 	default LocalDateTime toLocalDateTime(Long value) {
-		if (value == null) {
-			return null;
-		}
-		return LocalDateTime.ofInstant(Instant.ofEpochMilli(value), ZoneId.systemDefault());
+		return TimeUtils.toLocalDateTime(value);
 	}
 
 	default LocalDate toLocalDate(Long value) {
-		if (value == null) {
-			return null;
-		}
-		return Instant.ofEpochMilli(value).atZone(ZoneId.systemDefault()).toLocalDate();
+		return TimeUtils.toLocalDate(TimeUtils.fromEpochMillis(value));
 	}
 }

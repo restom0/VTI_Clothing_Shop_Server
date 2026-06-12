@@ -1,6 +1,5 @@
 package vn.vti.clothing_shop.services.impl;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.springframework.cache.annotation.CacheEvict;
@@ -21,6 +20,7 @@ import vn.vti.clothing_shop.mappers.BrandMapper;
 import vn.vti.clothing_shop.readmodels.ReadModelType;
 import vn.vti.clothing_shop.repositories.BrandRepository;
 import vn.vti.clothing_shop.services.interfaces.BrandService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
 @Service
 @AllArgsConstructor
@@ -89,7 +89,7 @@ public class BrandServiceImpl implements BrandService {
 		try {
 			Brand brand = brandRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
 					() -> new NotFoundException(Messages.MESSAGE_BRAND_NOTFOUND));
-			brand.setDeletedAt(Instant.now().toEpochMilli());
+			brand.setDeletedAt(TimeUtils.currentEpochMillis());
 			brandRepository.save(brand);
 			readModelSyncService.removeAfterCommit(ReadModelType.BRAND, id);
 			readModelSyncService.syncAllProductsAfterCommit();

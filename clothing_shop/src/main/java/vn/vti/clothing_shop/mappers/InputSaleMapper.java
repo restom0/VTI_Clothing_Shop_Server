@@ -33,4 +33,3 @@ public interface InputSaleMapper {
 	@Mapping(target = "version", source = "inputSaleUpdateRequest.version")
 	InputSale updateRequestToEntity(InputSaleUpdateRequest inputSaleUpdateRequest, @MappingTarget InputSale inputSale);
 }
-

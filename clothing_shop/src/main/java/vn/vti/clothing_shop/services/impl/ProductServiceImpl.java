@@ -20,8 +20,8 @@ import vn.vti.clothing_shop.repositories.BrandRepository;
 import vn.vti.clothing_shop.repositories.CategoryRepository;
 import vn.vti.clothing_shop.repositories.ProductRepository;
 import vn.vti.clothing_shop.services.interfaces.ProductService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Component
@@ -70,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			Product result = productRepository.findById(id).orElseThrow(
 					() -> new NotFoundException("messages.products.notfound"));
-			result.setDeletedAt(Instant.now().toEpochMilli());
+			result.setDeletedAt(TimeUtils.currentEpochMillis());
 			productRepository.save(result);
 			readModelSyncService.removeAfterCommit(ReadModelType.PRODUCT, id);
 		} catch (NotFoundException e) {

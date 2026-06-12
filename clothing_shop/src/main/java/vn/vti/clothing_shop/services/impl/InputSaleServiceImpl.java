@@ -22,8 +22,8 @@ import vn.vti.clothing_shop.repositories.ImportedProductRepository;
 import vn.vti.clothing_shop.repositories.InputSaleRepository;
 import vn.vti.clothing_shop.repositories.OnSaleProductRepository;
 import vn.vti.clothing_shop.services.interfaces.InputSaleService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -121,7 +121,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 					.findByProductIdAndAvailableDateAndNullEndDate(productId, startDate)
 					.map(onSaleProduct -> {
 						if (onSaleProduct.getInputSale().getStartDate().isBefore(startDate)) {
-							onSaleProduct.getInputSale().setEndDate(LocalDate.now());
+							onSaleProduct.getInputSale().setEndDate(TimeUtils.today());
 							onSaleProductRepository.save(onSaleProduct);
 							return true;
 						}
@@ -143,7 +143,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 					() -> new NotFoundException("messages.inputSales.notfound"));
 			List<OnSaleProduct> onSaleProducts
 					= onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
-					inputSaleId, LocalDate.now());
+					inputSaleId, TimeUtils.today());
 			updateListOnSaleProduct(onSaleProducts, inputSale);
 			inputSaleRepository.save(inputSaleMapper.updateRequestToEntity(inputSaleUpdateRequest, inputSale));
 		} catch (NotFoundException e) {
@@ -176,13 +176,13 @@ public class InputSaleServiceImpl implements InputSaleService {
 				() -> new RuntimeException("messages.inputSales.notfound"));
 		List<OnSaleProduct> onSaleProducts =
 				onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
-						id, LocalDate.now());
+						id, TimeUtils.today());
 
 		onSaleProducts.forEach(
-				onSaleProduct -> onSaleProduct.setDeletedAt(Instant.now().toEpochMilli())
+				onSaleProduct -> onSaleProduct.setDeletedAt(TimeUtils.currentEpochMillis())
 		);
 		onSaleProductRepository.saveAll(onSaleProducts);
-		inputSale.setDeletedAt(Instant.now().toEpochMilli());
+		inputSale.setDeletedAt(TimeUtils.currentEpochMillis());
 		inputSaleRepository.save(inputSale);
 	}
 }

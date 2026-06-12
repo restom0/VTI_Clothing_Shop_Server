@@ -12,14 +12,8 @@ CREATE TABLE IF NOT EXISTS category
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR
@@ -43,14 +37,8 @@ CREATE TABLE IF NOT EXISTS brand
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR
@@ -74,14 +62,8 @@ CREATE TABLE IF NOT EXISTS product
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR
@@ -113,14 +95,8 @@ CREATE TABLE IF NOT EXISTS color
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     code VARCHAR
@@ -151,14 +127,8 @@ CREATE TABLE IF NOT EXISTS size
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR
@@ -194,14 +164,8 @@ CREATE TABLE IF NOT EXISTS material
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR
@@ -227,14 +191,8 @@ CREATE TABLE IF NOT EXISTS imported_product
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     product_id BIGINT REFERENCES product
@@ -317,14 +275,8 @@ CREATE TABLE IF NOT EXISTS input_sale
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     filter VARCHAR
@@ -363,14 +315,8 @@ CREATE TABLE IF NOT EXISTS on_sale_product
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     product_id BIGINT REFERENCES imported_product
@@ -394,14 +340,8 @@ CREATE TABLE IF NOT EXISTS voucher
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     code VARCHAR
@@ -409,7 +349,7 @@ CREATE TABLE IF NOT EXISTS voucher
     255
 ) NOT NULL UNIQUE,
     available_date BIGINT NOT NULL,
-    end_date BIGINT NOT NULL,
+    end_date DATE NOT NULL,
     input_stock INTEGER NOT NULL,
     stock INTEGER NOT NULL,
     voucher_value REAL NOT NULL
@@ -426,14 +366,8 @@ CREATE TABLE IF NOT EXISTS users
     PRIMARY
     KEY,
     created_at
-    TIMESTAMP
-(
-    6
-),
-    updated_at TIMESTAMP
-(
-    6
-),
+    TIMESTAMP(6),
+    updated_at TIMESTAMP(6),
     deleted_at BIGINT,
     version BIGINT,
     name VARCHAR

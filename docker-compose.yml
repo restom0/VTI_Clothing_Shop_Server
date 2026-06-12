@@ -38,6 +38,7 @@ services:
       - "9091:9091"
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-int}
+      APPLICATION_TIME_ZONE: ${APPLICATION_TIME_ZONE:-UTC}
       SERVER_PORT: 8080
       GRPC_SERVER_PORT: 9091
       POSTGRESQL_URL: jdbc:postgresql://postgres:5432/clothing_shop

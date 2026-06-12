@@ -3,6 +3,7 @@ package vn.vti.clothing_shop.configs;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,6 +16,7 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
 
 	public CustomRedisSerializer() {
 		mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
 		mapper.activateDefaultTyping(
 				mapper.getPolymorphicTypeValidator(),
 				ObjectMapper.DefaultTyping.NON_FINAL,

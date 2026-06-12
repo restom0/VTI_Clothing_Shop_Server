@@ -20,8 +20,8 @@ import vn.vti.clothing_shop.mappers.UserMapper;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.services.JwtService;
 import vn.vti.clothing_shop.services.interfaces.UserService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -145,7 +145,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
 					() -> new NotFoundException("messages.users.notfound"));
-			user.setDeletedAt(Instant.now().toEpochMilli());
+			user.setDeletedAt(TimeUtils.currentEpochMillis());
 			userRepository.save(user);
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);

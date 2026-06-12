@@ -25,8 +25,8 @@ import vn.vti.clothing_shop.repositories.OnSaleProductRepository;
 import vn.vti.clothing_shop.repositories.OrderItemRepository;
 import vn.vti.clothing_shop.repositories.OrderRepository;
 import vn.vti.clothing_shop.services.interfaces.OrderItemService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 
@@ -197,7 +197,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 			                                               .orElseThrow(
 					                                               () -> new NotFoundException("messages.orderItems.notfound"));
 			final Order order = orderItem.getOrder();
-			orderItem.setDeletedAt(Instant.now().toEpochMilli());
+		orderItem.setDeletedAt(TimeUtils.currentEpochMillis());
 			refundStock(orderItem, orderItem.getQuantity());
 			orderItemRepository.save(orderItem);
 			order.setTotalPrice(Math.max(NumberUtils.LONG_ZERO,

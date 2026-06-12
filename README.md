@@ -322,6 +322,7 @@ kubectl -n vti-clothing-shop-monitoring port-forward svc/kibana 5601:5601
 | `POSTGRESQL_PASSWORD`          | Password PostgreSQL                               |
 | `JWT_SECRET_KEY`               | Base64 encoded signing secret for JWT             |
 | `JWT_EXPIRATION_TIME`          | JWT expiration in milliseconds                    |
+| `APPLICATION_TIME_ZONE`        | Application timezone for stored OffsetDateTime    |
 | `VALKEY_HOST`                  | Host Valkey                                       |
 | `VALKEY_PORT`                  | Port Valkey                                       |
 | `MONGODB_URI`                  | URI MongoDB read model                            |

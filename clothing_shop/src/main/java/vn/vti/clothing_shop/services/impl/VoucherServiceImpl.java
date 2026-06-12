@@ -17,8 +17,8 @@ import vn.vti.clothing_shop.mappers.VoucherMapper;
 import vn.vti.clothing_shop.readmodels.ReadModelType;
 import vn.vti.clothing_shop.repositories.VoucherRepository;
 import vn.vti.clothing_shop.services.interfaces.VoucherService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -41,7 +41,7 @@ public class VoucherServiceImpl implements VoucherService {
 
 	@Cacheable(value = "vouchers", key = "'available'")
 	public List<Voucher> getAllAvailableVouchers() {
-		Long now = Instant.now().toEpochMilli();
+		Long now = TimeUtils.currentEpochMillis();
 		List<Voucher> mongoVouchers = readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class);
 		if (mongoVouchers != null && !mongoVouchers.isEmpty()) {
 			return mongoVouchers.stream()
@@ -115,7 +115,7 @@ public class VoucherServiceImpl implements VoucherService {
 		try {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
 					() -> new NotFoundException("messages.vouchers.notfound"));
-			voucher.setDeletedAt(Instant.now().toEpochMilli());
+			voucher.setDeletedAt(TimeUtils.currentEpochMillis());
 			voucherRepository.save(voucher);
 			readModelSyncService.removeAfterCommit(ReadModelType.VOUCHER, id);
 		} catch (NotFoundException ex) {

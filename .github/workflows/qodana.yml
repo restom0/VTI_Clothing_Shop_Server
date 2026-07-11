@@ -1,0 +1,51 @@
+name: Qodana (Server)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  qodana:
+    name: Qodana Quality Scan
+    runs-on: ubuntu-latest
+    env:
+      QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+    steps:
+      - name: Guard (token present?)
+        id: guard
+        run: |
+          if [ -n "${QODANA_TOKEN}" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::QODANA_TOKEN not configured — skipping Qodana scan."
+          fi
+
+      - name: Checkout
+        if: steps.guard.outputs.enabled == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        if: steps.guard.outputs.enabled == 'true'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "25"
+          distribution: "temurin"
+
+      - name: Qodana Scan
+        if: steps.guard.outputs.enabled == 'true'
+        uses: JetBrains/qodana-action@v2024.3.4
+        with:
+          args: "--project-dir,clothing_shop"
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}

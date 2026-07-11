@@ -1,0 +1,10 @@
+# Qodana configuration — https://www.jetbrains.com/help/qodana/qodana-yaml.html
+version: "1.0"
+linter: jetbrains/qodana-jvm-community:latest
+profile:
+  name: qodana.recommended
+exclude:
+  - name: All
+    paths:
+      - target
+      - src/main/java/vn/vti/clothing_shop/proto

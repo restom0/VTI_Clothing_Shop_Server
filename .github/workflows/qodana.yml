@@ -44,7 +44,7 @@ jobs:
 
       - name: Qodana Scan
         if: steps.guard.outputs.enabled == 'true'
-        uses: JetBrains/qodana-action@v2024.3.4
+        uses: JetBrains/qodana-action@v2026.1.3
         with:
           args: "--project-dir,clothing_shop"
         env:

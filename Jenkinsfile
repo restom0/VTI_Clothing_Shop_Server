@@ -83,7 +83,7 @@ pipeline {
             }
         }
 
-        stage('SonarCloud Analysis') {
+        stage('SonarCloud Quality Gate') {
             when {
                 expression {
                     return params.RUN_SONAR
@@ -99,8 +99,8 @@ pipeline {
                             "SONAR_PROJECT_KEY=${params.SONAR_PROJECT_KEY}"
                     ]) {
                         runCommand(
-                                'cd clothing_shop && ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.organization="$SONAR_ORGANIZATION" -Dsonar.projectKey="$SONAR_PROJECT_KEY" -Dsonar.token="$SONAR_TOKEN" -Dsonar.qualitygate.wait=true',
-                                'cd clothing_shop && mvnw.cmd -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.organization="%SONAR_ORGANIZATION%" -Dsonar.projectKey="%SONAR_PROJECT_KEY%" -Dsonar.token="%SONAR_TOKEN%" -Dsonar.qualitygate.wait=true'
+                                'cd clothing_shop && ./mvnw -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url="$SONAR_HOST_URL" -Dsonar.organization="$SONAR_ORGANIZATION" -Dsonar.projectKey="$SONAR_PROJECT_KEY" -Dsonar.token="$SONAR_TOKEN" -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300',
+                                'cd clothing_shop && mvnw.cmd -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.host.url="%SONAR_HOST_URL%" -Dsonar.organization="%SONAR_ORGANIZATION%" -Dsonar.projectKey="%SONAR_PROJECT_KEY%" -Dsonar.token="%SONAR_TOKEN%" -Dsonar.qualitygate.wait=true -Dsonar.qualitygate.timeout=300'
                         )
                     }
                 }

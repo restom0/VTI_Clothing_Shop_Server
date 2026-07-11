@@ -1,0 +1,27 @@
+meta {
+  name: OpenAPI document
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/v3/api-docs
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("returns the OpenAPI document", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("object");
+    expect(res.body.openapi).to.be.a("string");
+  });
+
+  test("documents the login endpoint", function () {
+    expect(res.body.paths).to.have.property("/user/login");
+  });
+}

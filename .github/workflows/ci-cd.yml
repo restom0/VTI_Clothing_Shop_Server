@@ -40,7 +40,7 @@ jobs:
         working-directory: ./clothing_shop
         run: chmod +x ./mvnw && ./mvnw -B verify
 
-      - name: SonarCloud Analysis
+      - name: SonarCloud Quality Gate
         if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}
         working-directory: ./clothing_shop
         env:
@@ -53,3 +53,4 @@ jobs:
           -Dsonar.projectKey="${SONAR_PROJECT_KEY}"
           -Dsonar.token="${SONAR_TOKEN}"
           -Dsonar.qualitygate.wait=true
+          -Dsonar.qualitygate.timeout=300

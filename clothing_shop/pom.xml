@@ -110,7 +110,9 @@
         <dependency>
             <groupId>vn.payos</groupId>
             <artifactId>payos-java</artifactId>
-            <version>2.0.1</version>
+            <!-- Pinned to 1.0.3: payos-java 2.x removes the vn.payos.type.* API
+                 that PaymentServiceImpl uses. Bump only alongside migrating that code. -->
+            <version>1.0.3</version>
         </dependency>
 
         <dependency>
@@ -276,6 +278,32 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>coverage-check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>INSTRUCTION</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.25</minimum>
+                                        </limit>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.20</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

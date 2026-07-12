@@ -6,6 +6,11 @@ on:
   pull_request:
     types: [ opened, synchronize, reopened ]
 
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
 jobs:
   build:
     name: Build and Test
@@ -38,7 +43,24 @@ jobs:
 
       - name: Build and Test with Maven
         working-directory: ./clothing_shop
-        run: chmod +x ./mvnw && ./mvnw -B verify
+        run: chmod +x ./mvnw && ./mvnw -B verify # runs tests + JaCoCo coverage gate
+
+      - name: Publish test results
+        if: ${{ always() }}
+        uses: mikepenz/action-junit-report@v5
+        with:
+          report_paths: "clothing_shop/target/surefire-reports/TEST-*.xml"
+          check_name: Server test results
+          fail_on_failure: false
+
+      - name: Upload coverage report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-coverage
+          path: clothing_shop/target/site/jacoco/
+          retention-days: 7
+          if-no-files-found: ignore
 
       - name: SonarCloud Quality Gate
         if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}

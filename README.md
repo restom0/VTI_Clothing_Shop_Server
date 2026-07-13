@@ -14,12 +14,12 @@ kê.
 
 ## Công nghệ chính
 
-- Java 17, Spring Boot 3.5.5
+- Java 25, Spring Boot 4.1.0
 - Spring Web, Spring Security, Spring Data JPA, Spring Data MongoDB
 - PostgreSQL cho write model
 - MongoDB cho read model
 - Valkey cho cache
-- MapStruct, Lombok, QueryDSL
+- MapStruct, Lombok
 - PayOS, Stripe, ZaloPay
 - gRPC Java, Protocol Buffers
 - OpenTelemetry, Prometheus, Grafana, Loki, Tempo, Elasticsearch, Logstash, Kibana
@@ -28,25 +28,40 @@ kê.
 
 ## Kiến trúc tổng quan
 
-```text
-Client
-  |
-  v
-Spring Boot API
-  | writes
-  v
-PostgreSQL
-  |
-  | sync read model
-  v
-MongoDB
+```mermaid
+flowchart LR
+    subgraph client ["Client Apps"]
+        webClient["React/Vite Web Client (Vercel)"]
+    end
+    subgraph gateway ["API Layer"]
+        apiGateway["HTTPS API Endpoint (Render or Nginx)"]
+    end
+    subgraph service ["Core Services"]
+        springApi["Spring Boot REST API"]
+        grpcModules["Optional gRPC Modules"]
+    end
+    subgraph datastore ["Data Stores"]
+        postgres["PostgreSQL Write Model"]
+        mongo["MongoDB Read Model"]
+        valkey["Valkey/Redis Cache"]
+    end
+    subgraph external ["External Platforms"]
+        paymentProviders["PayOS, Stripe, ZaloPay"]
+        oauthProviders["Google, Facebook, Twitter/X OAuth"]
+        observability["OTel, Prometheus, Loki, Tempo, ELK, Grafana"]
+    end
 
-Spring Boot API <-> Valkey cache
-Spring Boot API -> Payment providers: PayOS, Stripe, ZaloPay
-Spring Boot API -> gRPC module boundary: auth/read/write/payment
-Spring Boot API -> OpenTelemetry Collector -> Prometheus/Loki/Tempo/Elasticsearch
-Grafana -> Prometheus/Loki/Tempo
-Kibana -> Elasticsearch
+    webClient -->|"HTTPS REST + OAuth redirects"| apiGateway
+    apiGateway -->|"Routes requests"| springApi
+    springApi -->|"Internal RPC boundary"| grpcModules
+    springApi -->|"Reads/writes domain data"| postgres
+    springApi -->|"Syncs read models"| mongo
+    springApi -->|"Caches reads"| valkey
+    grpcModules -->|"Auth/read/write/payment"| postgres
+    grpcModules -->|"Read queries"| mongo
+    springApi -.->|"Spring API: Checkout"| paymentProviders
+    springApi -.->|"Spring API: Social login"| oauthProviders
+    springApi -.->|"Spring API: Telemetry"| observability
 ```
 
 ## Tính năng nổi bật
@@ -143,7 +158,7 @@ VTI_Clothing_Shop_Server/
 
 Yêu cầu:
 
-- Java 17+
+- Java 25+
 - PostgreSQL local hoặc chạy qua Docker
 - MongoDB local hoặc chạy qua Docker
 - Valkey local hoặc chạy qua Docker
@@ -425,7 +440,7 @@ Tham so quan trong:
 | `DEPLOY_ENV`        | `int`                      | Spring profile ap dung cho Kubernetes deployment |
 | `APPLY_MONITORING`  | `false`                    | Apply them `k8s/monitoring` truoc package        |
 
-Jenkins agent can co Java 17 va Docker CLI/daemon neu build Docker image. Kubectl chi can khi chay deploy manual. Neu
+Jenkins agent can co Java 25 va Docker CLI/daemon neu build Docker image. Kubectl chi can khi chay deploy manual. Neu
 deploy vao cluster khong dung local image cache, hay bat `PUSH_DOCKER_IMAGE=true` va dung image tu registry.
 
 ## Ghi chú bảo mật

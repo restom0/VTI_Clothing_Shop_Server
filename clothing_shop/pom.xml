@@ -16,7 +16,6 @@
     <properties>
         <java.version>25</java.version>
         <org.mapstruct.version>1.6.3</org.mapstruct.version>
-        <querydsl.version>5.1.0</querydsl.version>
         <lombok.version>1.18.46</lombok.version>
         <jacoco.version>0.8.15</jacoco.version>
         <junit-jupiter.version>6.1.1</junit-jupiter.version>
@@ -215,18 +214,6 @@
             <artifactId>mapstruct</artifactId>
             <version>${org.mapstruct.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-            <version>${querydsl.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-apt</artifactId>
-            <version>${querydsl.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -317,33 +304,6 @@
                     <nvdValidForHours>24</nvdValidForHours>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-maven-plugin</artifactId>
-                <version>${querydsl.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>jpa-export</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <targetFolder>target/generated-sources/java</targetFolder>
-                    <packages>
-                        <package>vn.vti.clothing_shop.entities</package>
-                    </packages>
-                    <packageName/>
-                    <sourceFolder/>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.querydsl</groupId>
-                        <artifactId>querydsl-apt</artifactId>
-                        <version>${querydsl.version}</version>
-                    </dependency>
-                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

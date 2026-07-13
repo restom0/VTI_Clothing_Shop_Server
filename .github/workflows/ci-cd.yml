@@ -18,7 +18,7 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
-      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY }}
+      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || 'VTI_Clothing_Shop_Server' }}
       SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL || 'https://sonarcloud.io' }}
 
     steps:
@@ -62,8 +62,20 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+      - name: Validate Sonar configuration
+        shell: bash
+        run: |
+          missing=()
+          [ -n "${SONAR_TOKEN}" ] || missing+=("SONAR_TOKEN secret")
+          [ -n "${SONAR_ORGANIZATION}" ] || missing+=("SONAR_ORGANIZATION variable")
+          [ -n "${SONAR_PROJECT_KEY}" ] || missing+=("SONAR_PROJECT_KEY variable")
+
+          if [ "${#missing[@]}" -gt 0 ]; then
+            printf '::error::Missing required Sonar configuration: %s\n' "${missing[*]}"
+            exit 1
+          fi
+
       - name: SonarCloud Scan
-        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}
         working-directory: ./clothing_shop
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +88,6 @@ jobs:
           -Dsonar.token="${SONAR_TOKEN}"
 
       - name: SonarQube Quality Gate
-        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}
         uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
         timeout-minutes: 5
         env:

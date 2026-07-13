@@ -9,10 +9,10 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarCloud analysis when organization and project key are configured.')
+        booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarCloud analysis and fail the build when the Quality Gate fails.')
         string(name: 'SONAR_HOST_URL', defaultValue: 'https://sonarcloud.io', description: 'SonarCloud/SonarQube host URL.')
-        string(name: 'SONAR_ORGANIZATION', defaultValue: '', description: 'SonarCloud organization. Leave empty to skip SonarCloud safely.')
-        string(name: 'SONAR_PROJECT_KEY', defaultValue: '', description: 'SonarCloud project key. Leave empty to skip SonarCloud safely.')
+        string(name: 'SONAR_ORGANIZATION', defaultValue: '', description: 'SonarCloud organization. Required when RUN_SONAR=true.')
+        string(name: 'SONAR_PROJECT_KEY', defaultValue: 'VTI_Clothing_Shop_Server', description: 'SonarCloud project key. Required when RUN_SONAR=true.')
         string(name: 'SONAR_TOKEN_CREDENTIAL_ID', defaultValue: 'sonar-token', description: 'Jenkins secret text credential id for the Sonar token.')
 
         booleanParam(name: 'RUN_DEPENDENCY_CHECK', defaultValue: true, description: 'Run OWASP Dependency-Check and archive vulnerability reports.')
@@ -85,13 +85,13 @@ pipeline {
 
         stage('SonarCloud Quality Gate') {
             when {
-                expression {
-                    return params.RUN_SONAR
-                            && params.SONAR_ORGANIZATION?.trim()
-                            && params.SONAR_PROJECT_KEY?.trim()
-                }
+                expression { return params.RUN_SONAR }
             }
             steps {
+                script {
+                    requiredTrim(params.SONAR_ORGANIZATION, 'SONAR_ORGANIZATION')
+                    requiredTrim(params.SONAR_PROJECT_KEY, 'SONAR_PROJECT_KEY')
+                }
                 withCredentials([string(credentialsId: params.SONAR_TOKEN_CREDENTIAL_ID, variable: 'SONAR_TOKEN')]) {
                     withEnv([
                             "SONAR_HOST_URL=${params.SONAR_HOST_URL}",

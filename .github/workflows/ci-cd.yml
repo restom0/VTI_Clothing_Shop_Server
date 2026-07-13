@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_ORGANIZATION: ${{ vars.SONAR_ORGANIZATION }}
-      SONAR_PROJECT_KEY: ${{ vars.SONAR_PROJECT_KEY || 'VTI_Clothing_Shop_Server' }}
-      SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL || 'https://sonarcloud.io' }}
+      SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY || 'VTI_Clothing_Shop_Server' }}
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL || 'https://sonarcloud.io' }}
 
     steps:
       - name: Checkout
@@ -67,8 +67,8 @@ jobs:
         run: |
           missing=()
           [ -n "${SONAR_TOKEN}" ] || missing+=("SONAR_TOKEN secret")
-          [ -n "${SONAR_ORGANIZATION}" ] || missing+=("SONAR_ORGANIZATION variable")
-          [ -n "${SONAR_PROJECT_KEY}" ] || missing+=("SONAR_PROJECT_KEY variable")
+          [ -n "${SONAR_ORGANIZATION}" ] || missing+=("SONAR_ORGANIZATION secret")
+          [ -n "${SONAR_PROJECT_KEY}" ] || missing+=("SONAR_PROJECT_KEY secret")
 
           if [ "${#missing[@]}" -gt 0 ]; then
             printf '::error::Missing required Sonar configuration: %s\n' "${missing[*]}"

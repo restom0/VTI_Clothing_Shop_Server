@@ -62,7 +62,7 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
-      - name: SonarCloud Quality Gate
+      - name: SonarCloud Scan
         if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}
         working-directory: ./clothing_shop
         env:
@@ -74,5 +74,13 @@ jobs:
           -Dsonar.organization="${SONAR_ORGANIZATION}"
           -Dsonar.projectKey="${SONAR_PROJECT_KEY}"
           -Dsonar.token="${SONAR_TOKEN}"
-          -Dsonar.qualitygate.wait=true
-          -Dsonar.qualitygate.timeout=300
+
+      - name: SonarQube Quality Gate
+        if: ${{ env.SONAR_TOKEN != '' && env.SONAR_ORGANIZATION != '' && env.SONAR_PROJECT_KEY != '' }}
+        uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+        with:
+          scanMetadataReportFile: clothing_shop/target/sonar/report-task.txt

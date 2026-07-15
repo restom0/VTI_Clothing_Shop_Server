@@ -42,8 +42,16 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Build and Test with Maven
+        id: maven_verify
         working-directory: ./clothing_shop
+        continue-on-error: true
         run: chmod +x ./mvnw && ./mvnw -B verify # runs tests + JaCoCo coverage gate
+
+      - name: Generate JaCoCo report after failed tests
+        if: ${{ always() && steps.maven_verify.outcome == 'failure' }}
+        working-directory: ./clothing_shop
+        continue-on-error: true
+        run: ./mvnw -B jacoco:report -DskipTests
 
       - name: Publish test results
         if: ${{ always() }}
@@ -63,6 +71,8 @@ jobs:
           if-no-files-found: ignore
 
       - name: Validate Sonar configuration
+        id: sonar_config
+        if: ${{ always() }}
         shell: bash
         run: |
           missing=()
@@ -75,9 +85,12 @@ jobs:
             exit 1
           fi
 
+          echo "ready=true" >> "$GITHUB_OUTPUT"
           printf '::notice::If SonarCloud Automatic Analysis is enabled for this project, disable it before using CI analysis.\n'
 
       - name: SonarCloud Scan
+        id: sonar_scan
+        if: ${{ always() && steps.sonar_config.outputs.ready == 'true' }}
         uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -90,6 +103,7 @@ jobs:
             -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
 
       - name: SonarQube Quality Gate
+        if: ${{ always() && steps.sonar_scan.outcome == 'success' }}
         uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b # v1.2.0
         timeout-minutes: 5
         env:
@@ -97,3 +111,10 @@ jobs:
           SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
         with:
           scanMetadataReportFile: clothing_shop/.scannerwork/report-task.txt
+
+      - name: Fail if Maven verify failed
+        if: ${{ steps.maven_verify.outcome == 'failure' }}
+        shell: bash
+        run: |
+          printf '::error::Maven verify failed. See test and build logs above.\n'
+          exit 1

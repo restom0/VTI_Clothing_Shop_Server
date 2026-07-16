@@ -13,7 +13,7 @@ import vn.vti.clothing_shop.entities.User;
 import javax.crypto.SecretKey;
 
 import java.time.Instant;
-import java.util.Date;
+import java.util.Date; // NOSONAR - JJWT 0.12.6 exposes java.util.Date in its public API.
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
@@ -44,8 +44,8 @@ public class JwtService {
 		return Jwts
 				.builder()
 				.subject(id)
-				.issuedAt(Date.from(now))
-				.expiration(Date.from(now.plusMillis(getExpirationTime())))
+				.issuedAt(toJwtDate(now))
+				.expiration(toJwtDate(now.plusMillis(getExpirationTime())))
 				.signWith(getSignInKey())
 				.compact();
 	}
@@ -71,8 +71,8 @@ public class JwtService {
 				.builder()
 				.claims(claims)
 				.subject(String.valueOf(user.getId()))
-				.issuedAt(Date.from(now))
-				.expiration(Date.from(now.plusMillis(getExpirationTime())))
+				.issuedAt(toJwtDate(now))
+				.expiration(toJwtDate(now.plusMillis(getExpirationTime())))
 				.signWith(getSignInKey())
 				.compact();
 	}
@@ -83,11 +83,16 @@ public class JwtService {
 	}
 
 	public boolean isTokenExpired(String token) {
-		return extractExpiration(token).toInstant().isBefore(Instant.now());
+		return extractExpiration(token).isBefore(Instant.now());
 	}
 
-	private Date extractExpiration(String token) {
-		return extractClaim(token, Claims::getExpiration);
+	private Instant extractExpiration(String token) {
+		return extractClaim(token, Claims::getExpiration).toInstant();
+	}
+
+	@SuppressWarnings({ "java:S2143", "squid:S2143" })
+	private Date toJwtDate(Instant instant) {
+		return Date.from(instant); // NOSONAR - JJWT builder requires java.util.Date.
 	}
 
 	private Claims extractAllClaims(String token) {

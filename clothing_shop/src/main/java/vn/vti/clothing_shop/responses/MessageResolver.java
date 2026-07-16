@@ -6,13 +6,14 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 public class MessageResolver {
-	private static MessageSource messageSource;
+	private static final AtomicReference<MessageSource> MESSAGE_SOURCE = new AtomicReference<>();
 
-	public MessageResolver(MessageSource messageSource) {
-		MessageResolver.messageSource = messageSource;
+	MessageResolver(MessageSource messageSource) {
+		MESSAGE_SOURCE.set(messageSource);
 	}
 
 	public static Object resolveIfMessageKey(Object value) {
@@ -31,13 +32,14 @@ public class MessageResolver {
 	}
 
 	public static String resolve(Locale locale, String message, Object... args) {
-		if (message == null || message.isBlank() || messageSource == null) {
+		MessageSource source = MESSAGE_SOURCE.get();
+		if (message == null || message.isBlank() || source == null) {
 			return message;
 		}
 
 		String key = normalizeKey(message);
 		try {
-			return messageSource.getMessage(key, args, locale);
+			return source.getMessage(key, args, locale);
 		} catch (NoSuchMessageException exception) {
 			return message;
 		}

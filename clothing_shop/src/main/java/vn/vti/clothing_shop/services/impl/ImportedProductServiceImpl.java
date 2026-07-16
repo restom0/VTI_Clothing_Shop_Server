@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import vn.vti.clothing_shop.constants.Filter;
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
 import vn.vti.clothing_shop.entities.Color;
@@ -105,7 +106,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		try {
 			ImportedProduct importedProduct = importedProductRepository
 					.findById(id)
-					.orElseThrow(() -> new NotFoundException("messages.importedProducts.notfound"));
+					.orElseThrow(() -> new NotFoundException(Messages.MESSAGE_IMPORTED_PRODUCT_NOTFOUND));
 			importedProductRepository.delete(importedProduct);
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
@@ -125,7 +126,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		try {
 			ImportedProduct importedProduct = importedProductRepository
 					.findById(id)
-					.orElseThrow(() -> new NotFoundException("messages.importedProducts.notfound"));
+					.orElseThrow(() -> new NotFoundException(Messages.MESSAGE_IMPORTED_PRODUCT_NOTFOUND));
 			final Product product = productRepository
 					.findById(importedProductUpdateRequest.productId())
 					.orElseThrow(() -> new NotFoundException("messages.products.notfound"));
@@ -165,7 +166,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		try {
 			return importedProductRepository.findById(id)
 			                                .orElseThrow(() -> new NotFoundException(
-					                                "messages.importedProducts.notfound"));
+					                                Messages.MESSAGE_IMPORTED_PRODUCT_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}

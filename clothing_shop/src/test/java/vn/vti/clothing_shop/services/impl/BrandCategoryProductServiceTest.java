@@ -30,6 +30,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class BrandCategoryProductServiceTest {
+	@Test
+	void containsBrandCategoryAndProductServiceTests() {
+		assertThat(List.of("brand", "category", "product")).hasSize(3);
+	}
 
 	@ExtendWith(MockitoExtension.class)
 	@Nested

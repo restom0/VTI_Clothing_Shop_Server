@@ -9,8 +9,11 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -120,28 +123,27 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 
 	private Map<String, Object> transformObject(Object value, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		Map<String, Object> transformed = new LinkedHashMap<>();
-		for (Field field : fieldsOf(value.getClass())) {
-			if (Modifier.isStatic(field.getModifiers())) {
+		for (PropertyDescriptor property : propertiesOf(value.getClass())) {
+			Method getter = property.getReadMethod();
+			if (getter == null || "class".equals(property.getName())) {
 				continue;
 			}
-			field.setAccessible(true);
 			try {
-				transformed.put(field.getName(), transform(field.get(value), field.getName(), locale, visited));
-			} catch (IllegalAccessException ignored) {
-				transformed.put(field.getName(), null);
+				Object propertyValue = getter.invoke(value);
+				transformed.put(property.getName(), transform(propertyValue, property.getName(), locale, visited));
+			} catch (IllegalAccessException | InvocationTargetException | RuntimeException ignored) {
+				transformed.put(property.getName(), null);
 			}
 		}
 		return transformed;
 	}
 
-	private List<Field> fieldsOf(Class<?> type) {
-		List<Field> fields = new ArrayList<>();
-		Class<?> current = type;
-		while (current != null && current != Object.class) {
-			fields.addAll(List.of(current.getDeclaredFields()));
-			current = current.getSuperclass();
+	private List<PropertyDescriptor> propertiesOf(Class<?> type) {
+		try {
+			return List.of(Introspector.getBeanInfo(type, Object.class).getPropertyDescriptors());
+		} catch (IntrospectionException ignored) {
+			return List.of();
 		}
-		return fields;
 	}
 
 	private boolean isTemporalField(String fieldName) {

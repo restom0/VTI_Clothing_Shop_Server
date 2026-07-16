@@ -26,6 +26,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class OAuth2LoginService {
+	private static final String EMAIL_ATTRIBUTE = "email";
+
 	private final UserRepository userRepository;
 	private final UserSocialAccountRepository socialAccountRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -129,7 +131,7 @@ public class OAuth2LoginService {
 
 	private String sanitizeUsername(String value) {
 		String sanitized = value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
-		sanitized = sanitized.replaceAll("_+", "_").replaceAll("^_|_$", "");
+		sanitized = sanitized.replaceAll("_+", "_").replaceAll("(^_)|(_$)", "");
 		if (sanitized.isBlank()) {
 			sanitized = "oauth_user";
 		}
@@ -182,8 +184,8 @@ public class OAuth2LoginService {
 			return new SocialProfile(
 					requiredString(attributes, "sub"),
 					string(attributes, "name"),
-					string(attributes, "email"),
-					string(attributes, "email"),
+					string(attributes, EMAIL_ATTRIBUTE),
+					string(attributes, EMAIL_ATTRIBUTE),
 					string(attributes, "picture")
 			);
 		}
@@ -192,8 +194,8 @@ public class OAuth2LoginService {
 			return new SocialProfile(
 					requiredString(attributes, "id"),
 					string(attributes, "name"),
-					string(attributes, "email"),
-					string(attributes, "email"),
+					string(attributes, EMAIL_ATTRIBUTE),
+					string(attributes, EMAIL_ATTRIBUTE),
 					facebookPicture(attributes)
 			);
 		}
@@ -205,7 +207,7 @@ public class OAuth2LoginService {
 					requiredString(source, "id"),
 					string(source, "name"),
 					string(source, "username"),
-					string(source, "email"),
+					string(source, EMAIL_ATTRIBUTE),
 					string(source, "profile_image_url")
 			);
 		}

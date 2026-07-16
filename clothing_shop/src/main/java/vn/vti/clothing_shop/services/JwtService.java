@@ -12,6 +12,7 @@ import vn.vti.clothing_shop.entities.User;
 
 import javax.crypto.SecretKey;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,11 +40,12 @@ public class JwtService {
 	}
 
 	public String buildSalt(String id) {
+		Instant now = Instant.now();
 		return Jwts
 				.builder()
 				.subject(id)
-				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + getExpirationTime()))
+				.issuedAt(Date.from(now))
+				.expiration(Date.from(now.plusMillis(getExpirationTime())))
 				.signWith(getSignInKey())
 				.compact();
 	}
@@ -62,14 +64,15 @@ public class JwtService {
 	}
 
 	public String buildToken(User user) {
+		Instant now = Instant.now();
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("salt", user.getSalt());
 		return Jwts
 				.builder()
 				.claims(claims)
 				.subject(String.valueOf(user.getId()))
-				.issuedAt(new Date(System.currentTimeMillis()))
-				.expiration(new Date(System.currentTimeMillis() + getExpirationTime()))
+				.issuedAt(Date.from(now))
+				.expiration(Date.from(now.plusMillis(getExpirationTime())))
 				.signWith(getSignInKey())
 				.compact();
 	}
@@ -80,7 +83,7 @@ public class JwtService {
 	}
 
 	public boolean isTokenExpired(String token) {
-		return extractExpiration(token).before(new Date());
+		return extractExpiration(token).toInstant().isBefore(Instant.now());
 	}
 
 	private Date extractExpiration(String token) {

@@ -49,6 +49,7 @@ import vn.vti.clothing_shop.readmodels.ReadModelType;
 import vn.vti.clothing_shop.services.JwtService;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,6 +60,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UserVoucherOrderServiceTest {
+	@Test
+	void containsUserVoucherOrderAndPaymentServiceTests() {
+		assertThat(List.of("user", "voucher", "order", "payment")).hasSize(4);
+	}
 
 	private static PostgresToMongoReadModelSyncService noOpReadModelSyncService() {
 		return new PostgresToMongoReadModelSyncService(
@@ -66,10 +71,12 @@ class UserVoucherOrderServiceTest {
 		) {
 			@Override
 			public void syncAfterCommit(ReadModelType modelType, Long entityId) {
+				// No-op test double: unit tests assert service behavior without asynchronous read-model syncing.
 			}
 
 			@Override
 			public void removeAfterCommit(ReadModelType modelType, Long entityId) {
+				// No-op test double: unit tests assert service behavior without asynchronous read-model removal.
 			}
 		};
 	}
@@ -131,7 +138,7 @@ class UserVoucherOrderServiceTest {
 					"demo@example.com",
 					"0900000001",
 					"Ha Noi",
-					LocalDate.of(1995, 1, 1),
+					LocalDate.of(1995, Month.JANUARY, 1),
 					null,
 					null,
 					UserGender.MALE

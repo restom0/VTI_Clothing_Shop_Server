@@ -8,6 +8,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.CategoryCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.CategoryUpdateRequest;
 import vn.vti.clothing_shop.entities.Category;
@@ -70,7 +71,7 @@ public class CategoryServiceImpl implements CategoryService {
 				throw new ConflictException("messages.categories.exists");
 			}
 			Category category = categoryRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("messages.categories.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CATEGORY_NOTFOUND));
 			Category savedCategory = categoryRepository.save(
 					categoryMapper.updateRequestToEntity(categoryUpdateRequest, category));
 			readModelSyncService.syncAfterCommit(ReadModelType.CATEGORY, savedCategory.getId());
@@ -90,7 +91,7 @@ public class CategoryServiceImpl implements CategoryService {
 	public void deleteCategory(Long id) throws WrapperException {
 		try {
 			Category category = categoryRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
-					() -> new NotFoundException("messages.categories.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CATEGORY_NOTFOUND));
 			category.setDeletedAt(TimeUtils.currentEpochMillis());
 			readModelSyncService.removeAfterCommit(ReadModelType.CATEGORY, id);
 			readModelSyncService.syncAllProductsAfterCommit();
@@ -104,11 +105,11 @@ public class CategoryServiceImpl implements CategoryService {
 	public Category getCategoryById(Long id) throws WrapperException {
 		try {
 			var mongoCategory = readModelQueryService.findById(ReadModelType.CATEGORY, id, Category.class);
-			if (mongoCategory != null && mongoCategory.isPresent()) {
+			if (mongoCategory.isPresent()) {
 				return mongoCategory.get();
 			}
 			return categoryRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("messages.categories.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CATEGORY_NOTFOUND));
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
 		}

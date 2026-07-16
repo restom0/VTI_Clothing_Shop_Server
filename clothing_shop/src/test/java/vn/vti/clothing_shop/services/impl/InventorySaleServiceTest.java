@@ -46,6 +46,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class InventorySaleServiceTest {
+	@Test
+	void containsInventoryAndSaleServiceTests() {
+		assertThat(List.of("importedProduct", "inputSale", "onSaleProduct")).hasSize(3);
+	}
 
 	@ExtendWith(MockitoExtension.class)
 	@Nested

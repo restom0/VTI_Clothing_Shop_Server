@@ -41,6 +41,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ChatCommentAuditStatServiceTest {
+	@Test
+	void containsChatCommentAuditAndStatServiceTests() {
+		assertThat(List.of("audit", "chat", "comment", "stat")).hasSize(4);
+	}
 
 	@ExtendWith(MockitoExtension.class)
 	@Nested

@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.OrderItemCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemUpdateRequest;
 import vn.vti.clothing_shop.entities.ImportedProduct;
@@ -58,7 +59,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 	public OrderItem findOrderItemByIdAndOrderId(Long id, Long orderId) throws WrapperException {
 		try {
 			return orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId)
-			                          .orElseThrow(() -> new NotFoundException("messages.orderItems.notfound"));
+			                          .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_ITEM_NOTFOUND));
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
@@ -141,7 +142,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 			Order order = orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(orderId, userId).orElseThrow(
 					() -> new NotFoundException("messages.orders.notfound"));
 			OrderItem orderItem = orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(orderItemId, order.getId())
-			                                         .orElseThrow(() -> new NotFoundException("messages.orderItems.notfound"));
+			                                         .orElseThrow(() -> new NotFoundException(
+					                                         Messages.MESSAGE_ORDER_ITEM_NOTFOUND));
 			OnSaleProduct onSaleProduct = onSaleProductRepository.findByIdAndDeletedAtIsNull(orderItemUpdateRequest.productId())
 			                                                     .orElseThrow(() -> new NotFoundException(
 					                                                     "messages.onSaleProducts.notfound"));
@@ -195,7 +197,8 @@ public class OrderItemServiceImpl implements OrderItemService {
 		try {
 			final OrderItem orderItem = orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(id, orderId)
 			                                               .orElseThrow(
-					                                               () -> new NotFoundException("messages.orderItems.notfound"));
+					                                               () -> new NotFoundException(
+							                                               Messages.MESSAGE_ORDER_ITEM_NOTFOUND));
 			final Order order = orderItem.getOrder();
 		orderItem.setDeletedAt(TimeUtils.currentEpochMillis());
 			refundStock(orderItem, orderItem.getQuantity());

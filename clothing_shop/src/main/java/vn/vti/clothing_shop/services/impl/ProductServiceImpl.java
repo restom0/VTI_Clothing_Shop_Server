@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.ProductCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ProductUpdateRequest;
 import vn.vti.clothing_shop.entities.Brand;
@@ -69,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
 	public void deleteProduct(Long id) throws WrapperException {
 		try {
 			Product result = productRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("messages.products.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_PRODUCT_NOTFOUND));
 			result.setDeletedAt(TimeUtils.currentEpochMillis());
 			productRepository.save(result);
 			readModelSyncService.removeAfterCommit(ReadModelType.PRODUCT, id);
@@ -85,7 +86,7 @@ public class ProductServiceImpl implements ProductService {
 		try {
 			Product product = productRepository
 					.findById(productId)
-					.orElseThrow(() -> new NotFoundException("messages.products.notfound"));
+					.orElseThrow(() -> new NotFoundException(Messages.MESSAGE_PRODUCT_NOTFOUND));
 			Brand brand = brandRepository
 					.findById(productUpdateRequest.brandId())
 					.orElseThrow(() -> new NotFoundException("messages.brands.notfound"));
@@ -105,12 +106,12 @@ public class ProductServiceImpl implements ProductService {
 	public Product getProductById(Long id) throws WrapperException {
 		try {
 			var mongoProduct = readModelQueryService.findById(ReadModelType.PRODUCT, id, Product.class);
-			if (mongoProduct != null && mongoProduct.isPresent()) {
+			if (mongoProduct.isPresent()) {
 				return mongoProduct.get();
 			}
 			return productRepository
 					.findById(id)
-					.orElseThrow(() -> new NotFoundException("messages.products.notfound"));
+					.orElseThrow(() -> new NotFoundException(Messages.MESSAGE_PRODUCT_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}

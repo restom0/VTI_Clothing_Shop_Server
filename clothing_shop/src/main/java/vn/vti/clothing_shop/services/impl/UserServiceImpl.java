@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.constants.UserRole;
 import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.UserLoginRequest;
@@ -92,7 +93,7 @@ public class UserServiceImpl implements UserService {
 	public User getUserById(Long id) throws WrapperException {
 		try {
 			return userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
-					() -> new NotFoundException("messages.users.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_USER_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
@@ -103,7 +104,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public void updateUser(UserUpdateRequest userUpdateRequest, Long userId) throws WrapperException {
 		try {
-			User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("messages.users.notfound"));
+			User user = userRepository.findById(userId).orElseThrow(
+					() -> new NotFoundException(Messages.MESSAGE_USER_NOTFOUND));
 			if (!Objects.equals(user.getEmail(), userUpdateRequest.email())
 					&& userRepository.existsByDeletedAtIsNullAndEmail(userUpdateRequest.email())) {
 				throw new BadRequestException("messages.users.emailExists");
@@ -125,7 +127,7 @@ public class UserServiceImpl implements UserService {
 		try {
 			User user = userRepository
 					.findById(userId)
-					.orElseThrow(() -> new NotFoundException("messages.users.notfound"));
+					.orElseThrow(() -> new NotFoundException(Messages.MESSAGE_USER_NOTFOUND));
 
 			if (!passwordEncoder.matches(userUpdatePasswordRequest.oldPassword(), user.getPassword())) {
 				throw new BadRequestException("messages.users.passwordInvalid");
@@ -144,7 +146,7 @@ public class UserServiceImpl implements UserService {
 	public void deleteUser(Long id) throws WrapperException {
 		try {
 			User user = userRepository.findByDeletedAtIsNullAndId(id).orElseThrow(
-					() -> new NotFoundException("messages.users.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_USER_NOTFOUND));
 			user.setDeletedAt(TimeUtils.currentEpochMillis());
 			userRepository.save(user);
 		} catch (NotFoundException e) {

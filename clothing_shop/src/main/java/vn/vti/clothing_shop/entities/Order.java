@@ -1,6 +1,7 @@
 package vn.vti.clothing_shop.entities;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,6 +17,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import vn.vti.clothing_shop.constants.PaymentMethod;
 import vn.vti.clothing_shop.constants.PaymentStatus;
+import vn.vti.clothing_shop.converters.PaymentMethodConverter;
 
 @Getter
 @Setter
@@ -49,7 +51,7 @@ public class Order extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
 
-	@Enumerated(EnumType.STRING)
+	@Convert(converter = PaymentMethodConverter.class)
 	private PaymentMethod paymentMethod;
 
 	@ManyToOne

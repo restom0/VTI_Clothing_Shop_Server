@@ -5,7 +5,9 @@ import vn.vti.clothing_shop.services.RateLimitService;
 
 @Getter
 public class RateLimitExceededException extends RuntimeException {
-	private final RateLimitService.RateLimitDecision decision;
+	private static final long serialVersionUID = 1L;
+
+	private final transient RateLimitService.RateLimitDecision decision;
 
 	public RateLimitExceededException(RateLimitService.RateLimitDecision decision) {
 		super("messages.rateLimit.exceeded");

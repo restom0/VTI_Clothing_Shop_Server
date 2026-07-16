@@ -38,6 +38,7 @@ public class OpenAPISecurityConfiguration {
 	private static final String REPORTING_TAG = "Reporting";
 	private static final String ADMIN_TAG = "Administration";
 	private static final String OPERATIONS_TAG = "Operations";
+	private static final String ERROR_PATH = "/error";
 	private static final List<String> SUPPORTED_LANGUAGES = List.of("en", "es", "de", "fr", "ca", "it");
 
 	@Bean
@@ -46,11 +47,10 @@ public class OpenAPISecurityConfiguration {
 				.info(new Info()
 						      .title("VTI Clothing Shop API")
 						      .version("1.0.0")
-						      .description("""
-								                   REST API for the VTI Clothing Shop backend.
-								                   Use the Authorization button with a JWT returned by `/user/login` or OAuth2 social login.
-								                   Responses support localized messages through the `Accept-Language` header.
-								                   """)
+						      .description("REST API for the VTI Clothing Shop backend. "
+								                   + "Use the Authorization button with a JWT returned by `/user/login` "
+								                   + "or OAuth2 social login. Responses support localized messages through "
+								                   + "the `Accept-Language` header.")
 						      .contact(new Contact()
 								               .name("VTI Clothing Shop Team")
 								               .email("support@vti-clothing-shop.local")
@@ -105,7 +105,7 @@ public class OpenAPISecurityConfiguration {
 		return GroupedOpenApi.builder()
 		                     .group("01 - All APIs")
 		                     .pathsToMatch("/**")
-		                     .pathsToExclude("/error")
+		                     .pathsToExclude(ERROR_PATH)
 		                     .build();
 	}
 
@@ -114,7 +114,7 @@ public class OpenAPISecurityConfiguration {
 		return GroupedOpenApi.builder()
 		                     .group("02 - Authentication")
 		                     .pathsToMatch("/user/**", "/oauth2/**", "/login/oauth2/**")
-		                     .pathsToExclude("/error")
+		                     .pathsToExclude(ERROR_PATH)
 		                     .build();
 	}
 
@@ -123,7 +123,7 @@ public class OpenAPISecurityConfiguration {
 		return GroupedOpenApi.builder()
 		                     .group("03 - Catalog")
 		                     .pathsToMatch("/product/**", "/brand/**", "/category/**", "/voucher/**", "/on-sale-product/**")
-		                     .pathsToExclude("/error")
+		                     .pathsToExclude(ERROR_PATH)
 		                     .build();
 	}
 
@@ -132,7 +132,7 @@ public class OpenAPISecurityConfiguration {
 		return GroupedOpenApi.builder()
 		                     .group("04 - Commerce")
 		                     .pathsToMatch("/order/**", "/order-item/**", "/order-items/**")
-		                     .pathsToExclude("/error")
+		                     .pathsToExclude(ERROR_PATH)
 		                     .build();
 	}
 
@@ -141,7 +141,7 @@ public class OpenAPISecurityConfiguration {
 		return GroupedOpenApi.builder()
 		                     .group("05 - Operations")
 		                     .pathsToMatch("/stat/**", "/audit/**", "/actuator/**")
-		                     .pathsToExclude("/error")
+		                     .pathsToExclude(ERROR_PATH)
 		                     .build();
 	}
 

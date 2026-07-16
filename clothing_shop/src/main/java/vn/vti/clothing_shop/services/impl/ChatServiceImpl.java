@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
@@ -58,7 +59,7 @@ public class ChatServiceImpl implements ChatService {
 	public void updateChat(Long chatId, Long userId, ChatUpdateRequest chatUpdateRequest) throws WrapperException {
 		try {
 			final Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(chatId, userId).orElseThrow(
-					() -> new NotFoundException("messages.chats.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CHAT_NOTFOUND));
 			chatRepository.save(chatMapper.updateRequestToEntity(chatUpdateRequest, chat));
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
@@ -71,7 +72,7 @@ public class ChatServiceImpl implements ChatService {
 	public void deleteChat(Long id, Long userId) throws WrapperException {
 		try {
 			Chat chat = chatRepository.findByDeletedAtIsNullAndIdAndSenderId(id, userId).orElseThrow(
-					() -> new NotFoundException("messages.chats.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CHAT_NOTFOUND));
 			chat.setDeletedAt(TimeUtils.currentEpochMillis());
 			chatRepository.save(chat);
 		} catch (NotFoundException ex) {
@@ -87,7 +88,7 @@ public class ChatServiceImpl implements ChatService {
 			User user = userRepository.findByDeletedAtIsNullAndId(userId).orElseThrow(
 					() -> new NotFoundException("messages.users.notfound"));
 			Chat chat = chatRepository.findByDeletedAtIsNullAndId(chatId).orElseThrow(
-					() -> new NotFoundException("messages.chats.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_CHAT_NOTFOUND));
 			Chat replyChat = chatMapper.replyRequestToEntity(chatReplyRequest, user);
 			chatRepository.save(replyChat);
 			chat.setReply(replyChat);

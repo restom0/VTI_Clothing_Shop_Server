@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.VoucherCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.VoucherUpdateRequest;
 import vn.vti.clothing_shop.entities.Voucher;
@@ -58,11 +59,11 @@ public class VoucherServiceImpl implements VoucherService {
 	public Voucher findVoucherById(Long id) throws WrapperException {
 		try {
 			var mongoVoucher = readModelQueryService.findById(ReadModelType.VOUCHER, id, Voucher.class);
-			if (mongoVoucher != null && mongoVoucher.isPresent()) {
+			if (mongoVoucher.isPresent()) {
 				return mongoVoucher.get();
 			}
 			return voucherRepository.findByDeletedAtIsNullAndId(id)
-			                        .orElseThrow(() -> new NotFoundException("messages.vouchers.notfound"));
+			                        .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_VOUCHER_NOTFOUND));
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
@@ -72,11 +73,11 @@ public class VoucherServiceImpl implements VoucherService {
 	public Voucher findVoucherByCode(String code) throws WrapperException {
 		try {
 			var mongoVoucher = readModelQueryService.findByLookupKey(ReadModelType.VOUCHER, code, Voucher.class);
-			if (mongoVoucher != null && mongoVoucher.isPresent()) {
+			if (mongoVoucher.isPresent()) {
 				return mongoVoucher.get();
 			}
 			return voucherRepository.findByDeletedAtIsNullAndCode(code)
-			                        .orElseThrow(() -> new NotFoundException("messages.vouchers.notfound"));
+			                        .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_VOUCHER_NOTFOUND));
 		} catch (NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
@@ -101,7 +102,7 @@ public class VoucherServiceImpl implements VoucherService {
 	public void updateVoucher(VoucherUpdateRequest voucherUpdateRequest, Long id) throws WrapperException {
 		try {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("messages.vouchers.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_VOUCHER_NOTFOUND));
 			Voucher savedVoucher = voucherRepository.save(voucherMapper.updateRequestToEntity(voucherUpdateRequest, voucher));
 			readModelSyncService.syncAfterCommit(ReadModelType.VOUCHER, savedVoucher.getId());
 		} catch (NotFoundException ex) {
@@ -114,7 +115,7 @@ public class VoucherServiceImpl implements VoucherService {
 	public void deleteVoucher(Long id) throws WrapperException {
 		try {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
-					() -> new NotFoundException("messages.vouchers.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_VOUCHER_NOTFOUND));
 			voucher.setDeletedAt(TimeUtils.currentEpochMillis());
 			voucherRepository.save(voucher);
 			readModelSyncService.removeAfterCommit(ReadModelType.VOUCHER, id);

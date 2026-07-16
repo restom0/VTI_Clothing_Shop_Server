@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.dtos.ins.OrderCheckoutRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderConfirmRequest;
@@ -66,11 +67,11 @@ public class OrderServiceImpl implements OrderService {
 	public Order getOrderByIdAndUserId(Long id, Long userId) throws WrapperException {
 		try {
 			var mongoOrder = readModelQueryService.findByIdAndOwner(ReadModelType.ORDER, id, userId, Order.class);
-			if (mongoOrder != null && mongoOrder.isPresent()) {
+			if (mongoOrder.isPresent()) {
 				return mongoOrder.get();
 			}
 			return orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(id, userId)
-			                      .orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+			                      .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
@@ -99,7 +100,8 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public void updateOrder(Long id, OrderUpdateRequest orderUpdateRequest) throws WrapperException {
 		try {
-			Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+				Order order = orderRepository.findById(id).orElseThrow(
+						() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
 			Voucher voucher = voucherRepository.findById(orderUpdateRequest.voucherId()).orElseThrow(
 					() -> new NotFoundException("messages.vouchers.notfound"));
 			adjustStock(voucher.getId(), NumberUtils.INTEGER_MINUS_ONE);
@@ -136,7 +138,8 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public void deleteOrder(Long id) throws WrapperException {
 		try {
-			Order order = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+				Order order = orderRepository.findById(id).orElseThrow(
+						() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
 			adjustStock(order.getVoucher().getId(), NumberUtils.INTEGER_ONE);
 			order.setPaymentStatus(PaymentStatus.CANCELLED);
 			order.setDeletedAt(TimeUtils.currentEpochMillis());
@@ -153,11 +156,11 @@ public class OrderServiceImpl implements OrderService {
 		try {
 			var mongoOrder = readModelQueryService.findByIdAndOwner(ReadModelType.ORDER, orderCheckoutRequest.orderId(), userId,
 			                                                        Order.class);
-			if (mongoOrder != null && mongoOrder.isPresent()) {
+			if (mongoOrder.isPresent()) {
 				return mongoOrder.get();
 			}
 			return orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(orderCheckoutRequest.orderId(), userId)
-			                      .orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+			                      .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
@@ -167,9 +170,9 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	@Override
 	public Boolean confirmOrder(OrderConfirmRequest orderConfirmRequest, Long userId) throws WrapperException {
-		try {
-			Order order = orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(orderConfirmRequest.orderCode(), userId)
-			                             .orElseThrow(() -> new NotFoundException("messages.orders.notfound"));
+			try {
+				Order order = orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(orderConfirmRequest.orderCode(), userId)
+				                             .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
 			order.setPaymentStatus(orderConfirmRequest.status() ? PaymentStatus.CONFIRMED : PaymentStatus.CANCELLED);
 			orderRepository.save(order);
 			readModelSyncService.syncAfterCommit(ReadModelType.ORDER, order.getId());

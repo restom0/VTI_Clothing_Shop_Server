@@ -6,6 +6,10 @@ import org.springframework.http.ResponseEntity;
 import vn.vti.clothing_shop.exceptions.WrapperException;
 
 public class ResponseHandler {
+	private ResponseHandler() {
+		throw new IllegalStateException("Utility class");
+	}
+
 	public static ResponseEntity<BaseMessageResponse> successBuilder(HttpStatus status, Object data) {
 		SuccessMessageResponse response = new SuccessMessageResponse(status.value(), MessageResolver.resolveIfMessageKey(data));
 		return new ResponseEntity<>(response, status);

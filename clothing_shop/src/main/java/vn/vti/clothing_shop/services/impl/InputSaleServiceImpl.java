@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
+import vn.vti.clothing_shop.constants.Messages;
 import vn.vti.clothing_shop.dtos.ins.InputSaleCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.InputSaleUpdateRequest;
 import vn.vti.clothing_shop.entities.ImportedProduct;
@@ -46,7 +47,8 @@ public class InputSaleServiceImpl implements InputSaleService {
 	@Override
 	public InputSale getInputSaleById(Long id) throws WrapperException {
 		try {
-			return inputSaleRepository.findById(id).orElseThrow(() -> new NotFoundException("messages.inputSales.notfound"));
+			return inputSaleRepository.findById(id).orElseThrow(
+					() -> new NotFoundException(Messages.MESSAGE_INPUT_SALE_NOTFOUND));
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}
@@ -140,7 +142,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 	public void updateInputSale(InputSaleUpdateRequest inputSaleUpdateRequest, Long inputSaleId) throws WrapperException {
 		try {
 			InputSale inputSale = inputSaleRepository.findById(inputSaleId).orElseThrow(
-					() -> new NotFoundException("messages.inputSales.notfound"));
+					() -> new NotFoundException(Messages.MESSAGE_INPUT_SALE_NOTFOUND));
 			List<OnSaleProduct> onSaleProducts
 					= onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
 					inputSaleId, TimeUtils.today());
@@ -173,7 +175,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 	@Override
 	public void deleteInputSale(Long id) {
 		InputSale inputSale = inputSaleRepository.findById(id).orElseThrow(
-				() -> new RuntimeException("messages.inputSales.notfound"));
+				() -> new RuntimeException(Messages.MESSAGE_INPUT_SALE_NOTFOUND));
 		List<OnSaleProduct> onSaleProducts =
 				onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
 						id, TimeUtils.today());

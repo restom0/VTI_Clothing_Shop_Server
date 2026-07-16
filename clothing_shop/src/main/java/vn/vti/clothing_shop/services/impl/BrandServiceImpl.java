@@ -103,7 +103,7 @@ public class BrandServiceImpl implements BrandService {
 	public Brand findBrandById(Long id) throws WrapperException {
 		try {
 			var mongoBrand = readModelQueryService.findById(ReadModelType.BRAND, id, Brand.class);
-			if (mongoBrand != null && mongoBrand.isPresent()) {
+			if (mongoBrand.isPresent()) {
 				return mongoBrand.get();
 			}
 			return brandRepository.findByDeletedAtIsNullAndId(id)

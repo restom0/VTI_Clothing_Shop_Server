@@ -10,8 +10,8 @@ import vn.vti.clothing_shop.repositories.OrderItemRepository;
 import vn.vti.clothing_shop.repositories.OrderRepository;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.services.interfaces.StatService;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +38,7 @@ public class StatServiceImpl implements StatService {
 
 	@Override
 	public Map<Integer, ArrayList<Long>> getMonthlyIncomeForLast5Years() {
-		int currentYear = LocalDate.now().getYear();
+		int currentYear = TimeUtils.today().getYear();
 		List<Integer> fiveRecentYears = new ArrayList<>();
 		for (int i = 0; i < 5; i++) {
 			fiveRecentYears.add(currentYear - i);

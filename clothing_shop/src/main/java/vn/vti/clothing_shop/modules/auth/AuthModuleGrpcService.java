@@ -21,7 +21,7 @@ import vn.vti.clothing_shop.modules.grpc.GrpcResponseSupport;
 import vn.vti.clothing_shop.services.JwtService;
 import vn.vti.clothing_shop.services.interfaces.UserService;
 
-import java.util.Date;
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -59,14 +59,14 @@ public class AuthModuleGrpcService extends AuthModuleServiceGrpc.AuthModuleServi
 	public void validateToken(GrpcValidateTokenRequest request, StreamObserver<GrpcValidateTokenResponse> responseObserver) {
 		try {
 			String subject = jwtService.extractId(request.getToken());
-			Date expiresAt = jwtService.extractClaim(request.getToken(), Claims::getExpiration);
+			Instant expiresAt = jwtService.extractClaim(request.getToken(), Claims::getExpiration).toInstant();
 			boolean valid = !jwtService.isTokenExpired(request.getToken());
 			GrpcResponseSupport.complete(responseObserver, GrpcValidateTokenResponse.newBuilder()
 			                                                                        .setValid(valid)
 			                                                                        .setMessage(valid ? "messages.auth.tokenValid"
 			                                                                                          : "messages.auth.tokenExpired")
 			                                                                        .setSubject(subject)
-			                                                                        .setExpiresAtEpochMs(expiresAt.getTime())
+			                                                                        .setExpiresAtEpochMs(expiresAt.toEpochMilli())
 			                                                                        .build());
 		} catch (Exception ex) {
 			log.warn("gRPC token validation failed", ex);

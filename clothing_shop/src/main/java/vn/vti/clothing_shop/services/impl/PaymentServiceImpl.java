@@ -32,6 +32,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -91,11 +92,14 @@ public class PaymentServiceImpl implements PaymentService {
 				case PAYOS -> createPayOsCheckout(orderDTO);
 				case STRIPE -> createStripeCheckout(orderDTO);
 				case ZALO_PAY -> createZaloPayCheckout(orderDTO);
-				case COD, EBanking, MOMO -> createManualCheckout(orderDTO, paymentMethod);
+				case COD, E_BANKING, MOMO -> createManualCheckout(orderDTO, paymentMethod);
 			};
 		} catch (BaseCheckedException e) {
 			throw new WrapperException(e);
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new WrapperException(new BadRequestException("messages.payments.gatewayUnavailable"));
+		} catch (IOException | PaymentGatewayException | GeneralSecurityException e) {
 			throw new WrapperException(new BadRequestException("messages.payments.gatewayUnavailable"));
 		}
 	}
@@ -117,7 +121,7 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
-	private PaymentCheckoutResponse createPayOsCheckout(OrderDTO orderDTO) throws Exception {
+	private PaymentCheckoutResponse createPayOsCheckout(OrderDTO orderDTO) throws PaymentGatewayException {
 		PaymentData paymentData = PaymentData.builder()
 		                                     .orderCode(orderDTO.getOrderCode())
 		                                     .items(buildPayOsItems(orderDTO))
@@ -126,7 +130,7 @@ public class PaymentServiceImpl implements PaymentService {
 		                                     .returnUrl(returnUrl)
 		                                     .cancelUrl(cancelUrl)
 		                                     .build();
-		CheckoutResponseData checkoutResponseData = payOS.createPaymentLink(paymentData);
+		CheckoutResponseData checkoutResponseData = createPayOsPaymentLink(paymentData);
 		return new PaymentCheckoutResponse(
 				PaymentMethod.PAYOS,
 				orderDTO.getOrderCode(),
@@ -138,6 +142,15 @@ public class PaymentServiceImpl implements PaymentService {
 				cancelUrl,
 				checkoutResponseData
 		);
+	}
+
+	@SuppressWarnings("java:S2221")
+	private CheckoutResponseData createPayOsPaymentLink(PaymentData paymentData) throws PaymentGatewayException {
+		try {
+			return payOS.createPaymentLink(paymentData);
+		} catch (Exception exception) {
+			throw new PaymentGatewayException(exception);
+		}
 	}
 
 	private PaymentCheckoutResponse createStripeCheckout(OrderDTO orderDTO)
@@ -171,7 +184,8 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
-	private PaymentCheckoutResponse createZaloPayCheckout(OrderDTO orderDTO) throws Exception {
+	private PaymentCheckoutResponse createZaloPayCheckout(OrderDTO orderDTO)
+			throws IOException, InterruptedException, BadRequestException, GeneralSecurityException {
 		requireConfigured(zaloPayAppId);
 		requireConfigured(zaloPayKey1);
 
@@ -282,7 +296,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return String.join("&", pairs);
 	}
 
-	private String hmacSha256(String key, String data) throws Exception {
+	private String hmacSha256(String key, String data) throws GeneralSecurityException {
 		Mac mac = Mac.getInstance("HmacSHA256");
 		mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
 		byte[] bytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
@@ -301,5 +315,13 @@ public class PaymentServiceImpl implements PaymentService {
 
 	private String asString(Object value) {
 		return value == null ? null : String.valueOf(value);
+	}
+
+	private static final class PaymentGatewayException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		private PaymentGatewayException(Throwable cause) {
+			super(cause);
+		}
 	}
 }

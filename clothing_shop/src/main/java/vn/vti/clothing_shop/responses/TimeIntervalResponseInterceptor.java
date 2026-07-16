@@ -12,13 +12,16 @@ import java.lang.reflect.Array;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
@@ -123,9 +126,16 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 
 	private Map<String, Object> transformObject(Object value, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		Map<String, Object> transformed = new LinkedHashMap<>();
+		for (Field field : publicFieldsOf(value.getClass())) {
+			try {
+				transformed.put(field.getName(), transform(field.get(value), field.getName(), locale, visited));
+			} catch (IllegalAccessException | RuntimeException ignored) {
+				transformed.put(field.getName(), null);
+			}
+		}
 		for (PropertyDescriptor property : propertiesOf(value.getClass())) {
 			Method getter = property.getReadMethod();
-			if (getter == null || "class".equals(property.getName())) {
+			if (getter == null || "class".equals(property.getName()) || transformed.containsKey(property.getName())) {
 				continue;
 			}
 			try {
@@ -136,6 +146,12 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 			}
 		}
 		return transformed;
+	}
+
+	private List<Field> publicFieldsOf(Class<?> type) {
+		return Arrays.stream(type.getFields())
+		           .filter(field -> !Modifier.isStatic(field.getModifiers()))
+		           .toList();
 	}
 
 	private List<PropertyDescriptor> propertiesOf(Class<?> type) {

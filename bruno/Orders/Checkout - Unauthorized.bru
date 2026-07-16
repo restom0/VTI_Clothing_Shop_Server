@@ -1,0 +1,28 @@
+meta {
+  name: Checkout - unauthorized
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/order/checkout
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "orderCode": 555
+  }
+}
+
+tests {
+  test("requires authentication for checkout", function () {
+    expect([401, 403]).to.include(res.status);
+  });
+}

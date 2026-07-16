@@ -1,0 +1,24 @@
+meta {
+  name: List vouchers
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/voucher
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("returns vouchers successfully", function () {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an("object");
+    expect(res.body).to.have.property("object");
+    expect(res.body.object).to.be.an("array");
+  });
+}

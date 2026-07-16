@@ -1,0 +1,21 @@
+meta {
+  name: Cart - unauthorized
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/order/cart
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+tests {
+  test("requires authentication for cart", function () {
+    expect([401, 403]).to.include(res.status);
+  });
+}

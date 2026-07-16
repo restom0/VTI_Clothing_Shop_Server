@@ -240,7 +240,8 @@ public class PaymentServiceImpl implements PaymentService {
 		return orderItems(orderDTO).stream()
 		                           .map(orderItem -> ItemData.builder()
 		                                                     .name(resolveItemName(orderItem))
-		                                                     .quantity(orderItem.getQuantity())
+		                                                     .quantity(resolveItemQuantity(orderItem))
+		                                                     .price(resolveItemPrice(orderDTO, orderItem))
 		                                                     .build())
 		                           .toList();
 	}
@@ -270,6 +271,23 @@ public class PaymentServiceImpl implements PaymentService {
 			return "Order item";
 		}
 		return orderItemDTO.getProduct().getProduct().getProduct().getName();
+	}
+
+	private Integer resolveItemQuantity(OrderItemDTO orderItemDTO) {
+		return orderItemDTO == null || orderItemDTO.getQuantity() == null || orderItemDTO.getQuantity() <= 0
+		       ? 1
+		       : orderItemDTO.getQuantity();
+	}
+
+	private Integer resolveItemPrice(OrderDTO orderDTO, OrderItemDTO orderItemDTO) {
+		if (orderItemDTO != null && orderItemDTO.getProduct() != null && orderItemDTO.getProduct().getSalePrice() > 0) {
+			return Math.round(orderItemDTO.getProduct().getSalePrice());
+		}
+		Long totalPrice = orderDTO.getTotalPrice();
+		if (totalPrice == null) {
+			return 0;
+		}
+		return Math.toIntExact(totalPrice / resolveItemQuantity(orderItemDTO));
 	}
 
 	private Map<String, Object> postForm(String url, Map<String, String> form, String authorization)

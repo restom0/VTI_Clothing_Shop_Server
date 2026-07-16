@@ -42,6 +42,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -206,6 +207,68 @@ class InventorySaleServiceTest {
 		}
 
 		@Test
+		void createInputSaleSkipsWhenFilteredProductsAreEmpty() {
+			LocalDate startDate = LocalDate.now();
+			InputSaleCreateRequest request = new InputSaleCreateRequest(
+					InputSaleFilter.PRODUCT,
+					9L,
+					120F,
+					10F,
+					startDate,
+					startDate.plusDays(7)
+			);
+			InputSale inputSale = new InputSale();
+
+			when(inputSaleMapper.createRequestEntity(request)).thenReturn(inputSale);
+			when(importedProductRepository.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(9L, 0))
+					.thenReturn(List.of());
+
+			service.createInputSale(request);
+
+			verify(inputSaleRepository).save(inputSale);
+			verify(onSaleProductMapper, never()).importProductAndInputSaleToOnSaleProduct(
+					org.mockito.ArgumentMatchers.any(),
+					org.mockito.ArgumentMatchers.any()
+			);
+		}
+
+		@Test
+		void createInputSaleClosesOlderOpenSaleInsteadOfCreatingDuplicate() {
+			LocalDate startDate = LocalDate.now().plusDays(2);
+			InputSaleCreateRequest request = new InputSaleCreateRequest(
+					InputSaleFilter.ALL,
+					0L,
+					120F,
+					10F,
+					startDate,
+					null
+			);
+			InputSale inputSale = new InputSale();
+			inputSale.setStartDate(startDate);
+			ImportedProduct importedProduct = new ImportedProduct();
+			importedProduct.setId(1L);
+			InputSale olderSale = new InputSale();
+			olderSale.setStartDate(startDate.minusDays(5));
+			OnSaleProduct existingOnSaleProduct = new OnSaleProduct();
+			existingOnSaleProduct.setInputSale(olderSale);
+
+			when(inputSaleMapper.createRequestEntity(request)).thenReturn(inputSale);
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThan(anyInt()))
+					.thenReturn(List.of(importedProduct));
+			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNullEndDate(1L, startDate))
+					.thenReturn(Optional.of(existingOnSaleProduct));
+
+			service.createInputSale(request);
+
+			assertThat(olderSale.getEndDate()).isNotNull();
+			verify(onSaleProductRepository).save(existingOnSaleProduct);
+			verify(onSaleProductMapper, never()).importProductAndInputSaleToOnSaleProduct(
+					org.mockito.ArgumentMatchers.any(),
+					org.mockito.ArgumentMatchers.any()
+			);
+		}
+
+		@Test
 		void getInputSaleByIdWrapsMissingSale() {
 			when(inputSaleRepository.findById(1L)).thenReturn(Optional.empty());
 
@@ -232,6 +295,29 @@ class InventorySaleServiceTest {
 			when(onSaleProductRepository.findDistinctByDeletedAtIsNull()).thenReturn(List.of(entity));
 
 			assertThat(service.getAllOnSaleProducts()).containsExactly(entity);
+		}
+
+		@Test
+		void getOnSaleProductByIdReturnsRepositoryResults() {
+			OnSaleProduct entity = new OnSaleProduct();
+			when(onSaleProductRepository.findAllByProductId(7L)).thenReturn(List.of(entity));
+
+			assertThat(service.getOnSaleProductById(7L)).containsExactly(entity);
+		}
+
+		@Test
+		void onSaleProductComputesSalePriceFromImportPriceAndSalePercentage() {
+			ImportedProduct importedProduct = new ImportedProduct();
+			importedProduct.setImportPrice(100000);
+			InputSale inputSale = new InputSale();
+			inputSale.setSalePercentage(125F);
+			OnSaleProduct onSaleProduct = new OnSaleProduct(1L, null, importedProduct, inputSale);
+
+			assertThat(onSaleProduct.getSalePrice()).isEqualTo(125000L);
+
+			onSaleProduct.setSalePrice(90000L);
+			assertThat(onSaleProduct.getSalePrice()).isEqualTo(90000L);
+			assertThat(new OnSaleProduct().getSalePrice()).isZero();
 		}
 	}
 }

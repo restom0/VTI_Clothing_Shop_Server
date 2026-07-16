@@ -21,9 +21,11 @@ import vn.vti.clothing_shop.dtos.ins.OrderConfirmRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemUpdateRequest;
+import vn.vti.clothing_shop.dtos.ins.OrderUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.UserLoginRequest;
 import vn.vti.clothing_shop.dtos.ins.VoucherCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.VoucherUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.OrderDTO;
 import vn.vti.clothing_shop.dtos.outs.PaymentCheckoutResponse;
 import vn.vti.clothing_shop.dtos.outs.UserLoginDTO;
@@ -181,8 +183,31 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getAllVouchersReturnsMongoReadModelWhenAvailable() {
+			Voucher voucher = voucher(1L, "WELCOME10", 10, 10F, System.currentTimeMillis() - 1000,
+					System.currentTimeMillis() + 1000);
+			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class)).thenReturn(List.of(voucher));
+
+			assertThat(service.getAllVouchers()).containsExactly(voucher);
+		}
+
+		@Test
+		void getAllAvailableVouchersFiltersMongoReadModelByWindowAndStock() {
+			long now = System.currentTimeMillis();
+			Voucher active = voucher(1L, "ACTIVE", 10, 10F, now - 1000, now + 1000);
+			Voucher outOfStock = voucher(2L, "EMPTY", 0, 10F, now - 1000, now + 1000);
+			Voucher future = voucher(3L, "FUTURE", 10, 10F, now + 1000, now + 2000);
+			Voucher expired = voucher(4L, "EXPIRED", 10, 10F, now - 2000, now - 1000);
+			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class))
+					.thenReturn(List.of(active, outOfStock, future, expired));
+
+			assertThat(service.getAllAvailableVouchers()).containsExactly(active);
+		}
+
+		@Test
 		void getAllAvailableVouchersUsesCurrentWindowAndReturnsResults() {
 			Voucher voucher = new Voucher();
+			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class)).thenReturn(List.of());
 			when(voucherRepository.findByDeletedAtIsNullAndStockGreaterThanAndAvailableDateLessThanEqualAndEndDateGreaterThanEqual(
 					org.mockito.ArgumentMatchers.eq(0),
 					anyLong(),
@@ -190,6 +215,26 @@ class UserVoucherOrderServiceTest {
 			)).thenReturn(List.of(voucher));
 
 			assertThat(service.getAllAvailableVouchers()).containsExactly(voucher);
+		}
+
+		@Test
+		void findVoucherByCodeFallsBackToRepository() throws WrapperException {
+			Voucher voucher = voucher(1L, "WELCOME10", 10, 10F, System.currentTimeMillis() - 1000,
+					System.currentTimeMillis() + 1000);
+			when(readModelQueryService.findByLookupKey(ReadModelType.VOUCHER, "WELCOME10", Voucher.class))
+					.thenReturn(Optional.empty());
+			when(voucherRepository.findByDeletedAtIsNullAndCode("WELCOME10")).thenReturn(Optional.of(voucher));
+
+			assertThat(service.findVoucherByCode("WELCOME10")).isSameAs(voucher);
+		}
+
+		@Test
+		void findVoucherByIdWrapsMissingVoucher() {
+			when(readModelQueryService.findById(ReadModelType.VOUCHER, 99L, Voucher.class)).thenReturn(Optional.empty());
+			when(voucherRepository.findByDeletedAtIsNullAndId(99L)).thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.findVoucherById(99L))
+					.isInstanceOf(WrapperException.class);
 		}
 
 		@Test
@@ -205,6 +250,74 @@ class UserVoucherOrderServiceTest {
 
 			assertThatThrownBy(() -> service.createVoucher(request))
 					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void createVoucherSavesMappedEntity() throws WrapperException {
+			VoucherCreateRequest request = new VoucherCreateRequest(
+					"WELCOME10",
+					10,
+					10F,
+					LocalDate.now(),
+					LocalDate.now().plusDays(10)
+			);
+			Voucher mapped = new Voucher();
+			Voucher saved = new Voucher();
+			saved.setId(1L);
+
+			when(voucherRepository.existsByDeletedAtIsNullAndCode("WELCOME10")).thenReturn(false);
+			when(voucherMapper.createRequestToEntity(request)).thenReturn(mapped);
+			when(voucherRepository.save(mapped)).thenReturn(saved);
+
+			service.createVoucher(request);
+
+			verify(voucherRepository).save(mapped);
+		}
+
+		@Test
+		void updateVoucherSavesMappedEntity() throws WrapperException {
+			VoucherUpdateRequest request = new VoucherUpdateRequest(
+					"WELCOME20",
+					20,
+					20F,
+					LocalDate.now(),
+					LocalDate.now().plusDays(10),
+					2L
+			);
+			Voucher existing = new Voucher();
+			Voucher mapped = new Voucher();
+			mapped.setId(1L);
+
+			when(voucherRepository.findById(1L)).thenReturn(Optional.of(existing));
+			when(voucherMapper.updateRequestToEntity(request, existing)).thenReturn(mapped);
+			when(voucherRepository.save(mapped)).thenReturn(mapped);
+
+			service.updateVoucher(request, 1L);
+
+			verify(voucherRepository).save(mapped);
+		}
+
+		@Test
+		void deleteVoucherSoftDeletesExistingVoucher() throws WrapperException {
+			Voucher voucher = new Voucher();
+			when(voucherRepository.findById(1L)).thenReturn(Optional.of(voucher));
+
+			service.deleteVoucher(1L);
+
+			assertThat(voucher.getDeletedAt()).isNotNull();
+			verify(voucherRepository).save(voucher);
+		}
+
+		private Voucher voucher(Long id, String code, Integer stock, Float value, Long availableDate, Long endDate) {
+			Voucher voucher = new Voucher();
+			voucher.setId(id);
+			voucher.setCode(code);
+			voucher.setInputStock(stock);
+			voucher.setStock(stock);
+			voucher.setValue(value);
+			voucher.setAvailableDate(availableDate);
+			voucher.setEndDate(endDate);
+			return voucher;
 		}
 	}
 
@@ -244,6 +357,32 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getAllOrdersReturnsMongoReadModelWhenAvailable() {
+			Order order = new Order();
+			when(readModelQueryService.findAll(ReadModelType.ORDER, Order.class)).thenReturn(List.of(order));
+
+			assertThat(service.getAllOrders()).containsExactly(order);
+		}
+
+		@Test
+		void getAllOrdersByUserIdFallsBackToRepository() {
+			Order order = new Order();
+			when(readModelQueryService.findByOwner(ReadModelType.ORDER, 9L, Order.class)).thenReturn(List.of());
+			when(orderRepository.findByDeletedAtIsNullAndUser_Id(9L)).thenReturn(List.of(order));
+
+			assertThat(service.getAllOrdersByUserId(9L)).containsExactly(order);
+		}
+
+		@Test
+		void getOrderByIdAndUserIdReturnsMongoReadModel() throws WrapperException {
+			Order order = new Order();
+			when(readModelQueryService.findByIdAndOwner(ReadModelType.ORDER, 7L, 9L, Order.class))
+					.thenReturn(Optional.of(order));
+
+			assertThat(service.getOrderByIdAndUserId(7L, 9L)).isSameAs(order);
+		}
+
+		@Test
 		void addOrderCreatesCartWhenNoOpenOrderExists() throws WrapperException {
 			OrderCreateRequest request = new OrderCreateRequest("Address", "0900000001", "Demo");
 			User user = new User();
@@ -260,6 +399,64 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void addOrderReturnsExistingOpenOrder() throws WrapperException {
+			OrderCreateRequest request = new OrderCreateRequest("Address", "0900000001", "Demo");
+			User user = new User();
+			Order existing = new Order();
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(orderRepository.findByDeletedAtIsNullAndUser_IdAndPaymentStatus(9L, PaymentStatus.NOT_CONFIRMED))
+					.thenReturn(Optional.of(existing));
+
+			assertThat(service.addOrder(request, 9L)).isSameAs(existing);
+		}
+
+		@Test
+		void updateOrderWrapsInvalidVoucherWindow() {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Order order = new Order();
+			Voucher expired = new Voucher();
+			expired.setId(5L);
+			expired.setStock(10);
+			expired.setAvailableDate(System.currentTimeMillis() - 2000);
+			expired.setEndDate(System.currentTimeMillis() - 1000);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(expired));
+
+			assertThatThrownBy(() -> service.updateOrder(7L, request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void deleteOrderCancelsOrderAndRestoresVoucherStock() throws WrapperException {
+			Voucher voucher = new Voucher();
+			voucher.setId(5L);
+			voucher.setStock(2);
+			voucher.setAvailableDate(System.currentTimeMillis() - 1000);
+			voucher.setEndDate(System.currentTimeMillis() + 1000);
+			Order order = new Order();
+			order.setVoucher(voucher);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(voucher));
+
+			service.deleteOrder(7L);
+
+			assertThat(voucher.getStock()).isEqualTo(3);
+			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
+			assertThat(order.getDeletedAt()).isNotNull();
+			verify(orderRepository).save(order);
+		}
+
+		@Test
 		void confirmOrderUpdatesPaymentStatus() throws WrapperException {
 			Order order = new Order();
 			OrderConfirmRequest request = new OrderConfirmRequest(123L, true);
@@ -272,6 +469,18 @@ class UserVoucherOrderServiceTest {
 			assertThat(result).isTrue();
 			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CONFIRMED);
 			verify(orderRepository).save(order);
+		}
+
+		@Test
+		void confirmOrderFalseCancelsOrder() throws WrapperException {
+			Order order = new Order();
+			OrderConfirmRequest request = new OrderConfirmRequest(123L, false);
+
+			when(orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(123L, 9L))
+					.thenReturn(Optional.of(order));
+
+			assertThat(service.confirmOrder(request, 9L)).isFalse();
+			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
 		}
 	}
 

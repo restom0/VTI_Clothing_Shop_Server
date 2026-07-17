@@ -66,6 +66,15 @@ class BrandCategoryProductServiceTest {
 		}
 
 		@Test
+		void getBrandsFallsBackToRepositoryWhenReadModelIsEmpty() {
+			Brand brand = new Brand(1L, "Nike", "Sport");
+			when(readModelQueryService.findAll(ReadModelType.BRAND, Brand.class)).thenReturn(List.of());
+			when(brandRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(brand));
+
+			assertThat(service.getBrands()).containsExactly(brand);
+		}
+
+		@Test
 		void createBrandSavesAndReturnsEntity() throws WrapperException {
 			BrandCreateRequest request = new BrandCreateRequest("Nike", "Sport");
 			Brand brand = new Brand();
@@ -138,6 +147,14 @@ class BrandCategoryProductServiceTest {
 		}
 
 		@Test
+		void findBrandByIdReturnsMongoReadModel() throws WrapperException {
+			Brand brand = new Brand(1L, "Nike", "Sport");
+			when(readModelQueryService.findById(ReadModelType.BRAND, 1L, Brand.class)).thenReturn(Optional.of(brand));
+
+			assertThat(service.findBrandById(1L)).isSameAs(brand);
+		}
+
+		@Test
 		void countBrandDelegatesToRepository() {
 			when(brandRepository.countByDeletedAtIsNull()).thenReturn(3L);
 
@@ -167,6 +184,15 @@ class BrandCategoryProductServiceTest {
 		void getAllCategoriesReturnsMongoReadModelWhenAvailable() {
 			Category category = new Category(1L, "Shirt", "Top");
 			when(readModelQueryService.findAll(ReadModelType.CATEGORY, Category.class)).thenReturn(List.of(category));
+
+			assertThat(service.getAllCategories()).containsExactly(category);
+		}
+
+		@Test
+		void getAllCategoriesFallsBackToRepositoryWhenReadModelIsNull() {
+			Category category = new Category(1L, "Shirt", "Top");
+			when(readModelQueryService.findAll(ReadModelType.CATEGORY, Category.class)).thenReturn(null);
+			when(categoryRepository.findAllByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(category));
 
 			assertThat(service.getAllCategories()).containsExactly(category);
 		}
@@ -214,6 +240,15 @@ class BrandCategoryProductServiceTest {
 		}
 
 		@Test
+		void addCategoryWrapsDuplicateName() {
+			CategoryCreateRequest request = new CategoryCreateRequest("Shirt", "Top");
+			when(categoryRepository.existsByDeletedAtIsNullAndName("Shirt")).thenReturn(true);
+
+			assertThatThrownBy(() -> service.addCategory(request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
 		void deleteCategorySoftDeletesExistingCategory() throws WrapperException {
 			Category category = new Category();
 			when(categoryRepository.findByDeletedAtIsNullAndId(1L)).thenReturn(Optional.of(category));
@@ -227,6 +262,15 @@ class BrandCategoryProductServiceTest {
 		void getCategoryByIdReturnsMongoReadModel() throws WrapperException {
 			Category category = new Category(1L, "Shirt", "Top");
 			when(readModelQueryService.findById(ReadModelType.CATEGORY, 1L, Category.class)).thenReturn(Optional.of(category));
+
+			assertThat(service.getCategoryById(1L)).isSameAs(category);
+		}
+
+		@Test
+		void getCategoryByIdFallsBackToRepository() throws WrapperException {
+			Category category = new Category(1L, "Shirt", "Top");
+			when(readModelQueryService.findById(ReadModelType.CATEGORY, 1L, Category.class)).thenReturn(Optional.empty());
+			when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
 
 			assertThat(service.getCategoryById(1L)).isSameAs(category);
 		}
@@ -340,6 +384,15 @@ class BrandCategoryProductServiceTest {
 		}
 
 		@Test
+		void getProductByIdFallsBackToRepository() throws WrapperException {
+			Product product = new Product();
+			when(readModelQueryService.findById(ReadModelType.PRODUCT, 10L, Product.class)).thenReturn(Optional.empty());
+			when(productRepository.findById(10L)).thenReturn(Optional.of(product));
+
+			assertThat(service.getProductById(10L)).isSameAs(product);
+		}
+
+		@Test
 		void getProductByIdWrapsMissingProduct() {
 			when(readModelQueryService.findById(ReadModelType.PRODUCT, 10L, Product.class)).thenReturn(Optional.empty());
 			when(productRepository.findById(10L)).thenReturn(Optional.empty());
@@ -354,6 +407,25 @@ class BrandCategoryProductServiceTest {
 			when(brandRepository.findById(2L)).thenReturn(Optional.empty());
 
 			assertThatThrownBy(() -> service.addProduct(request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void addProductWrapsMissingCategory() {
+			ProductCreateRequest request = new ProductCreateRequest("T-Shirt", "Cotton", 1L, 2L);
+			when(brandRepository.findById(2L)).thenReturn(Optional.of(new Brand()));
+			when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.addProduct(request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void updateProductWrapsMissingProduct() {
+			ProductUpdateRequest request = new ProductUpdateRequest("T-Shirt", "Cotton", 1L, 2L, 3L);
+			when(productRepository.findById(10L)).thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.updateProduct(request, 10L))
 					.isInstanceOf(WrapperException.class);
 		}
 	}

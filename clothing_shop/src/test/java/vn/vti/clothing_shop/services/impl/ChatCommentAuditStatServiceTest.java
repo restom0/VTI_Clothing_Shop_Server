@@ -9,7 +9,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.constants.UserRole;
+import vn.vti.clothing_shop.dtos.ins.ChatCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.ChatReplyRequest;
+import vn.vti.clothing_shop.dtos.ins.ChatUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.CommentCreateRequest;
 import vn.vti.clothing_shop.dtos.outs.AuditDTO;
 import vn.vti.clothing_shop.entities.Audit;
@@ -98,6 +100,61 @@ class ChatCommentAuditStatServiceTest {
 
 		@InjectMocks
 		ChatServiceImpl service;
+
+		@Test
+		void getAllChatReturnsRepositoryResults() {
+			Chat chat = new Chat();
+			when(chatRepository.findAll()).thenReturn(List.of(chat));
+
+			assertThat(service.getAllChat()).containsExactly(chat);
+		}
+
+		@Test
+		void getChatReturnsUserMessages() {
+			Chat chat = new Chat();
+			when(chatRepository.getByDeletedAtIsNullAndSenderId(9L)).thenReturn(List.of(chat));
+
+			assertThat(service.getChat(9L)).containsExactly(chat);
+		}
+
+		@Test
+		void addChatSavesMappedEntity() throws WrapperException {
+			User user = new User();
+			ChatCreateRequest request = new ChatCreateRequest("hello");
+			Chat chat = new Chat();
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(chatMapper.createRequestToEntity(request, user)).thenReturn(chat);
+
+			service.addChat(9L, request);
+
+			verify(chatRepository).save(chat);
+		}
+
+		@Test
+		void updateChatSavesMappedEntity() throws WrapperException {
+			Chat chat = new Chat();
+			Chat updated = new Chat();
+			ChatUpdateRequest request = new ChatUpdateRequest("updated", 1L);
+
+			when(chatRepository.findByDeletedAtIsNullAndIdAndSenderId(1L, 9L)).thenReturn(Optional.of(chat));
+			when(chatMapper.updateRequestToEntity(request, chat)).thenReturn(updated);
+
+			service.updateChat(1L, 9L, request);
+
+			verify(chatRepository).save(updated);
+		}
+
+		@Test
+		void deleteChatSoftDeletesExistingChat() throws WrapperException {
+			Chat chat = new Chat();
+			when(chatRepository.findByDeletedAtIsNullAndIdAndSenderId(1L, 9L)).thenReturn(Optional.of(chat));
+
+			service.deleteChat(1L, 9L);
+
+			assertThat(chat.getDeletedAt()).isNotNull();
+			verify(chatRepository).save(chat);
+		}
 
 		@Test
 		void replyChatSavesReplyAndUpdatesOriginalChat() throws WrapperException {

@@ -17,6 +17,7 @@ import vn.vti.clothing_shop.constants.PaymentMethod;
 import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.constants.UserGender;
 import vn.vti.clothing_shop.constants.UserRole;
+import vn.vti.clothing_shop.dtos.ins.OrderCheckoutRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderConfirmRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderItemCreateRequest;
@@ -24,6 +25,8 @@ import vn.vti.clothing_shop.dtos.ins.OrderItemUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.OrderUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.UserCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.UserLoginRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdatePasswordRequest;
+import vn.vti.clothing_shop.dtos.ins.UserUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.VoucherCreateRequest;
 import vn.vti.clothing_shop.dtos.ins.VoucherUpdateRequest;
 import vn.vti.clothing_shop.dtos.outs.OrderDTO;
@@ -53,6 +56,7 @@ import vn.vti.clothing_shop.services.JwtService;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -102,6 +106,14 @@ class UserVoucherOrderServiceTest {
 		UserServiceImpl service;
 
 		@Test
+		void getUsersReturnsActiveUsers() {
+			User user = new User();
+			when(userRepository.findByDeletedAtIsNull()).thenReturn(List.of(user));
+
+			assertThat(service.getUsers()).containsExactly(user);
+		}
+
+		@Test
 		void getUserReturnsLoginDtoWhenPasswordMatches() throws WrapperException {
 			UserLoginRequest request = new UserLoginRequest("demo", "secret");
 			User user = new User();
@@ -132,6 +144,14 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getUserByIdReturnsRepositoryUser() throws WrapperException {
+			User user = new User();
+			when(userRepository.findByDeletedAtIsNullAndId(9L)).thenReturn(Optional.of(user));
+
+			assertThat(service.getUserById(9L)).isSameAs(user);
+		}
+
+		@Test
 		void addUserHashesPasswordAndSetsSalt() throws WrapperException {
 			UserCreateRequest request = new UserCreateRequest(
 					"Demo",
@@ -154,6 +174,131 @@ class UserVoucherOrderServiceTest {
 
 			assertThat(user.getSalt()).isNotBlank();
 			assertThat(user.getPassword()).isEqualTo("encoded");
+			verify(userRepository).save(user);
+		}
+
+		@Test
+		void addUserWrapsDuplicateEmail() {
+			UserCreateRequest request = userCreateRequest();
+			when(userRepository.existsByDeletedAtIsNullAndUsername("demo")).thenReturn(false);
+			when(userRepository.existsByDeletedAtIsNullAndEmail("demo@example.com")).thenReturn(true);
+
+			assertThatThrownBy(() -> service.addUser(request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		private UserCreateRequest userCreateRequest() {
+			return new UserCreateRequest(
+					"Demo",
+					"demo",
+					"secret",
+					"demo@example.com",
+					"0900000001",
+					"Ha Noi",
+					LocalDate.of(1995, Month.JANUARY, 1),
+					null,
+					null,
+					UserGender.MALE
+			);
+		}
+
+		@Test
+		void updateUserSavesMappedEntityWhenUnique() throws WrapperException {
+			UserUpdateRequest request = new UserUpdateRequest(
+					"Demo",
+					"new@example.com",
+					"0900000002",
+					"Ha Noi",
+					LocalDate.of(1995, Month.JANUARY, 1),
+					null,
+					null,
+					UserGender.MALE
+			);
+			User user = new User();
+			user.setEmail("old@example.com");
+			user.setPhoneNumber("0900000001");
+			User mapped = new User();
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(userRepository.existsByDeletedAtIsNullAndEmail("new@example.com")).thenReturn(false);
+			when(userRepository.existsByDeletedAtIsNullAndPhoneNumber("0900000002")).thenReturn(false);
+			when(userMapper.updateRequestToEntity(request, user)).thenReturn(mapped);
+
+			service.updateUser(request, 9L);
+
+			verify(userRepository).save(mapped);
+		}
+
+		@Test
+		void updateUserWrapsDuplicateEmail() {
+			UserUpdateRequest request = new UserUpdateRequest(
+					"Demo",
+					"new@example.com",
+					"0900000001",
+					"Ha Noi",
+					LocalDate.of(1995, Month.JANUARY, 1),
+					null,
+					null,
+					UserGender.MALE
+			);
+			User user = new User();
+			user.setEmail("old@example.com");
+			user.setPhoneNumber("0900000001");
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(userRepository.existsByDeletedAtIsNullAndEmail("new@example.com")).thenReturn(true);
+
+			assertThatThrownBy(() -> service.updateUser(request, 9L))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void updateUserWrapsDuplicatePhone() {
+			UserUpdateRequest request = new UserUpdateRequest(
+					"Demo",
+					"old@example.com",
+					"0900000002",
+					"Ha Noi",
+					LocalDate.of(1995, Month.JANUARY, 1),
+					null,
+					null,
+					UserGender.MALE
+			);
+			User user = new User();
+			user.setEmail("old@example.com");
+			user.setPhoneNumber("0900000001");
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(userRepository.existsByDeletedAtIsNullAndPhoneNumber("0900000002")).thenReturn(true);
+
+			assertThatThrownBy(() -> service.updateUser(request, 9L))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void updateUserPasswordSavesEncodedPassword() throws WrapperException {
+			UserUpdatePasswordRequest request = new UserUpdatePasswordRequest("old", "new", 1L);
+			User user = new User();
+			user.setPassword("encoded-old");
+
+			when(userRepository.findById(9L)).thenReturn(Optional.of(user));
+			when(passwordEncoder.matches("old", "encoded-old")).thenReturn(true);
+			when(passwordEncoder.encode("new")).thenReturn("encoded-new");
+
+			service.updateUserPassword(request, 9L);
+
+			assertThat(user.getPassword()).isEqualTo("encoded-new");
+			verify(userRepository).save(user);
+		}
+
+		@Test
+		void deleteUserSoftDeletesExistingUser() throws WrapperException {
+			User user = new User();
+			when(userRepository.findByDeletedAtIsNullAndId(9L)).thenReturn(Optional.of(user));
+
+			service.deleteUser(9L);
+
+			assertThat(user.getDeletedAt()).isNotNull();
 			verify(userRepository).save(user);
 		}
 	}
@@ -192,6 +337,16 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getAllVouchersFallsBackToRepositoryWhenReadModelIsNull() {
+			Voucher voucher = voucher(1L, "WELCOME10", 10, 10F, System.currentTimeMillis() - 1000,
+					System.currentTimeMillis() + 1000);
+			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class)).thenReturn(null);
+			when(voucherRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(voucher));
+
+			assertThat(service.getAllVouchers()).containsExactly(voucher);
+		}
+
+		@Test
 		void getAllAvailableVouchersFiltersMongoReadModelByWindowAndStock() {
 			long now = System.currentTimeMillis();
 			Voucher active = voucher(1L, "ACTIVE", 10, 10F, now - 1000, now + 1000);
@@ -200,6 +355,19 @@ class UserVoucherOrderServiceTest {
 			Voucher expired = voucher(4L, "EXPIRED", 10, 10F, now - 2000, now - 1000);
 			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class))
 					.thenReturn(List.of(active, outOfStock, future, expired));
+
+			assertThat(service.getAllAvailableVouchers()).containsExactly(active);
+		}
+
+		@Test
+		void getAllAvailableVouchersSkipsNullReadModelFields() {
+			long now = System.currentTimeMillis();
+			Voucher active = voucher(1L, "ACTIVE", 10, 10F, now - 1000, now + 1000);
+			Voucher missingStock = voucher(2L, "NO_STOCK", null, 10F, now - 1000, now + 1000);
+			Voucher missingStart = voucher(3L, "NO_START", 10, 10F, null, now + 1000);
+			Voucher missingEnd = voucher(4L, "NO_END", 10, 10F, now - 1000, null);
+			when(readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class))
+					.thenReturn(List.of(active, missingStock, missingStart, missingEnd));
 
 			assertThat(service.getAllAvailableVouchers()).containsExactly(active);
 		}
@@ -226,6 +394,25 @@ class UserVoucherOrderServiceTest {
 			when(voucherRepository.findByDeletedAtIsNullAndCode("WELCOME10")).thenReturn(Optional.of(voucher));
 
 			assertThat(service.findVoucherByCode("WELCOME10")).isSameAs(voucher);
+		}
+
+		@Test
+		void findVoucherByCodeReturnsMongoReadModel() throws WrapperException {
+			Voucher voucher = voucher(1L, "WELCOME10", 10, 10F, System.currentTimeMillis() - 1000,
+					System.currentTimeMillis() + 1000);
+			when(readModelQueryService.findByLookupKey(ReadModelType.VOUCHER, "WELCOME10", Voucher.class))
+					.thenReturn(Optional.of(voucher));
+
+			assertThat(service.findVoucherByCode("WELCOME10")).isSameAs(voucher);
+		}
+
+		@Test
+		void findVoucherByIdReturnsMongoReadModel() throws WrapperException {
+			Voucher voucher = voucher(1L, "WELCOME10", 10, 10F, System.currentTimeMillis() - 1000,
+					System.currentTimeMillis() + 1000);
+			when(readModelQueryService.findById(ReadModelType.VOUCHER, 1L, Voucher.class)).thenReturn(Optional.of(voucher));
+
+			assertThat(service.findVoucherById(1L)).isSameAs(voucher);
 		}
 
 		@Test
@@ -365,10 +552,27 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getAllOrdersFallsBackToRepositoryWhenReadModelIsEmpty() {
+			Order order = new Order();
+			when(readModelQueryService.findAll(ReadModelType.ORDER, Order.class)).thenReturn(List.of());
+			when(orderRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(order));
+
+			assertThat(service.getAllOrders()).containsExactly(order);
+		}
+
+		@Test
 		void getAllOrdersByUserIdFallsBackToRepository() {
 			Order order = new Order();
 			when(readModelQueryService.findByOwner(ReadModelType.ORDER, 9L, Order.class)).thenReturn(List.of());
 			when(orderRepository.findByDeletedAtIsNullAndUser_Id(9L)).thenReturn(List.of(order));
+
+			assertThat(service.getAllOrdersByUserId(9L)).containsExactly(order);
+		}
+
+		@Test
+		void getAllOrdersByUserIdReturnsMongoReadModel() {
+			Order order = new Order();
+			when(readModelQueryService.findByOwner(ReadModelType.ORDER, 9L, Order.class)).thenReturn(List.of(order));
 
 			assertThat(service.getAllOrdersByUserId(9L)).containsExactly(order);
 		}
@@ -380,6 +584,27 @@ class UserVoucherOrderServiceTest {
 					.thenReturn(Optional.of(order));
 
 			assertThat(service.getOrderByIdAndUserId(7L, 9L)).isSameAs(order);
+		}
+
+		@Test
+		void getOrderByIdAndUserIdFallsBackToRepository() throws WrapperException {
+			Order order = new Order();
+			when(readModelQueryService.findByIdAndOwner(ReadModelType.ORDER, 7L, 9L, Order.class))
+					.thenReturn(Optional.empty());
+			when(orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(7L, 9L)).thenReturn(Optional.of(order));
+
+			assertThat(service.getOrderByIdAndUserId(7L, 9L)).isSameAs(order);
+		}
+
+		@Test
+		void getOrderByCheckoutRequestFallsBackToRepository() throws WrapperException {
+			Order order = new Order();
+			OrderCheckoutRequest request = new OrderCheckoutRequest(7L);
+			when(readModelQueryService.findByIdAndOwner(ReadModelType.ORDER, 7L, 9L, Order.class))
+					.thenReturn(Optional.empty());
+			when(orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(7L, 9L)).thenReturn(Optional.of(order));
+
+			assertThat(service.getOrderByIdAndUserId(request, 9L)).isSameAs(order);
 		}
 
 		@Test
@@ -412,6 +637,42 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void addOrderWrapsMissingUser() {
+			OrderCreateRequest request = new OrderCreateRequest("Address", "0900000001", "Demo");
+			when(userRepository.findById(9L)).thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.addOrder(request, 9L))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void updateOrderSavesMappedOrderWhenVoucherIsAvailable() throws WrapperException {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Order order = new Order();
+			Voucher voucher = availableVoucher(5L, 2);
+			Order mapped = new Order();
+			mapped.setId(7L);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(voucher));
+			when(orderMapper.updateRequestToEntity(request, voucher, order)).thenReturn(mapped);
+			when(orderRepository.save(mapped)).thenReturn(mapped);
+
+			service.updateOrder(7L, request);
+
+			assertThat(voucher.getStock()).isEqualTo(1);
+			verify(voucherRepository).save(voucher);
+			verify(orderRepository).save(mapped);
+		}
+
+		@Test
 		void updateOrderWrapsInvalidVoucherWindow() {
 			OrderUpdateRequest request = new OrderUpdateRequest(
 					"Address",
@@ -436,12 +697,29 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void updateOrderWrapsFutureVoucherWindow() {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Order order = new Order();
+			Voucher future = availableVoucher(5L, 10);
+			future.setAvailableDate(System.currentTimeMillis() + 1000);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(future));
+
+			assertThatThrownBy(() -> service.updateOrder(7L, request))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
 		void deleteOrderCancelsOrderAndRestoresVoucherStock() throws WrapperException {
-			Voucher voucher = new Voucher();
-			voucher.setId(5L);
-			voucher.setStock(2);
-			voucher.setAvailableDate(System.currentTimeMillis() - 1000);
-			voucher.setEndDate(System.currentTimeMillis() + 1000);
+			Voucher voucher = availableVoucher(5L, 2);
 			Order order = new Order();
 			order.setVoucher(voucher);
 
@@ -454,6 +732,15 @@ class UserVoucherOrderServiceTest {
 			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
 			assertThat(order.getDeletedAt()).isNotNull();
 			verify(orderRepository).save(order);
+		}
+
+		private Voucher availableVoucher(Long id, Integer stock) {
+			Voucher voucher = new Voucher();
+			voucher.setId(id);
+			voucher.setStock(stock);
+			voucher.setAvailableDate(System.currentTimeMillis() - 1000);
+			voucher.setEndDate(System.currentTimeMillis() + 1000);
+			return voucher;
 		}
 
 		@Test
@@ -482,6 +769,16 @@ class UserVoucherOrderServiceTest {
 			assertThat(service.confirmOrder(request, 9L)).isFalse();
 			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
 		}
+
+		@Test
+		void confirmOrderWrapsMissingOrder() {
+			OrderConfirmRequest request = new OrderConfirmRequest(123L, true);
+			when(orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(123L, 9L))
+					.thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.confirmOrder(request, 9L))
+					.isInstanceOf(WrapperException.class);
+		}
 	}
 
 	@ExtendWith(MockitoExtension.class)
@@ -501,6 +798,39 @@ class UserVoucherOrderServiceTest {
 			assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.COD);
 			assertThat(response.status()).isEqualTo("MANUAL_CONFIRMATION_REQUIRED");
 			assertThat(response.checkoutUrl()).isNull();
+		}
+
+		@Test
+		void createCheckoutDefaultsNullPaymentMethodToCod() throws WrapperException {
+			PaymentServiceImpl service = paymentService();
+			OrderDTO dto = new OrderDTO(1L, "Address", "0900000001", "Demo", false, 100000L, 123L,
+			                            PaymentStatus.NOT_CONFIRMED, null, null, null);
+
+			PaymentCheckoutResponse response = service.createCheckout(dto);
+
+			assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.COD);
+			assertThat(response.currency()).isEqualTo("VND");
+			assertThat(((Map<?, ?>) response.providerData()).get("manual")).isEqualTo(true);
+		}
+
+		@Test
+		void createCheckoutReturnsManualPayloadForEBanking() throws WrapperException {
+			PaymentServiceImpl service = paymentService();
+			OrderDTO dto = new OrderDTO(1L, "Address", "0900000001", "Demo", false, 100000L, 123L,
+			                            PaymentStatus.NOT_CONFIRMED, PaymentMethod.E_BANKING, null, List.of());
+
+			PaymentCheckoutResponse response = service.createCheckout(dto);
+
+			assertThat(response.paymentMethod()).isEqualTo(PaymentMethod.E_BANKING);
+			assertThat(response.status()).isEqualTo("MANUAL_CONFIRMATION_REQUIRED");
+		}
+
+		@Test
+		void createCheckoutWrapsNullOrder() {
+			PaymentServiceImpl service = paymentService();
+
+			assertThatThrownBy(() -> service.createCheckout(null))
+					.isInstanceOf(WrapperException.class);
 		}
 
 		private PaymentServiceImpl paymentService() {
@@ -561,6 +891,38 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void getAllOrderItemsReturnsRepositoryResults() {
+			OrderItem orderItem = new OrderItem();
+			when(orderItemRepository.findByDeletedAtIsNullOrderByIdDesc()).thenReturn(List.of(orderItem));
+
+			assertThat(service.getAllOrderItems()).containsExactly(orderItem);
+		}
+
+		@Test
+		void getAllOrderItemsByOrderIdReturnsRepositoryResults() {
+			OrderItem orderItem = new OrderItem();
+			when(orderItemRepository.findByDeletedAtIsNullAndOrder_Id(7L)).thenReturn(List.of(orderItem));
+
+			assertThat(service.getAllOrderItemsByOrderId(7L)).containsExactly(orderItem);
+		}
+
+		@Test
+		void findOrderItemByIdAndOrderIdReturnsRepositoryEntity() throws WrapperException {
+			OrderItem orderItem = new OrderItem();
+			when(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(3L, 7L)).thenReturn(Optional.of(orderItem));
+
+			assertThat(service.findOrderItemByIdAndOrderId(3L, 7L)).isSameAs(orderItem);
+		}
+
+		@Test
+		void findOrderItemByIdAndOrderIdWrapsMissingItem() {
+			when(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(3L, 7L)).thenReturn(Optional.empty());
+
+			assertThatThrownBy(() -> service.findOrderItemByIdAndOrderId(3L, 7L))
+					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
 		void addOrderItemReservesStockAndUpdatesOrderTotal() throws WrapperException {
 			OrderItemCreateRequest request = new OrderItemCreateRequest(5L, 7L, 2);
 			Order order = new Order();
@@ -584,6 +946,47 @@ class UserVoucherOrderServiceTest {
 			verify(importedProductRepository).saveAll(List.of(importedProduct));
 			verify(orderRepository).save(order);
 			verify(orderItemRepository).save(orderItem);
+		}
+
+		@Test
+		void addOrderItemMergesExistingItemAndUsesNoDiscountWhenInputSaleMissing() throws WrapperException {
+			OrderItemCreateRequest request = new OrderItemCreateRequest(5L, 7L, 2);
+			Order order = new Order();
+			order.setId(7L);
+			order.setTotalPrice(100L);
+			ImportedProduct importedProduct = importedProduct(11L, 5, 10);
+			OnSaleProduct onSaleProduct = onSaleProduct(5L, importedProduct, 100L, null);
+			onSaleProduct.setInputSale(null);
+			OrderItem existing = orderItem(3L, order, onSaleProduct, 1);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(onSaleProductRepository.findById(5L)).thenReturn(Optional.of(onSaleProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(0, 11L))
+					.thenReturn(List.of(importedProduct));
+			when(orderItemRepository.findByDeletedAtIsNullAndProduct_IdAndOrder_Id(5L, 7L))
+					.thenReturn(Optional.of(existing));
+
+			service.addOrderItem(request);
+
+			assertThat(existing.getQuantity()).isEqualTo(3);
+			assertThat(order.getTotalPrice()).isEqualTo(300L);
+			verify(orderItemRepository).save(existing);
+		}
+
+		@Test
+		void addOrderItemWrapsInsufficientStock() {
+			OrderItemCreateRequest request = new OrderItemCreateRequest(5L, 7L, 6);
+			Order order = new Order();
+			ImportedProduct importedProduct = importedProduct(11L, 5, 10);
+			OnSaleProduct onSaleProduct = onSaleProduct(5L, importedProduct, 100L, 0F);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(onSaleProductRepository.findById(5L)).thenReturn(Optional.of(onSaleProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(0, 11L))
+					.thenReturn(List.of(importedProduct));
+
+			assertThatThrownBy(() -> service.addOrderItem(request))
+					.isInstanceOf(WrapperException.class);
 		}
 
 		private ImportedProduct importedProduct(Long id, Integer stock, Integer importNumber) {
@@ -627,6 +1030,58 @@ class UserVoucherOrderServiceTest {
 			verify(importedProductRepository).save(importedProduct);
 			verify(orderRepository).save(order);
 			verify(orderItemRepository).save(orderItem);
+		}
+
+		@Test
+		void updateOrderItemReservesAdditionalStockWhenQuantityIncreases() throws WrapperException {
+			OrderItemUpdateRequest request = new OrderItemUpdateRequest(5L, 5, 1L);
+			Order order = new Order();
+			order.setId(7L);
+			order.setTotalPrice(200L);
+			ImportedProduct importedProduct = importedProduct(11L, 4, 10);
+			OnSaleProduct onSaleProduct = onSaleProduct(5L, importedProduct, 50L, 0F);
+			OrderItem orderItem = orderItem(3L, order, onSaleProduct, 2);
+
+			when(orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(7L, 9L)).thenReturn(Optional.of(order));
+			when(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(3L, 7L)).thenReturn(Optional.of(orderItem));
+			when(onSaleProductRepository.findByIdAndDeletedAtIsNull(5L)).thenReturn(Optional.of(onSaleProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(0, 11L))
+					.thenReturn(List.of(importedProduct));
+			when(orderItemMapper.updateRequestToEntity(request, onSaleProduct, orderItem)).thenReturn(orderItem);
+
+			service.updateOrderItem(request, 9L, 7L, 3L);
+
+			assertThat(importedProduct.getStock()).isEqualTo(1);
+			assertThat(order.getTotalPrice()).isEqualTo(350L);
+			verify(importedProductRepository).saveAll(List.of(importedProduct));
+		}
+
+		@Test
+		void updateOrderItemSwitchesProductAndReservesNewStock() throws WrapperException {
+			OrderItemUpdateRequest request = new OrderItemUpdateRequest(6L, 2, 1L);
+			Order order = new Order();
+			order.setId(7L);
+			order.setTotalPrice(300L);
+			ImportedProduct oldImportedProduct = importedProduct(11L, 1, 10);
+			OnSaleProduct oldProduct = onSaleProduct(5L, oldImportedProduct, 50L, 0F);
+			OrderItem orderItem = orderItem(3L, order, oldProduct, 2);
+			ImportedProduct newImportedProduct = importedProduct(12L, 5, 10);
+			OnSaleProduct newProduct = onSaleProduct(6L, newImportedProduct, 80L, 0F);
+
+			when(orderRepository.findByDeletedAtIsNullAndIdAndUser_Id(7L, 9L)).thenReturn(Optional.of(order));
+			when(orderItemRepository.findByDeletedAtIsNullAndIdAndOrder_Id(3L, 7L)).thenReturn(Optional.of(orderItem));
+			when(onSaleProductRepository.findByIdAndDeletedAtIsNull(6L)).thenReturn(Optional.of(newProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(0, 12L))
+					.thenReturn(List.of(newImportedProduct));
+			when(orderItemMapper.updateRequestToEntity(request, newProduct, orderItem)).thenReturn(orderItem);
+
+			service.updateOrderItem(request, 9L, 7L, 3L);
+
+			assertThat(oldImportedProduct.getStock()).isEqualTo(3);
+			assertThat(newImportedProduct.getStock()).isEqualTo(3);
+			assertThat(order.getTotalPrice()).isEqualTo(360L);
+			verify(importedProductRepository).save(oldImportedProduct);
+			verify(importedProductRepository).saveAll(List.of(newImportedProduct));
 		}
 
 		private OrderItem orderItem(Long id, Order order, OnSaleProduct onSaleProduct, Integer quantity) {

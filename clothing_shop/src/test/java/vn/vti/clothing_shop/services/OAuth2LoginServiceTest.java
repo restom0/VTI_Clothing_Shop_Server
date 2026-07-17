@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -129,5 +130,102 @@ class OAuth2LoginServiceTest {
 		assertThat(login.getToken()).isEqualTo("jwt-token");
 		assertThat(login.getName()).isEqualTo("Existing Ada");
 		assertThat(login.getAvatarUrl()).isEqualTo("https://cdn.example.com/existing.png");
+	}
+
+	@Test
+	void loginUpdatesBlankUserProfileForExistingSocialAccount() {
+		User existingUser = new User();
+		existingUser.setName(" ");
+		UserSocialAccount existingSocialAccount = new UserSocialAccount();
+		existingSocialAccount.setUser(existingUser);
+		existingSocialAccount.setName("Old Name");
+
+		Map<String, Object> attributes = Map.of(
+				"sub", "google-123",
+				"name", "Ada Lovelace",
+				"email", "ada@example.com",
+				"picture", "https://cdn.example.com/ada.png"
+		);
+		when(socialAccountRepository.findByDeletedAtIsNullAndProviderAndProviderUserId(
+				SocialAuthProvider.GOOGLE,
+				"google-123"
+		)).thenReturn(Optional.of(existingSocialAccount));
+		when(userRepository.save(existingUser)).thenReturn(existingUser);
+		when(socialAccountRepository.save(existingSocialAccount)).thenReturn(existingSocialAccount);
+		when(jwtService.generateToken(existingUser)).thenReturn("jwt-token");
+
+		UserLoginDTO login = service.login("google", attributes);
+
+		assertThat(existingUser.getName()).isEqualTo("Ada Lovelace");
+		assertThat(existingUser.getEmail()).isEqualTo("ada@example.com");
+		assertThat(existingUser.getAvatarUrl()).isEqualTo("https://cdn.example.com/ada.png");
+		assertThat(existingSocialAccount.getName()).isEqualTo("Ada Lovelace");
+		assertThat(login.getToken()).isEqualTo("jwt-token");
+	}
+
+	@Test
+	void loginCreatesFacebookUserWithNestedPictureAndUsernameSuffix() {
+		Map<String, Object> attributes = Map.of(
+				"id", "facebook-123",
+				"name", "Grace Hopper",
+				"email", "grace@example.com",
+				"picture", Map.of("data", Map.of("url", "https://cdn.example.com/grace.png"))
+		);
+		when(socialAccountRepository.findByDeletedAtIsNullAndProviderAndProviderUserId(
+				SocialAuthProvider.FACEBOOK,
+				"facebook-123"
+		)).thenReturn(Optional.empty());
+		when(userRepository.findByDeletedAtIsNullAndEmail("grace@example.com")).thenReturn(Optional.empty());
+		when(userRepository.existsByDeletedAtIsNullAndUsername("facebook_grace_example_com")).thenReturn(true);
+		when(userRepository.existsByDeletedAtIsNullAndUsername("facebook_grace_example_com_1")).thenReturn(false);
+		when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(socialAccountRepository.save(any(UserSocialAccount.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(jwtService.generateToken(any(User.class))).thenReturn("jwt-token");
+
+		service.login("facebook", attributes);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		verify(userRepository).save(userCaptor.capture());
+		User createdUser = userCaptor.getValue();
+		assertThat(createdUser.getUsername()).isEqualTo("facebook_grace_example_com_1");
+		assertThat(createdUser.getAvatarUrl()).isEqualTo("https://cdn.example.com/grace.png");
+	}
+
+	@Test
+	void loginCreatesTwitterUserFromNestedDataWithoutEmail() {
+		Map<String, Object> attributes = Map.of(
+				"data", Map.of(
+						"id", "twitter-123",
+						"name", "Linus",
+						"username", "torvalds",
+						"profile_image_url", "https://cdn.example.com/linus.png"
+				)
+		);
+		when(socialAccountRepository.findByDeletedAtIsNullAndProviderAndProviderUserId(
+				SocialAuthProvider.TWITTER,
+				"twitter-123"
+		)).thenReturn(Optional.empty());
+		when(userRepository.existsByDeletedAtIsNullAndUsername("twitter_torvalds")).thenReturn(false);
+		when(passwordEncoder.encode(anyString())).thenReturn("encoded-password");
+		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(socialAccountRepository.save(any(UserSocialAccount.class))).thenAnswer(invocation -> invocation.getArgument(0));
+		when(jwtService.generateToken(any(User.class))).thenReturn("jwt-token");
+
+		service.login("twitter", attributes);
+
+		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+		verify(userRepository).save(userCaptor.capture());
+		User createdUser = userCaptor.getValue();
+		assertThat(createdUser.getUsername()).isEqualTo("twitter_torvalds");
+		assertThat(createdUser.getEmail()).isNull();
+		assertThat(createdUser.getAvatarUrl()).isEqualTo("https://cdn.example.com/linus.png");
+	}
+
+	@Test
+	void loginRejectsMissingRequiredProviderId() {
+		assertThatThrownBy(() -> service.login("google", Map.of("name", "No Id")))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessageContaining("sub");
 	}
 }

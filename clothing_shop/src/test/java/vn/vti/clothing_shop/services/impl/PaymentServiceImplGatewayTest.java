@@ -140,6 +140,29 @@ class PaymentServiceImplGatewayTest {
 				.isEqualTo("messages.payments.gatewayUnavailable");
 	}
 
+	@Test
+	void successfulGatewayResponsesWithoutCheckoutUrlsAreWrapped() throws Exception {
+		startServer(Map.of(
+				"/stripe", exchange -> respond(exchange, 200, "{\"status\":\"open\"}"),
+				"/zalo", exchange -> respond(exchange, 200, "{\"return_message\":\"ok\"}")
+		));
+		PaymentServiceImpl service = service(mock(PayOS.class));
+		setField(service, "stripeSecretKey", "sk_test");
+		setField(service, "stripeCheckoutSessionUrl", url("/stripe"));
+		setField(service, "zaloPayAppId", "2553");
+		setField(service, "zaloPayKey1", "zalo-secret");
+		setField(service, "zaloPayCreateOrderUrl", url("/zalo"));
+
+		assertThatThrownBy(() -> service.createCheckout(order(PaymentMethod.STRIPE)))
+				.isInstanceOf(WrapperException.class)
+				.extracting("message")
+				.isEqualTo("messages.payments.gatewayUnavailable");
+		assertThatThrownBy(() -> service.createCheckout(order(PaymentMethod.ZALO_PAY)))
+				.isInstanceOf(WrapperException.class)
+				.extracting("message")
+				.isEqualTo("messages.payments.gatewayUnavailable");
+	}
+
 	private PaymentServiceImpl service(PayOS payOS) {
 		PaymentServiceImpl service = new PaymentServiceImpl(payOS, new ObjectMapper());
 		setField(service, "returnUrl", "https://client.example/return");

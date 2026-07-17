@@ -11,7 +11,9 @@ import vn.vti.clothing_shop.constants.ClothGender;
 import vn.vti.clothing_shop.constants.Filter;
 import vn.vti.clothing_shop.constants.InputSaleFilter;
 import vn.vti.clothing_shop.dtos.ins.ImportedProductCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.ImportedProductUpdateRequest;
 import vn.vti.clothing_shop.dtos.ins.InputSaleCreateRequest;
+import vn.vti.clothing_shop.dtos.ins.InputSaleUpdateRequest;
 import vn.vti.clothing_shop.entities.Category;
 import vn.vti.clothing_shop.entities.Color;
 import vn.vti.clothing_shop.entities.ImportedProduct;
@@ -34,6 +36,7 @@ import vn.vti.clothing_shop.repositories.MaterialRepository;
 import vn.vti.clothing_shop.repositories.OnSaleProductRepository;
 import vn.vti.clothing_shop.repositories.ProductRepository;
 import vn.vti.clothing_shop.repositories.SizeRepository;
+import vn.vti.clothing_shop.utils.TimeUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -109,6 +112,39 @@ class InventorySaleServiceTest {
 			verify(importedProductRepository).save(importedProduct);
 		}
 
+		@Test
+		void addImportedProductCreatesMissingOptionsAndSavesMappedEntity() throws WrapperException {
+			Category category = new Category();
+			Product product = new Product();
+			product.setCategory(category);
+			Color color = new Color();
+			Size size = new Size();
+			Material material = new Material();
+			ImportedProduct importedProduct = new ImportedProduct();
+			ImportedProductCreateRequest request = createImportedProductRequest();
+
+			when(productRepository.findByIdAndDeletedAtIsNull(1L)).thenReturn(Optional.of(product));
+			when(colorRepository.findByDeletedAtIsNullAndCode("#FFFFFF")).thenReturn(Optional.empty());
+			when(colorMapper.createRequestToEntity(request, category)).thenReturn(color);
+			when(colorRepository.save(color)).thenReturn(color);
+			when(sizeRepository.findByDeletedAtIsNullAndNameAndHeightAndWeight("M", "170", "65"))
+					.thenReturn(Optional.empty());
+			when(sizeMapper.createRequestToEntity(request, category)).thenReturn(size);
+			when(sizeRepository.save(size)).thenReturn(size);
+			when(materialRepository.findByDeletedAtIsNullAndName("Cotton")).thenReturn(Optional.empty());
+			when(materialMapper.createRequestToEntity(request, category)).thenReturn(material);
+			when(materialRepository.save(material)).thenReturn(material);
+			when(importedProductMapper.createRequestToEntity(request, color, size, material, product))
+					.thenReturn(importedProduct);
+
+			service.addImportedProduct(request);
+
+			verify(colorRepository).save(color);
+			verify(sizeRepository).save(size);
+			verify(materialRepository).save(material);
+			verify(importedProductRepository).save(importedProduct);
+		}
+
 		private ImportedProductCreateRequest createImportedProductRequest() {
 			return new ImportedProductCreateRequest(
 					1L,
@@ -143,12 +179,116 @@ class InventorySaleServiceTest {
 		}
 
 		@Test
+		void findImportedProductByIdReturnsRepositoryEntity() throws WrapperException {
+			ImportedProduct importedProduct = new ImportedProduct();
+			when(importedProductRepository.findById(99L)).thenReturn(Optional.of(importedProduct));
+
+			assertThat(service.findImportedProductById(99L)).isSameAs(importedProduct);
+		}
+
+		@Test
 		void getImportedProductByFilterReturnsProductResults() {
 			ImportedProduct product = new ImportedProduct();
 			when(importedProductRepository.findByDeletedAtIsNullAndProduct_IdAndStockGreaterThan(1L, 0))
 					.thenReturn(List.of(product));
 
 			assertThat(service.getImportedProductByFilter(Filter.PRODUCT, 1L)).containsExactly(product);
+		}
+
+		@Test
+		void getImportedProductByFilterCoversAllRepositoryBranches() {
+			ImportedProduct importedProduct = new ImportedProduct();
+			when(importedProductRepository.findAll()).thenReturn(List.of(importedProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndProduct_Category_IdAndStockGreaterThan(1L, 0))
+					.thenReturn(List.of(importedProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndProduct_Brand_IdAndStockGreaterThan(1L, 0))
+					.thenReturn(List.of(importedProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndColor_IdAndStockGreaterThan(1L, 0))
+					.thenReturn(List.of(importedProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndSize_IdAndStockGreaterThan(1L, 0))
+					.thenReturn(List.of(importedProduct));
+			when(importedProductRepository.findByDeletedAtIsNullAndMaterial_IdAndStockGreaterThan(1L, 0))
+					.thenReturn(List.of(importedProduct));
+
+			assertThat(service.getImportedProductByFilter(Filter.ALL, 1L)).containsExactly(importedProduct);
+			assertThat(service.getImportedProductByFilter(Filter.CATEGORY, 1L)).containsExactly(importedProduct);
+			assertThat(service.getImportedProductByFilter(Filter.BRAND, 1L)).containsExactly(importedProduct);
+			assertThat(service.getImportedProductByFilter(Filter.COLOR, 1L)).containsExactly(importedProduct);
+			assertThat(service.getImportedProductByFilter(Filter.SIZE, 1L)).containsExactly(importedProduct);
+			assertThat(service.getImportedProductByFilter(Filter.MATERIAL, 1L)).containsExactly(importedProduct);
+		}
+
+		@Test
+		void deleteImportedProductDeletesExistingEntity() throws WrapperException {
+			ImportedProduct importedProduct = new ImportedProduct();
+			when(importedProductRepository.findById(5L)).thenReturn(Optional.of(importedProduct));
+
+			service.deleteImportedProduct(5L);
+
+			verify(importedProductRepository).delete(importedProduct);
+		}
+
+		@Test
+		void updateImportedProductSavesMappedEntity() throws WrapperException {
+			ImportedProductUpdateRequest request = createImportedProductUpdateRequest();
+			Category category = new Category();
+			Product product = new Product();
+			product.setCategory(category);
+			ImportedProduct importedProduct = new ImportedProduct();
+			Color color = new Color();
+			Size size = new Size();
+			Material material = new Material();
+			Color mappedColor = new Color();
+			Size mappedSize = new Size();
+			Material mappedMaterial = new Material();
+			ImportedProduct mappedImportedProduct = new ImportedProduct();
+
+			when(importedProductRepository.findById(5L)).thenReturn(Optional.of(importedProduct));
+			when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+			when(colorRepository.findById(2L)).thenReturn(Optional.of(color));
+			when(sizeRepository.findById(3L)).thenReturn(Optional.of(size));
+			when(materialRepository.findById(4L)).thenReturn(Optional.of(material));
+			when(colorMapper.updateRequestToEntity(request, category, color)).thenReturn(mappedColor);
+			when(colorRepository.save(mappedColor)).thenReturn(mappedColor);
+			when(sizeMapper.updateRequestToEntity(request, category, size)).thenReturn(mappedSize);
+			when(sizeRepository.save(mappedSize)).thenReturn(mappedSize);
+			when(materialMapper.updateRequestToEntity(request, category, material)).thenReturn(mappedMaterial);
+			when(materialRepository.save(mappedMaterial)).thenReturn(mappedMaterial);
+			when(importedProductMapper.updateRequestToEntity(request, mappedColor, mappedSize, mappedMaterial, product,
+			                                                importedProduct)).thenReturn(mappedImportedProduct);
+
+			service.updateImportedProduct(5L, request);
+
+			verify(importedProductRepository).save(mappedImportedProduct);
+		}
+
+		private ImportedProductUpdateRequest createImportedProductUpdateRequest() {
+			return new ImportedProductUpdateRequest(
+					1L,
+					2L,
+					3L,
+					4L,
+					"#FFFFFF",
+					"White",
+					"M",
+					"170",
+					"65",
+					"Cotton",
+					ClothGender.UNISEX,
+					100000,
+					20,
+					"image",
+					"slider1",
+					"slider2",
+					"slider3",
+					"slider4",
+					"public",
+					"public1",
+					"public2",
+					"public3",
+					"public4",
+					1L
+			);
 		}
 	}
 
@@ -269,11 +409,107 @@ class InventorySaleServiceTest {
 		}
 
 		@Test
+		void createInputSaleCreatesWhenOpenSaleStartsSameDay() {
+			LocalDate startDate = LocalDate.now().plusDays(2);
+			InputSaleCreateRequest request = new InputSaleCreateRequest(
+					InputSaleFilter.ALL,
+					0L,
+					120F,
+					10F,
+					startDate,
+					null
+			);
+			InputSale inputSale = new InputSale();
+			inputSale.setStartDate(startDate);
+			ImportedProduct importedProduct = new ImportedProduct();
+			importedProduct.setId(1L);
+			InputSale sameDaySale = new InputSale();
+			sameDaySale.setStartDate(startDate);
+			OnSaleProduct existingOnSaleProduct = new OnSaleProduct();
+			existingOnSaleProduct.setInputSale(sameDaySale);
+			OnSaleProduct mapped = new OnSaleProduct();
+
+			when(inputSaleMapper.createRequestEntity(request)).thenReturn(inputSale);
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThan(anyInt()))
+					.thenReturn(List.of(importedProduct));
+			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNullEndDate(1L, startDate))
+					.thenReturn(Optional.of(existingOnSaleProduct));
+			when(onSaleProductMapper.importProductAndInputSaleToOnSaleProduct(importedProduct, inputSale))
+					.thenReturn(mapped);
+
+			service.createInputSale(request);
+
+			verify(onSaleProductRepository).save(mapped);
+		}
+
+		@Test
 		void getInputSaleByIdWrapsMissingSale() {
 			when(inputSaleRepository.findById(1L)).thenReturn(Optional.empty());
 
 			assertThatThrownBy(() -> service.getInputSaleById(1L))
 					.isInstanceOf(WrapperException.class);
+		}
+
+		@Test
+		void updateInputSaleRepricesEligibleActiveProducts() throws WrapperException {
+			LocalDate startDate = TimeUtils.today();
+			InputSale inputSale = new InputSale();
+			inputSale.setId(1L);
+			inputSale.setStartDate(startDate);
+			inputSale.setEndDate(startDate.plusDays(7));
+			inputSale.setSalePercentage(150F);
+			inputSale.setDiscount(20F);
+			InputSaleUpdateRequest request = new InputSaleUpdateRequest(
+					125F,
+					15F,
+					startDate,
+					startDate.plusDays(10),
+					1L
+			);
+			InputSale mapped = new InputSale();
+			ImportedProduct importedProduct = new ImportedProduct();
+			importedProduct.setId(5L);
+			OnSaleProduct onSaleProduct = new OnSaleProduct();
+			onSaleProduct.setProduct(importedProduct);
+			onSaleProduct.setSalePrice(100L);
+			onSaleProduct.setInputSale(new InputSale());
+
+			when(inputSaleRepository.findById(1L)).thenReturn(Optional.of(inputSale));
+			when(onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
+					1L,
+					TimeUtils.today()
+			)).thenReturn(List.of(onSaleProduct));
+			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNotNullEndDate(
+					5L,
+					startDate,
+					startDate.plusDays(7)
+			)).thenReturn(Optional.empty());
+			when(inputSaleMapper.updateRequestToEntity(request, inputSale)).thenReturn(mapped);
+
+			service.updateInputSale(request, 1L);
+
+			assertThat(onSaleProduct.getSalePrice()).isEqualTo(150L);
+			assertThat(onSaleProduct.getInputSale().getDiscount()).isEqualTo(20F);
+			verify(onSaleProductRepository).save(onSaleProduct);
+			verify(inputSaleRepository).save(mapped);
+		}
+
+		@Test
+		void deleteInputSaleMarksSaleAndProductsDeleted() {
+			InputSale inputSale = new InputSale();
+			OnSaleProduct onSaleProduct = new OnSaleProduct();
+			when(inputSaleRepository.findById(1L)).thenReturn(Optional.of(inputSale));
+			when(onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
+					1L,
+					TimeUtils.today()
+			)).thenReturn(List.of(onSaleProduct));
+
+			service.deleteInputSale(1L);
+
+			assertThat(inputSale.getDeletedAt()).isNotNull();
+			assertThat(onSaleProduct.getDeletedAt()).isNotNull();
+			verify(onSaleProductRepository).saveAll(List.of(onSaleProduct));
+			verify(inputSaleRepository).save(inputSale);
 		}
 	}
 

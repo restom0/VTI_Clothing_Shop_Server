@@ -41,6 +41,7 @@ public class OpenAPISecurityConfiguration {
 	private static final String ERROR_PATH = "/error";
 	private static final List<String> SUPPORTED_LANGUAGES = List.of("en", "es", "de", "fr", "ca", "it");
 
+	/** Handles clothing shop open API. */
 	@Bean
 	public OpenAPI clothingShopOpenAPI() {
 		return new OpenAPI()
@@ -84,6 +85,7 @@ public class OpenAPISecurityConfiguration {
 				));
 	}
 
+	/** Handles professional open API customizer. */
 	@Bean
 	public OpenApiCustomizer professionalOpenApiCustomizer() {
 		return openApi -> {
@@ -100,6 +102,7 @@ public class OpenAPISecurityConfiguration {
 		};
 	}
 
+	/** Handles all API group. */
 	@Bean
 	public GroupedOpenApi allApiGroup() {
 		return GroupedOpenApi.builder()
@@ -109,6 +112,7 @@ public class OpenAPISecurityConfiguration {
 		                     .build();
 	}
 
+	/** Handles authentication API group. */
 	@Bean
 	public GroupedOpenApi authenticationApiGroup() {
 		return GroupedOpenApi.builder()
@@ -118,6 +122,7 @@ public class OpenAPISecurityConfiguration {
 		                     .build();
 	}
 
+	/** Handles catalog API group. */
 	@Bean
 	public GroupedOpenApi catalogApiGroup() {
 		return GroupedOpenApi.builder()
@@ -127,6 +132,7 @@ public class OpenAPISecurityConfiguration {
 		                     .build();
 	}
 
+	/** Handles commerce API group. */
 	@Bean
 	public GroupedOpenApi commerceApiGroup() {
 		return GroupedOpenApi.builder()
@@ -136,6 +142,7 @@ public class OpenAPISecurityConfiguration {
 		                     .build();
 	}
 
+	/** Handles operations API group. */
 	@Bean
 	public GroupedOpenApi operationsApiGroup() {
 		return GroupedOpenApi.builder()
@@ -145,6 +152,7 @@ public class OpenAPISecurityConfiguration {
 		                     .build();
 	}
 
+	/** Polishes operation. */
 	private void polishOperation(String path, PathItem.HttpMethod method, Operation operation) {
 		if (operation == null) {
 			return;
@@ -168,6 +176,7 @@ public class OpenAPISecurityConfiguration {
 		}
 	}
 
+	/** Adds OAuth 2 authorization paths. */
 	private void addOAuth2AuthorizationPaths(OpenAPI openApi) {
 		Paths paths = openApi.getPaths();
 		if (paths == null) {
@@ -179,6 +188,7 @@ public class OpenAPISecurityConfiguration {
 		addOAuth2AuthorizationPath(paths, "twitter", "Twitter/X");
 	}
 
+	/** Adds OAuth 2 authorization path. */
 	private void addOAuth2AuthorizationPath(Paths paths, String registrationId, String providerName) {
 		String path = "/oauth2/authorization/" + registrationId;
 		if (paths.containsKey(path)) {
@@ -197,12 +207,14 @@ public class OpenAPISecurityConfiguration {
 		paths.addPathItem(path, new PathItem().get(operation));
 	}
 
+	/** Checks whether generated controller tag. */
 	private boolean hasGeneratedControllerTag(Operation operation) {
 		return operation.getTags().stream()
 		                .map(tag -> tag.toLowerCase(Locale.ROOT))
 		                .anyMatch(tag -> tag.endsWith("-controller") || tag.contains("controller"));
 	}
 
+	/** Adds language header. */
 	private void addLanguageHeader(Operation operation) {
 		boolean exists = operation.getParameters() != null && operation.getParameters().stream()
 		                                                               .anyMatch(parameter -> "Accept-Language".equalsIgnoreCase(
@@ -222,6 +234,7 @@ public class OpenAPISecurityConfiguration {
 				                            .schema(languageSchema));
 	}
 
+	/** Adds standard responses. */
 	private void addStandardResponses(String path, PathItem.HttpMethod method, Operation operation) {
 		ApiResponses responses = operation.getResponses();
 		if (responses == null) {
@@ -243,12 +256,14 @@ public class OpenAPISecurityConfiguration {
 		addResponseIfMissing(responses, "500", "Unexpected server error");
 	}
 
+	/** Adds response if missing. */
 	private void addResponseIfMissing(ApiResponses responses, String status, String description) {
 		if (!responses.containsKey(status)) {
 			responses.addApiResponse(status, new ApiResponse().description(description));
 		}
 	}
 
+	/** Handles tag for. */
 	private String tagFor(String path) {
 		String normalizedPath = normalize(path);
 		if (startsWithAny(normalizedPath, "/user", "/oauth2", "/login/oauth2")) {
@@ -275,6 +290,7 @@ public class OpenAPISecurityConfiguration {
 		return OPERATIONS_TAG;
 	}
 
+	/** Handles summary for. */
 	private String summaryFor(String path, PathItem.HttpMethod method) {
 		String normalizedPath = normalize(path);
 		Map<String, String> explicitSummaries = Map.of(
@@ -302,6 +318,7 @@ public class OpenAPISecurityConfiguration {
 		};
 	}
 
+	/** Handles description for. */
 	private String descriptionFor(String path, PathItem.HttpMethod method) {
 		String authHint = requiresAuthentication(path, method)
 		                  ? " Requires a Bearer JWT."
@@ -309,6 +326,7 @@ public class OpenAPISecurityConfiguration {
 		return "Handles " + method.name() + " requests for `" + normalize(path) + "`." + authHint;
 	}
 
+	/** Handles resource name. */
 	private String resourceName(String path) {
 		String[] parts = path.replaceFirst("^/", "").split("/");
 		if (parts.length == 0 || parts[0].isBlank()) {
@@ -317,10 +335,12 @@ public class OpenAPISecurityConfiguration {
 		return parts[0].replace("-", " ");
 	}
 
+	/** Handles pluralize. */
 	private String pluralize(String resource) {
 		return resource.endsWith("s") ? resource : resource + "s";
 	}
 
+	/** Handles requires authentication. */
 	private boolean requiresAuthentication(String path, PathItem.HttpMethod method) {
 		String normalizedPath = normalize(path);
 		if (requiresAdmin(normalizedPath)) {
@@ -347,11 +367,13 @@ public class OpenAPISecurityConfiguration {
 		);
 	}
 
+	/** Handles requires admin. */
 	private boolean requiresAdmin(String path) {
 		String normalizedPath = normalize(path);
 		return startsWithAny(normalizedPath, "/audit", "/log");
 	}
 
+	/** Checks whether write method. */
 	private boolean isWriteMethod(PathItem.HttpMethod method) {
 		return method == PathItem.HttpMethod.POST
 				|| method == PathItem.HttpMethod.PUT
@@ -359,6 +381,7 @@ public class OpenAPISecurityConfiguration {
 				|| method == PathItem.HttpMethod.DELETE;
 	}
 
+	/** Handles starts with any. */
 	private boolean startsWithAny(String path, String... prefixes) {
 		for (String prefix : prefixes) {
 			if (path.equals(prefix) || path.startsWith(prefix + "/")) {
@@ -368,6 +391,7 @@ public class OpenAPISecurityConfiguration {
 		return false;
 	}
 
+	/** Normalizes value. */
 	private String normalize(String path) {
 		if (path == null || path.isBlank()) {
 			return "/";

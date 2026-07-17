@@ -28,18 +28,21 @@ public class ChatServiceImpl implements ChatService {
 	private final UserRepository userRepository;
 	private final ChatMapper chatMapper;
 
+	/** Gets all chat. */
 	//@Cacheable(value = "chats")
 	@Override
 	public List<Chat> getAllChat() {
 		return chatRepository.findAll();
 	}
 
+	/** Gets chat. */
 	//@Cacheable(value = "chats", key = "#userId")
 	@Override
 	public List<Chat> getChat(Long userId) {
 		return chatRepository.getByDeletedAtIsNullAndSenderId(userId);
 	}
 
+	/** Adds chat. */
 	//@CacheEvict(value = "chats", allEntries = true)
 	@Transactional
 	@Override
@@ -53,6 +56,7 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	/** Updates chat. */
 	//@CachePut(value = "chats")
 	@Transactional
 	@Override
@@ -66,6 +70,7 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	/** Deletes chat. */
 	//@CacheEvict(value = "chats", allEntries = true)
 	@Transactional
 	@Override
@@ -80,6 +85,7 @@ public class ChatServiceImpl implements ChatService {
 		}
 	}
 
+	/** Replies to chat. */
 	//@CachePut(value = "chats")
 	@Transactional
 	@Override

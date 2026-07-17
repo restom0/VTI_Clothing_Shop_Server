@@ -21,6 +21,7 @@ public class LoginInterceptorConfig implements WebMvcConfigurer {
 	private final TimeIntervalInterceptor timeIntervalInterceptor;
 	private final LoginInterceptor loginInterceptor;
 
+	/** Handles trailing slash handler filter. */
 	@Bean
 	public FilterRegistrationBean<UrlHandlerFilter> trailingSlashHandlerFilter() {
 		UrlHandlerFilter filter = UrlHandlerFilter
@@ -32,6 +33,7 @@ public class LoginInterceptorConfig implements WebMvcConfigurer {
 		return registration;
 	}
 
+	/** Adds interceptors. */
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		registry.addInterceptor(rateLimitInterceptor)

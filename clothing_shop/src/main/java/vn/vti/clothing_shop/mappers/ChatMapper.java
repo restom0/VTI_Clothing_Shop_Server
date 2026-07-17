@@ -13,9 +13,11 @@ import vn.vti.clothing_shop.entities.User;
 
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
+	/** Maps to DTO. */
 	@Mapping(target = "reply", source = "reply.content")
 	ChatDTO entityToDTO(Chat chat);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "sender", source = "senderId")
 	@Mapping(target = "content", source = "chatCreateRequest.content")
@@ -26,6 +28,7 @@ public interface ChatMapper {
 	@Mapping(target = "version", ignore = true)
 	Chat createRequestToEntity(ChatCreateRequest chatCreateRequest, User senderId);
 
+	/** Replies to request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "sender", source = "senderId")
 	@Mapping(target = "content", source = "chatReplyRequest.reply")
@@ -36,6 +39,7 @@ public interface ChatMapper {
 	@Mapping(target = "version", ignore = true)
 	Chat replyRequestToEntity(ChatReplyRequest chatReplyRequest, User senderId);
 
+	/** Updates request to entity. */
 	@Mapping(target = "reply", ignore = true)
 	@Mapping(target = "sender", ignore = true)
 	@Mapping(target = "id", ignore = true)

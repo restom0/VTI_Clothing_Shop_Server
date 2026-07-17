@@ -10,19 +10,27 @@ import vn.vti.clothing_shop.exceptions.WrapperException;
 import java.util.List;
 
 public interface OrderService {
+	/** Gets all orders. */
 	List<Order> getAllOrders();
 
+	/** Gets all orders by user id. */
 	List<Order> getAllOrdersByUserId(Long userId);
 
+	/** Gets order by id and user id. */
 	Order getOrderByIdAndUserId(Long id, Long userId) throws WrapperException;
 
+	/** Adds order. */
 	Order addOrder(OrderCreateRequest orderCreateRequest, Long userId) throws WrapperException;
 
+	/** Updates order. */
 	void updateOrder(Long id, OrderUpdateRequest orderUpdateRequest) throws WrapperException;
 
+	/** Deletes order. */
 	void deleteOrder(Long id) throws WrapperException;
 
+	/** Gets order by id and user id. */
 	Order getOrderByIdAndUserId(OrderCheckoutRequest orderCheckoutRequest, Long userId) throws WrapperException;
 
+	/** Confirms order. */
 	Boolean confirmOrder(OrderConfirmRequest orderConfirmRequest, Long userId) throws WrapperException;
 }

@@ -17,10 +17,13 @@ import java.util.List;
         uses = { CategoryMapper.class, BrandMapper.class })
 public interface ProductMapper {
 
+	/** Maps to DTO. */
 	ProductDTO entityToDTO(Product product);
 
+	/** Maps list to DTO list. */
 	List<ProductDTO> entityListToDTOList(List<Product> products);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "productCreateRequest.name")
 	@Mapping(target = "shortDescription", source = "productCreateRequest.shortDescription")
@@ -32,6 +35,7 @@ public interface ProductMapper {
 	@Mapping(target = "version", ignore = true)
 	Product createRequestToEntity(ProductCreateRequest productCreateRequest, Category category, Brand brand);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "productUpdateRequest.name")
 	@Mapping(target = "shortDescription", source = "productUpdateRequest.shortDescription")

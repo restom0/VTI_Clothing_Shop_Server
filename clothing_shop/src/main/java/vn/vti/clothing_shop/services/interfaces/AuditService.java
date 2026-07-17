@@ -7,7 +7,9 @@ import vn.vti.clothing_shop.exceptions.WrapperException;
 import java.util.List;
 
 public interface AuditService {
+	/** Gets all audits. */
 	List<Audit> getAllAudits();
 
+	/** Creates audit. */
 	void createAudit(AuditDTO auditDTO, Long userId) throws WrapperException;
 }

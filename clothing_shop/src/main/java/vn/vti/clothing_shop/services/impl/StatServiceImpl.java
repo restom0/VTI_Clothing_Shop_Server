@@ -24,6 +24,7 @@ public class StatServiceImpl implements StatService {
 	private final UserRepository userRepository;
 	private final OrderItemRepository orderItemRepository;
 
+	/** Gets stat. */
 	@Override
 	public Map<String, Long> getStat() {
 		HashMap<String, Long> stat = new HashMap<>();
@@ -36,6 +37,7 @@ public class StatServiceImpl implements StatService {
 		return stat;
 	}
 
+	/** Gets monthly income for last 5 years. */
 	@Override
 	public Map<Integer, ArrayList<Long>> getMonthlyIncomeForLast5Years() {
 		int currentYear = TimeUtils.today().getYear();

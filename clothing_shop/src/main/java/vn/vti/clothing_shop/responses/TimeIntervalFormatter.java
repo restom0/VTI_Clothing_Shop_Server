@@ -19,6 +19,7 @@ public class TimeIntervalFormatter {
 	private static final long DAYS_PER_MONTH = 30;
 	private static final long DAYS_PER_YEAR = 365;
 
+	/** Handles format temporal. */
 	public Object formatTemporal(Object value, Locale locale) {
 		if (value instanceof Long epochMillis) {
 			return format(epochMillis, locale);
@@ -38,6 +39,7 @@ public class TimeIntervalFormatter {
 		return value;
 	}
 
+	/** Handles format. */
 	public String format(Long epochMillis, Locale locale) {
 		if (epochMillis == null) {
 			return null;
@@ -56,6 +58,7 @@ public class TimeIntervalFormatter {
 		return MessageResolver.resolve(locale, key, unit.amount);
 	}
 
+	/** Resolves unit. */
 	private IntervalUnit resolveUnit(long seconds) {
 		long minutes = seconds / SECONDS_PER_MINUTE;
 		if (minutes < 1) {
@@ -78,6 +81,7 @@ public class TimeIntervalFormatter {
 		return new IntervalUnit("year", days / DAYS_PER_YEAR);
 	}
 
+	/** Creates IntervalUnit instance. */
 	private record IntervalUnit(String name, long amount) {
 	}
 }

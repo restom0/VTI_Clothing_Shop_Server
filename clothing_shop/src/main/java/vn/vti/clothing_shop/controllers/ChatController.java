@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -35,6 +37,8 @@ public class ChatController {
 	private final ChatService chatService;
 	private final ChatMapper chatMapper;
 
+	/** Gets all chats. */
+	@Operation(summary = "Gets all chats", description = "Gets all chats API.")
 	@GetMapping("/all")
 	public ResponseEntity<BaseMessageResponse> getAllChats() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, chatService.getAllChat().stream()
@@ -42,6 +46,8 @@ public class ChatController {
 		                                                                .toList());
 	}
 
+	/** Gets chat. */
+	@Operation(summary = "Gets chat", description = "Gets chat API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getChat() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -52,6 +58,8 @@ public class ChatController {
 		                                                                .toList());
 	}
 
+	/** Adds chat. */
+	@Operation(summary = "Adds chat", description = "Adds chat API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addChat(@RequestBody @Valid ChatCreateRequest chatCreateRequest) {
 
@@ -66,6 +74,8 @@ public class ChatController {
 		}
 	}
 
+	/** Updates chat. */
+	@Operation(summary = "Updates chat", description = "Updates chat API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateChat(
 			@RequestBody
@@ -86,6 +96,8 @@ public class ChatController {
 		}
 	}
 
+	/** Deletes chat. */
+	@Operation(summary = "Deletes chat", description = "Deletes chat API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteChat(
 			@PathVariable
@@ -103,6 +115,8 @@ public class ChatController {
 		}
 	}
 
+	/** Handles reply chat. */
+	@Operation(summary = "Replies to chat", description = "Replies to chat API.")
 	@PutMapping("/reply/{id}")
 	public ResponseEntity<BaseMessageResponse> replyChat(
 			@RequestBody

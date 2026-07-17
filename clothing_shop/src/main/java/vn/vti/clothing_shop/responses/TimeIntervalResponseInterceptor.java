@@ -45,11 +45,13 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 
 	private final TimeIntervalFormatter formatter;
 
+	/** Checks whether value. */
 	@Override
 	public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
 		return true;
 	}
 
+	/** Runs body write. */
 	@Override
 	public Object beforeBodyWrite(Object body,
 	                              MethodParameter returnType,
@@ -66,12 +68,14 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transform(body, null, TimeIntervalContext.locale(), new IdentityHashMap<>());
 	}
 
+	/** Checks whether json. */
 	private boolean isJson(MediaType mediaType) {
 		return mediaType == null
 				|| MediaType.APPLICATION_JSON.includes(mediaType)
 				|| mediaType.getSubtype().endsWith("+json");
 	}
 
+	/** Handles transform. */
 	private Object transform(Object value, String fieldName, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		if (value == null) {
 			return null;
@@ -98,6 +102,7 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transformObject(value, locale, visited);
 	}
 
+	/** Handles transform map. */
 	private Map<String, Object> transformMap(Map<?, ?> map, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		Map<String, Object> transformed = new LinkedHashMap<>();
 		map.forEach((key, value) -> {
@@ -107,6 +112,7 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transformed;
 	}
 
+	/** Handles transform collection. */
 	private List<Object> transformCollection(Collection<?> collection, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		List<Object> transformed = new ArrayList<>(collection.size());
 		for (Object item : collection) {
@@ -115,6 +121,7 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transformed;
 	}
 
+	/** Handles transform array. */
 	private List<Object> transformArray(Object array, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		int length = Array.getLength(array);
 		List<Object> transformed = new ArrayList<>(length);
@@ -124,6 +131,7 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transformed;
 	}
 
+	/** Handles transform object. */
 	private Map<String, Object> transformObject(Object value, Locale locale, IdentityHashMap<Object, Boolean> visited) {
 		Map<String, Object> transformed = new LinkedHashMap<>();
 		for (Field field : publicFieldsOf(value.getClass())) {
@@ -148,12 +156,14 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		return transformed;
 	}
 
+	/** Handles public fields of. */
 	private List<Field> publicFieldsOf(Class<?> type) {
 		return Arrays.stream(type.getFields())
 		           .filter(field -> !Modifier.isStatic(field.getModifiers()))
 		           .toList();
 	}
 
+	/** Handles properties of. */
 	private List<PropertyDescriptor> propertiesOf(Class<?> type) {
 		try {
 			return List.of(Introspector.getBeanInfo(type, Object.class).getPropertyDescriptors());
@@ -162,10 +172,12 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 		}
 	}
 
+	/** Checks whether temporal field. */
 	private boolean isTemporalField(String fieldName) {
 		return fieldName != null && TEMPORAL_FIELD_NAMES.contains(fieldName);
 	}
 
+	/** Checks whether temporal value. */
 	private boolean isTemporalValue(Object value) {
 		return value instanceof Long
 				|| value instanceof LocalDate
@@ -174,6 +186,7 @@ public class TimeIntervalResponseInterceptor implements ResponseBodyAdvice<Objec
 				|| value instanceof Instant;
 	}
 
+	/** Checks whether simple value. */
 	private boolean isSimpleValue(Object value) {
 		return value instanceof String
 				|| value instanceof Number

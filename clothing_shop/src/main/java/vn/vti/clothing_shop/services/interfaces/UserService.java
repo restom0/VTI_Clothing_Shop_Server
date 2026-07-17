@@ -11,19 +11,27 @@ import vn.vti.clothing_shop.exceptions.WrapperException;
 import java.util.List;
 
 public interface UserService {
+	/** Gets users. */
 	List<User> getUsers();
 
+	/** Gets user. */
 	UserLoginDTO getUser(UserLoginRequest userLoginRequest) throws WrapperException;
 
+	/** Counts user. */
 	Long countUser();
 
+	/** Gets user by id. */
 	User getUserById(Long id) throws WrapperException;
 
+	/** Adds user. */
 	void addUser(UserCreateRequest userCreateRequest) throws WrapperException;
 
+	/** Updates user. */
 	void updateUser(UserUpdateRequest userUpdateRequest, Long id) throws WrapperException;
 
+	/** Updates user password. */
 	void updateUserPassword(UserUpdatePasswordRequest userUpdatePasswordRequest, Long id) throws WrapperException;
 
+	/** Deletes user. */
 	void deleteUser(Long id) throws WrapperException;
 }

@@ -20,6 +20,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
 	private final RateLimitService rateLimitService;
 
+	/** Runs handle. */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		RateLimitService.RateLimitDecision decision = rateLimitService.consume(request);
@@ -34,6 +35,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
+	/** Applies headers. */
 	public static void applyHeaders(HttpServletResponse response, RateLimitService.RateLimitDecision decision) {
 		response.setHeader(HEADER_LIMIT, String.valueOf(decision.limit()));
 		response.setHeader(HEADER_REMAINING, String.valueOf(decision.remaining()));

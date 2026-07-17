@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -38,6 +40,8 @@ public class ImportedProductController {
 	private final MaterialMapper materialMapper;
 	private final SizeMapper sizeMapper;
 
+	/** Gets all imported products. */
+	@Operation(summary = "Gets all imported products", description = "Gets all imported products API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllImportedProducts() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, importedProductService.getAllImportedProducts().stream()
@@ -45,6 +49,8 @@ public class ImportedProductController {
 		                                                                           .toList());
 	}
 
+	/** Adds imported product. */
+	@Operation(summary = "Adds imported product", description = "Adds imported product API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addImportedProduct(
 			@RequestBody
@@ -58,6 +64,8 @@ public class ImportedProductController {
 		}
 	}
 
+	/** Updates imported product. */
+	@Operation(summary = "Updates imported product", description = "Updates imported product API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateImportedProduct(
 			@RequestBody
@@ -74,6 +82,8 @@ public class ImportedProductController {
 		}
 	}
 
+	/** Deletes imported product. */
+	@Operation(summary = "Deletes imported product", description = "Deletes imported product API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteImportedProduct(
 			@PathVariable
@@ -87,6 +97,8 @@ public class ImportedProductController {
 		}
 	}
 
+	/** Gets imported product by id. */
+	@Operation(summary = "Gets imported product by id", description = "Gets imported product by id API.")
 	@GetMapping("/{filter}/{id}")
 	public ResponseEntity<BaseMessageResponse> getImportedProductById(
 			@PathVariable
@@ -104,11 +116,15 @@ public class ImportedProductController {
 		}
 	}
 
+	/** Gets colors. */
+	@Operation(summary = "Gets colors", description = "Gets colors API.")
 	@GetMapping("/colors")
 	public ResponseEntity<BaseMessageResponse> getColors() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, colorMapper.entityToDTO(importedProductService.getColors()));
 	}
 
+	/** Gets materials. */
+	@Operation(summary = "Gets materials", description = "Gets materials API.")
 	@GetMapping("/materials")
 	public ResponseEntity<BaseMessageResponse> getMaterials() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, importedProductService.getMaterials().stream()
@@ -116,6 +132,8 @@ public class ImportedProductController {
 		                                                                           .toList());
 	}
 
+	/** Gets sizes. */
+	@Operation(summary = "Gets sizes", description = "Gets sizes API.")
 	@GetMapping("/sizes")
 	public ResponseEntity<BaseMessageResponse> getSizes() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, sizeMapper.listEntityToDTO(importedProductService.getSizes()));

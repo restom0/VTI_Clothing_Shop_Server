@@ -32,6 +32,7 @@ public class AuthModuleGrpcService extends AuthModuleServiceGrpc.AuthModuleServi
 	private final JwtService jwtService;
 	private final ObjectMapper objectMapper;
 
+	/** Logs in value. */
 	@Override
 	public void login(GrpcAuthLoginRequest request, StreamObserver<GrpcAuthLoginResponse> responseObserver) {
 		try {
@@ -55,6 +56,7 @@ public class AuthModuleGrpcService extends AuthModuleServiceGrpc.AuthModuleServi
 		}
 	}
 
+	/** Validates token. */
 	@Override
 	public void validateToken(GrpcValidateTokenRequest request, StreamObserver<GrpcValidateTokenResponse> responseObserver) {
 		try {

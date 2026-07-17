@@ -14,10 +14,13 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = DateMapper.class)
 public interface VoucherMapper {
 
+	/** Maps to DTO. */
 	VoucherDTO entityToDTO(Voucher voucher);
 
+	/** Handles list entity to DTO. */
 	List<VoucherDTO> listEntityToDTO(List<Voucher> vouchers);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "stock", source = "voucherCreateRequest.inputStock")
 	@Mapping(target = "createdAt", ignore = true)
@@ -26,6 +29,7 @@ public interface VoucherMapper {
 	@Mapping(target = "version", ignore = true)
 	Voucher createRequestToEntity(VoucherCreateRequest voucherCreateRequest);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "stock", source = "voucherUpdateRequest.inputStock")
 	@Mapping(target = "createdAt", ignore = true)

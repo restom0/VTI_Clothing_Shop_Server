@@ -16,10 +16,13 @@ import java.util.List;
 @Mapper(componentModel = "spring",
         uses = { OnSaleProductMapper.class })
 public interface OrderItemMapper {
+	/** Maps to DTO. */
 	OrderItemDTO entityToDTO(OrderItem orderItem);
 
+	/** Handles list entity to list DTO. */
 	List<OrderItemDTO> listEntityToListDTO(List<OrderItem> orderItems);
 
+	/** Creates request to entity. */
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
 	@Mapping(target = "deletedAt", ignore = true)
@@ -30,6 +33,7 @@ public interface OrderItemMapper {
 	@Mapping(target = "quantity", source = "orderItemCreateRequest.quantity")
 	OrderItem createRequestToEntity(OrderItemCreateRequest orderItemCreateRequest, OnSaleProduct product, Order order);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)

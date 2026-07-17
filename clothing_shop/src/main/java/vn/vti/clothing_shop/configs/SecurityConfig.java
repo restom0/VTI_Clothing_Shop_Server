@@ -24,6 +24,7 @@ public class SecurityConfig {
 	private final OAuth2LoginFailureHandler oauth2LoginFailureHandler;
 	private final SocialOAuth2UserService socialOAuth2UserService;
 
+	/** Handles security filter chain. */
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.csrf(AbstractHttpConfigurer::disable)
@@ -40,6 +41,7 @@ public class SecurityConfig {
 		return http.build();
 	}
 
+	/** Handles cors configuration source. */
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();

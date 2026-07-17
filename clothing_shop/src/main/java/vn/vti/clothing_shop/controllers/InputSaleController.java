@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,6 +32,8 @@ public class InputSaleController {
 	private final InputSaleService inputSaleService;
 	private final InputSaleMapper inputSaleMapper;
 
+	/** Gets all input sale. */
+	@Operation(summary = "Gets all input sale", description = "Gets all input sale API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllInputSale() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, inputSaleService.getAllInputSale().stream()
@@ -37,6 +41,8 @@ public class InputSaleController {
 		                                                                     .toList());
 	}
 
+	/** Gets input sale by id. */
+	@Operation(summary = "Gets input sale by id", description = "Gets input sale by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getInputSaleById(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
@@ -48,6 +54,8 @@ public class InputSaleController {
 		}
 	}
 
+	/** Creates input sale. */
+	@Operation(summary = "Creates input sale", description = "Creates input sale API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> createInputSale(
 			@RequestBody @Valid @NotNull(message = "{messages.validation.required}")
@@ -56,6 +64,8 @@ public class InputSaleController {
 		return ResponseHandler.successBuilder(HttpStatus.CREATED, "messages.inputSales.created");
 	}
 
+	/** Updates input sale. */
+	@Operation(summary = "Updates input sale", description = "Updates input sale API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateInputSale(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id,
@@ -69,6 +79,8 @@ public class InputSaleController {
 		}
 	}
 
+	/** Deletes input sale. */
+	@Operation(summary = "Deletes input sale", description = "Deletes input sale API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteInputSale(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {

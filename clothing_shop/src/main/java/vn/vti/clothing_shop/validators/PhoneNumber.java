@@ -14,9 +14,12 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PhoneNumber {
+	/** Returns value. */
 	String message() default "{messages.validation.phone.invalid}";
 
+	/** Returns value. */
 	Class<?>[] groups() default {};
 
+	/** Returns value. */
 	Class<? extends Payload>[] payload() default {};
 }

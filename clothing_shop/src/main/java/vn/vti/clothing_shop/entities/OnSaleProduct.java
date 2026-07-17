@@ -33,6 +33,7 @@ public class OnSaleProduct extends BaseEntity {
 	@JoinColumn
 	private InputSale inputSale;
 
+	/** Gets sale price. */
 	public Long getSalePrice() {
 		if (salePrice != null) {
 			return salePrice;

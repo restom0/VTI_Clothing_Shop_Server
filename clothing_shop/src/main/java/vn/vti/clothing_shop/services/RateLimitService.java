@@ -38,6 +38,7 @@ public class RateLimitService {
 	private final ConcurrentMap<String, TokenBucket> buckets = new ConcurrentHashMap<>();
 	private final AtomicLong lastCleanupNanos = new AtomicLong();
 
+	/** Consumes service request. */
 	public RateLimitDecision consume(HttpServletRequest request) {
 		if (!properties.isEnabled() || "OPTIONS".equalsIgnoreCase(request.getMethod())) {
 			return SKIPPED;
@@ -63,6 +64,7 @@ public class RateLimitService {
 		return decision;
 	}
 
+	/** Handles normalized path. */
 	private String normalizedPath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		String path = request.getRequestURI();
@@ -78,6 +80,7 @@ public class RateLimitService {
 		return path.isBlank() ? "/" : path.toLowerCase(Locale.ROOT);
 	}
 
+	/** Checks whether excluded. */
 	private boolean isExcluded(String path) {
 		for (String excludedPath : properties.getExcludedPaths()) {
 			if (pathMatcher.match(excludedPath, path)) {
@@ -87,6 +90,7 @@ public class RateLimitService {
 		return false;
 	}
 
+	/** Finds policy. */
 	private RateLimitProperties.Policy findPolicy(String path, String method) {
 		for (RateLimitProperties.Policy policy : properties.getRoutes()) {
 			if (!policy.matchesMethod(method)) {
@@ -101,6 +105,7 @@ public class RateLimitService {
 		return properties.getDefaultPolicy();
 	}
 
+	/** Handles client identity. */
 	private String clientIdentity(HttpServletRequest request) {
 		String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
 		if (authorization != null && !authorization.isBlank()) {
@@ -109,6 +114,7 @@ public class RateLimitService {
 		return "ip:" + clientIp(request);
 	}
 
+	/** Handles cleanup. */
 	private void cleanup(long now) {
 		long cleanupInterval = toNanos(properties.getCleanupInterval(), Duration.ofMinutes(5));
 		long previous = lastCleanupNanos.get();
@@ -120,6 +126,7 @@ public class RateLimitService {
 		buckets.entrySet().removeIf(entry -> entry.getValue().isIdle(now, bucketTtl));
 	}
 
+	/** Hashes value. */
 	private String hash(String value) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -130,6 +137,7 @@ public class RateLimitService {
 		}
 	}
 
+	/** Handles client ip. */
 	private String clientIp(HttpServletRequest request) {
 		if (properties.isTrustProxyHeaders()) {
 			String forwardedValue = request.getHeader(properties.getClientIpHeader());
@@ -140,11 +148,13 @@ public class RateLimitService {
 		return request.getRemoteAddr() == null ? "unknown" : request.getRemoteAddr();
 	}
 
+	/** Converts nanos. */
 	private long toNanos(Duration duration, Duration fallback) {
 		Duration resolved = duration == null || duration.isZero() || duration.isNegative() ? fallback : duration;
 		return resolved.toNanos();
 	}
 
+	/** Creates RateLimitDecision instance. */
 	public record RateLimitDecision(
 			boolean applicable,
 			boolean allowed,
@@ -162,11 +172,13 @@ public class RateLimitService {
 		private long lastAccessNanos;
 		private boolean initialized;
 
+		/** Creates TokenBucket instance. */
 		private TokenBucket(long now) {
 			this.lastRefillNanos = now;
 			this.lastAccessNanos = now;
 		}
 
+		/** Consumes value. */
 		private synchronized RateLimitDecision consume(RateLimitProperties.Policy policy, long now) {
 			refill(policy, now);
 			boolean allowed = tokens >= 1D;
@@ -189,6 +201,7 @@ public class RateLimitService {
 			);
 		}
 
+		/** Handles refill. */
 		private void refill(RateLimitProperties.Policy policy, long now) {
 			if (!initialized) {
 				tokens = policy.getCapacity();
@@ -207,6 +220,7 @@ public class RateLimitService {
 			lastRefillNanos = now;
 		}
 
+		/** Handles seconds until tokens. */
 		private long secondsUntilTokens(RateLimitProperties.Policy policy, double missingTokens) {
 			if (missingTokens <= 0D) {
 				return 0;
@@ -215,6 +229,7 @@ public class RateLimitService {
 			return Math.max(1L, (long) Math.ceil(nanos / NANOS_PER_SECOND));
 		}
 
+		/** Checks whether idle. */
 		private boolean isIdle(long now, long ttlNanos) {
 			return now - lastAccessNanos > ttlNanos;
 		}

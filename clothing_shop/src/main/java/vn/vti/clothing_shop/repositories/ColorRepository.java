@@ -11,13 +11,18 @@ import java.util.Optional;
 @Repository
 public interface ColorRepository extends JpaRepository<Color, Long> {
 
+	/** Finds by deleted at is null and name order by id desc. */
 	Optional<Color> findByDeletedAtIsNullAndNameOrderByIdDesc(String colorName);
 
+	/** Finds by deleted at is null and code. */
 	Optional<Color> findByDeletedAtIsNullAndCode(String code);
 
+	/** Finds by deleted at is null and category id. */
 	Optional<Color> findByDeletedAtIsNullAndCategory_Id(Long categoryId);
 
+	/** Finds by deleted at is null. */
 	List<Color> findByDeletedAtIsNull();
 
+	/** Finds by deleted at is null and id. */
 	Optional<Color> findByDeletedAtIsNullAndId(Long id);
 }

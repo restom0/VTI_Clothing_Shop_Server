@@ -19,6 +19,7 @@ import java.util.Set;
 public class SocialOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private final DefaultOAuth2UserService delegate = new DefaultOAuth2UserService();
 
+	/** Loads user. */
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
 		OAuth2User user = delegate.loadUser(userRequest);
@@ -36,6 +37,7 @@ public class SocialOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		return new DefaultOAuth2User(authorities, attributes, "id");
 	}
 
+	/** Handles nested data. */
 	@SuppressWarnings("unchecked")
 	private Map<String, Object> nestedData(Map<String, Object> attributes) {
 		Object value = attributes.get("data");

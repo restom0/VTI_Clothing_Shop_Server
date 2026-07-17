@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import vn.vti.clothing_shop.validators.NewPasswordNotEqualOldPassword;
 
+/** Creates UserUpdatePasswordRequest instance. */
 @NewPasswordNotEqualOldPassword
 public record UserUpdatePasswordRequest(
 		@NotBlank(message = "{messages.validation.required}")

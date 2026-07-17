@@ -24,6 +24,7 @@ public class PaymentModuleGrpcService extends PaymentModuleServiceGrpc.PaymentMo
 	private final PaymentService paymentService;
 	private final ObjectMapper objectMapper;
 
+	/** Creates checkout. */
 	@Override
 	public void createCheckout(GrpcPaymentCheckoutRequest request, StreamObserver<GrpcPaymentCheckoutResponse> responseObserver) {
 		try {

@@ -27,6 +27,7 @@ public class ReadModelBootstrapRunner implements ApplicationRunner {
 	private final VoucherRepository voucherRepository;
 	private final OrderRepository orderRepository;
 
+	/** Runs service request. */
 	@Override
 	public void run(ApplicationArguments args) {
 		try {

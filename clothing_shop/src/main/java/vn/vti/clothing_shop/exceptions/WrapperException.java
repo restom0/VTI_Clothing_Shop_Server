@@ -9,6 +9,7 @@ public class WrapperException extends Exception {
 	public final HttpStatus statusCode;
 	public final String message;
 
+	/** Creates WrapperException instance. */
 	public WrapperException(BaseCheckedException cause) {
 		super(cause);
 		statusCode = cause.statusCode;

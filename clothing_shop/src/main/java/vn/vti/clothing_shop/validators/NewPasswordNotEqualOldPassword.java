@@ -14,9 +14,12 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NewPasswordNotEqualOldPassword {
+	/** Returns value. */
 	String message() default "New password must not be equal to old password";
 
+	/** Returns value. */
 	Class<?>[] groups() default {};
 
+	/** Returns value. */
 	Class<? extends Payload>[] payload() default {};
 }

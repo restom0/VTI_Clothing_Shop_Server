@@ -38,6 +38,7 @@ public class RateLimitProperties {
 		private int refillTokens = 120;
 		private Duration refillPeriod = Duration.ofMinutes(1);
 
+		/** Handles matches method. */
 		public boolean matchesMethod(String method) {
 			return methods == null || methods.isEmpty() || methods.contains(method.toUpperCase());
 		}

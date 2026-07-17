@@ -32,6 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
 	private final MongoReadModelQueryService readModelQueryService;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets all categories. */
 	@Cacheable(value = "categories", key = "'all'")
 	@Override
 	public List<Category> getAllCategories() {
@@ -42,6 +43,7 @@ public class CategoryServiceImpl implements CategoryService {
 		return categoryRepository.findAllByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Adds category. */
 	@Caching(evict = {
 			@CacheEvict(value = "categories", allEntries = true),
 			@CacheEvict(value = "products", allEntries = true)
@@ -62,6 +64,7 @@ public class CategoryServiceImpl implements CategoryService {
 		}
 	}
 
+	/** Updates category. */
 	@CacheEvict(value = "categories", allEntries = true)
 	@Transactional
 	@Override
@@ -82,6 +85,7 @@ public class CategoryServiceImpl implements CategoryService {
 		}
 	}
 
+	/** Deletes category. */
 	@Caching(evict = {
 			@CacheEvict(value = "categories", allEntries = true),
 			@CacheEvict(value = "products", allEntries = true)
@@ -100,6 +104,7 @@ public class CategoryServiceImpl implements CategoryService {
 		}
 	}
 
+	/** Gets category by id. */
 	@Cacheable(value = "categories", key = "'id:' + #id")
 	@Override
 	public Category getCategoryById(Long id) throws WrapperException {
@@ -116,6 +121,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 	}
 
+	/** Counts category. */
 	@Override
 	public Long countCategory() {
 		return categoryRepository.count();

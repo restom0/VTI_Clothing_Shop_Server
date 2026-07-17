@@ -35,12 +35,14 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 
+	/** Gets users. */
 	//@Cacheable(value = "users")
 	@Override
 	public List<User> getUsers() {
 		return userRepository.findByDeletedAtIsNull();
 	}
 
+	/** Gets user. */
 	//@CachePut(value = "users")
 	@Transactional
 	@Override
@@ -59,6 +61,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	/** Adds user. */
 	//@CacheEvict(value = "users", allEntries = true)
 	@Transactional
 	@Override
@@ -82,12 +85,14 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	/** Counts user. */
 	//@Cacheable(value = "users")
 	@Override
 	public Long countUser() {
 		return userRepository.count();
 	}
 
+	/** Gets user by id. */
 	//@Cacheable(value = "user", key = "#id")
 	@Override
 	public User getUserById(Long id) throws WrapperException {
@@ -99,6 +104,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	/** Updates user. */
 	//@CachePut(value = "user")
 	@Transactional
 	@Override
@@ -120,6 +126,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	/** Updates user password. */
 	//@CachePut(value = "user")
 	@Transactional
 	@Override
@@ -140,6 +147,7 @@ public class UserServiceImpl implements UserService {
 		}
 	}
 
+	/** Deletes user. */
 	//@CacheEvict(value = "users", allEntries = true)
 	@Transactional
 	@Override

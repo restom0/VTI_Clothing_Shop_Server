@@ -7,10 +7,12 @@ public enum SocialAuthProvider {
 	FACEBOOK,
 	TWITTER;
 
+	/** Converts registration id. */
 	public static SocialAuthProvider fromRegistrationId(String registrationId) {
 		return SocialAuthProvider.valueOf(registrationId.toUpperCase(Locale.ROOT));
 	}
 
+	/** Handles registration id. */
 	public String registrationId() {
 		return name().toLowerCase(Locale.ROOT);
 	}

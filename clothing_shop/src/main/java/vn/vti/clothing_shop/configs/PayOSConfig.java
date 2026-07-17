@@ -17,6 +17,7 @@ public class PayOSConfig {
 	@Value("${payos.checksum-key}")
 	private String checksumKey;
 
+	/** Handles pay OS. */
 	@Bean
 	public PayOS payOS() {
 		return new PayOS(clientId, apiKey, checksumKey);

@@ -45,6 +45,7 @@ public class ReadModelDocument {
 
 	private Map<String, Object> payload;
 
+	/** Builds id. */
 	public static String documentId(ReadModelType modelType, Long entityId) {
 		return modelType.name() + ":" + entityId;
 	}

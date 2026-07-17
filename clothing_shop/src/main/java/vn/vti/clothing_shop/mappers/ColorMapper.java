@@ -14,10 +14,13 @@ import java.util.List;
 
 @Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public interface ColorMapper {
+	/** Maps to DTO. */
 	ColorDTO entityToDTO(Color color);
 
+	/** Maps to DTO. */
 	List<ColorDTO> entityToDTO(List<Color> colors);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "code", source = "importedProductCreateRequest.code")
 	@Mapping(target = "name", source = "importedProductCreateRequest.name")
@@ -28,6 +31,7 @@ public interface ColorMapper {
 	@Mapping(target = "version", ignore = true)
 	Color createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Category category);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "code", source = "importedProductUpdateRequest.code")
 	@Mapping(target = "name", source = "importedProductUpdateRequest.name")

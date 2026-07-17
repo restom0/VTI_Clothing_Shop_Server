@@ -15,11 +15,14 @@ import java.util.List;
 @Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public interface SizeMapper {
 
+	/** Maps to DTO. */
 	@Mapping(target = "size", source = "name")
 	SizeDTO entityToDTO(Size size);
 
+	/** Handles list entity to DTO. */
 	List<SizeDTO> listEntityToDTO(List<Size> sizes);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "importedProductCreateRequest.size")
 	@Mapping(target = "height", source = "importedProductCreateRequest.height")
@@ -31,6 +34,7 @@ public interface SizeMapper {
 	@Mapping(target = "version", ignore = true)
 	Size createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Category category);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "importedProductUpdateRequest.size")
 	@Mapping(target = "height", source = "importedProductUpdateRequest.height")

@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 
@@ -38,6 +40,8 @@ public class OrderController {
 	private final PaymentService paymentService;
 	private final OrderMapper orderMapper;
 
+	/** Gets all orders. */
+	@Operation(summary = "Gets all orders", description = "Gets all orders API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllOrders() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, orderService.getAllOrders().stream()
@@ -45,6 +49,8 @@ public class OrderController {
 		                                                                 .toList());
 	}
 
+	/** Gets all orders by user id. */
+	@Operation(summary = "Gets all orders by user id", description = "Gets all orders by user id API.")
 	@GetMapping("/user")
 	public ResponseEntity<BaseMessageResponse> getAllOrdersByUserId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -55,6 +61,8 @@ public class OrderController {
 		                                                                 .toList());
 	}
 
+	/** Adds order. */
+	@Operation(summary = "Adds order", description = "Adds order API.")
 	@GetMapping("/cart")
 	public ResponseEntity<BaseMessageResponse> addOrder() {
 		try {
@@ -68,6 +76,8 @@ public class OrderController {
 		}
 	}
 
+	/** Updates order. */
+	@Operation(summary = "Updates order", description = "Updates order API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateOrder(
 			@RequestBody @NotNull(message = "{messages.validation.required}") OrderUpdateRequest orderUpdateRequest,
@@ -80,6 +90,8 @@ public class OrderController {
 		}
 	}
 
+	/** Deletes order. */
+	@Operation(summary = "Deletes order", description = "Deletes order API.")
 	@DeleteMapping("/{orderId}/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteOrder(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId,
@@ -93,6 +105,8 @@ public class OrderController {
 		}
 	}
 
+	/** Creates payment link. */
+	@Operation(summary = "Creates payment link", description = "Creates payment link API.")
 	@PostMapping(path = "/checkout")
 	public ResponseEntity<BaseMessageResponse> createPaymentLink(
 			@RequestBody @NotNull(message = "{messages.validation.required}") OrderCheckoutRequest orderCheckoutRequest) {
@@ -108,6 +122,8 @@ public class OrderController {
 		}
 	}
 
+	/** Handles success. */
+	@Operation(summary = "Handles success", description = "Handles success API.")
 	@PutMapping("/success")
 	public ResponseEntity<BaseMessageResponse> success(
 			@RequestBody @NotNull(message = "{messages.validation.required}") OrderConfirmRequest orderConfirmRequest) {
@@ -121,6 +137,8 @@ public class OrderController {
 		}
 	}
 
+	/** Handles cancel. */
+	@Operation(summary = "Handles cancel", description = "Handles cancel API.")
 	@PutMapping("/cancel")
 	public ResponseEntity<BaseMessageResponse> cancel(
 			@RequestBody @NotNull(message = "{messages.validation.required}") OrderConfirmRequest orderConfirmRequest) {

@@ -1,6 +1,7 @@
 package vn.vti.clothing_shop.constants;
 
 public class Messages {
+	/** Creates Messages instance. */
 	private Messages() {
 		/* This utility class should not be instantiated */
 		throw new IllegalStateException();

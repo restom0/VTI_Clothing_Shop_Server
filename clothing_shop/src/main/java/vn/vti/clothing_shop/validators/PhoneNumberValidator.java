@@ -9,6 +9,7 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, St
 	private static final int MIN_PHONE_DIGITS = 9;
 	private static final int MAX_PHONE_DIGITS = 15;
 
+	/** Checks whether valid. */
 	@Override
 	public boolean isValid(String value, ConstraintValidatorContext context) {
 		if (value == null || !PHONE_NUMBER.matcher(value).matches()) {

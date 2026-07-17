@@ -42,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
 	private final MongoReadModelQueryService readModelQueryService;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets all orders. */
 	@Cacheable(value = "orders", key = "'all'")
 	@Override
 	public List<Order> getAllOrders() {
@@ -52,6 +53,7 @@ public class OrderServiceImpl implements OrderService {
 		return orderRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Gets all orders by user id. */
 	@Cacheable(value = "orders", key = "'user:' + #userId")
 	@Override
 	public List<Order> getAllOrdersByUserId(Long userId) {
@@ -62,6 +64,7 @@ public class OrderServiceImpl implements OrderService {
 		return orderRepository.findByDeletedAtIsNullAndUser_Id(userId);
 	}
 
+	/** Gets order by id and user id. */
 	@Cacheable(value = "orders", key = "'id:' + #id + ':user:' + #userId")
 	@Override
 	public Order getOrderByIdAndUserId(Long id, Long userId) throws WrapperException {
@@ -77,6 +80,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Adds order. */
 	@CacheEvict(value = "orders", allEntries = true)
 	@Transactional
 	@Override
@@ -93,6 +97,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Updates order. */
 	@Caching(evict = {
 			@CacheEvict(value = "orders", allEntries = true),
 			@CacheEvict(value = "vouchers", allEntries = true)
@@ -112,6 +117,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Handles adjust stock. */
 	private void adjustStock(Long id, Integer quantity) throws WrapperException {
 		try {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
@@ -130,6 +136,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Deletes order. */
 	@Caching(evict = {
 			@CacheEvict(value = "orders", allEntries = true),
 			@CacheEvict(value = "vouchers", allEntries = true)
@@ -150,6 +157,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Gets order by id and user id. */
 	@Cacheable(value = "orders", key = "'checkout:' + #orderCheckoutRequest.orderId() + ':user:' + #userId")
 	@Override
 	public Order getOrderByIdAndUserId(OrderCheckoutRequest orderCheckoutRequest, Long userId) throws WrapperException {
@@ -166,6 +174,7 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	/** Confirms order. */
 	@CacheEvict(value = "orders", allEntries = true)
 	@Transactional
 	@Override

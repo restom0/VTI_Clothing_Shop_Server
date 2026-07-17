@@ -38,6 +38,7 @@ public class CacheConfig {
 	@Value("${spring.data.redis.password:}")
 	private String redisPassword;
 
+	/** Handles cache configuration. */
 	@Bean
 	public RedisCacheConfiguration cacheConfiguration() {
 		return RedisCacheConfiguration.defaultCacheConfig()
@@ -47,6 +48,7 @@ public class CacheConfig {
 				                              new GenericJackson2JsonRedisSerializer(objectMapper)));
 	}
 
+	/** Handles jedis connection factory. */
 	@Bean
 	public JedisConnectionFactory jedisConnectionFactory() {
 		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
@@ -61,6 +63,7 @@ public class CacheConfig {
 		return new JedisConnectionFactory(config);
 	}
 
+	/** Handles redis util redis template. */
 	@Bean(name = "customRedisTemplate")
 	public RedisTemplate<Object, Object> redisUtilRedisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
@@ -73,6 +76,7 @@ public class CacheConfig {
 		return redisTemplate;
 	}
 
+	/** Handles redis template. */
 	@Bean
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, Object> template = new RedisTemplate<>();

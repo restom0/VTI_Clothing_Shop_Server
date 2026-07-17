@@ -18,6 +18,7 @@ import java.io.IOException;
 public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 	private final OAuth2LoginProperties properties;
 
+	/** Handles authentication failure. */
 	@Override
 	public void onAuthenticationFailure(
 			HttpServletRequest request,
@@ -27,6 +28,7 @@ public class OAuth2LoginFailureHandler implements AuthenticationFailureHandler {
 		redirectFailure(response, exception.getMessage());
 	}
 
+	/** Redirects failure. */
 	public void redirectFailure(HttpServletResponse response, String error) throws IOException {
 		String redirectUrl = UriComponentsBuilder
 				.fromUriString(properties.getLogin().getFailureRedirectUrl())

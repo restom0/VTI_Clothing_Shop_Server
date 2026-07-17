@@ -42,18 +42,21 @@ public class OrderItemServiceImpl implements OrderItemService {
 	private final ImportedProductRepository importedProductRepository;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets all order items. */
 	@Cacheable(value = "orderItems", key = "'all'")
 	@Override
 	public List<OrderItem> getAllOrderItems() {
 		return orderItemRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Gets all order items by order id. */
 	@Cacheable(value = "orderItems", key = "'order:' + #orderId")
 	@Override
 	public List<OrderItem> getAllOrderItemsByOrderId(Long orderId) {
 		return orderItemRepository.findByDeletedAtIsNullAndOrder_Id(orderId);
 	}
 
+	/** Finds order item by id and order id. */
 	@Cacheable(value = "orderItems", key = "'id:' + #id + ':order:' + #orderId")
 	@Override
 	public OrderItem findOrderItemByIdAndOrderId(Long id, Long orderId) throws WrapperException {
@@ -65,6 +68,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		}
 	}
 
+	/** Adds order item. */
 	@Caching(evict = {
 			@CacheEvict(value = "orderItems", allEntries = true),
 			@CacheEvict(value = "orders", allEntries = true)
@@ -99,6 +103,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		}
 	}
 
+	/** Finds stock products. */
 	private List<ImportedProduct> findStockProducts(OnSaleProduct onSaleProduct) {
 		return importedProductRepository.findByDeletedAtIsNullAndStockGreaterThanAndIdOrderByCreatedAtAsc(
 				NumberUtils.INTEGER_ZERO,
@@ -106,10 +111,12 @@ public class OrderItemServiceImpl implements OrderItemService {
 		);
 	}
 
+	/** Handles calc sum products. */
 	private Long calcSumProducts(List<ImportedProduct> products) {
 		return products.stream().mapToLong(ImportedProduct::getStock).sum();
 	}
 
+	/** Handles reserve stock. */
 	private void reserveStock(List<ImportedProduct> products, Integer quantity) {
 		int remainingQuantity = quantity;
 		for (ImportedProduct product : products) {
@@ -123,6 +130,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		importedProductRepository.saveAll(products);
 	}
 
+	/** Handles calculate line total. */
 	private Long calculateLineTotal(Integer quantity, OnSaleProduct onSaleProduct) {
 		double discount = onSaleProduct.getInputSale() == null || onSaleProduct.getInputSale().getDiscount() == null
 		                  ? 0
@@ -130,6 +138,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		return Math.round(quantity * onSaleProduct.getSalePrice() * (1 - discount / 100.0));
 	}
 
+	/** Updates order item. */
 	@Caching(evict = {
 			@CacheEvict(value = "orderItems", allEntries = true),
 			@CacheEvict(value = "orders", allEntries = true)
@@ -180,6 +189,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		}
 	}
 
+	/** Handles refund stock. */
 	private void refundStock(OrderItem orderItem, Integer quantity) {
 		ImportedProduct importedProduct = orderItem.getProduct().getProduct();
 		int stockAfterRefund = Math.min(importedProduct.getImportNumber(), importedProduct.getStock() + quantity);
@@ -187,6 +197,7 @@ public class OrderItemServiceImpl implements OrderItemService {
 		importedProductRepository.save(importedProduct);
 	}
 
+	/** Deletes order item. */
 	@Caching(evict = {
 			@CacheEvict(value = "orderItems", allEntries = true),
 			@CacheEvict(value = "orders", allEntries = true)

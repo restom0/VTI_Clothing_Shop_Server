@@ -13,10 +13,12 @@ import org.springframework.stereotype.Component;
 public class LoggingConfig {
 	private static final Logger LOGGER = LoggerFactory.getLogger(LoggingConfig.class);
 
+	/** Handles application layer. */
 	@Pointcut("within(vn.vti.clothing_shop.controllers..*) || within(vn.vti.clothing_shop.services..*) || within(vn.vti.clothing_shop.repositories..*)")
 	public void applicationLayer() {
 	}
 
+	/** Handles log unchecked exception. */
 	@AfterThrowing(pointcut = "applicationLayer()", throwing = "exception")
 	public void logUncheckedException(JoinPoint joinPoint, RuntimeException exception) {
 		LOGGER.error("Unchecked exception at {}: {}", joinPoint.getSignature().toShortString(), exception.getMessage(),

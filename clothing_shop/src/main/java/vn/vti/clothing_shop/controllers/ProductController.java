@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,12 +32,16 @@ public class ProductController {
 	private final ProductService productService;
 	private final ProductMapper productMapper;
 
+	/** Gets all products. */
+	@Operation(summary = "Gets all products", description = "Gets all products API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllProducts() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, "messages.products.listFetched",
 		                                      productMapper.entityListToDTOList(productService.getAllProducts()));
 	}
 
+	/** Adds product. */
+	@Operation(summary = "Adds product", description = "Adds product API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest) {
 		try {
@@ -46,6 +52,8 @@ public class ProductController {
 		}
 	}
 
+	/** Updates product. */
+	@Operation(summary = "Updates product", description = "Updates product API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateProduct(@RequestBody @Valid ProductUpdateRequest productUpdateRequest,
 	                                                         @PathVariable @NotNull(message = "{messages.validation.required}")
@@ -58,6 +66,8 @@ public class ProductController {
 		}
 	}
 
+	/** Deletes product. */
+	@Operation(summary = "Deletes product", description = "Deletes product API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteProduct(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
@@ -69,6 +79,8 @@ public class ProductController {
 		}
 	}
 
+	/** Gets product by id. */
+	@Operation(summary = "Gets product by id", description = "Gets product by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getProductById(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {

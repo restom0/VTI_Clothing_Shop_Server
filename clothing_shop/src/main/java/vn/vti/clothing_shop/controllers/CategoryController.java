@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -34,6 +36,8 @@ public class CategoryController {
 	private final CategoryService categoryService;
 	private final CategoryMapper categoryMapper;
 
+	/** Gets all categories. */
+	@Operation(summary = "Gets all categories", description = "Gets all categories API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllCategories() {
 		List<CategoryDTO> categories = categoryService.getAllCategories()
@@ -42,6 +46,8 @@ public class CategoryController {
 		return ResponseHandler.successBuilder(HttpStatus.OK, categories);
 	}
 
+	/** Adds category. */
+	@Operation(summary = "Adds category", description = "Adds category API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addCategory(@RequestBody @Valid CategoryCreateRequest categoryCreateRequest) {
 		try {
@@ -52,6 +58,8 @@ public class CategoryController {
 		}
 	}
 
+	/** Updates category. */
+	@Operation(summary = "Updates category", description = "Updates category API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateCategory(@RequestBody @Valid CategoryUpdateRequest categoryUpdateRequest,
 	                                                          @PathVariable @NotNull(message = "{messages.validation.required}")
@@ -64,6 +72,8 @@ public class CategoryController {
 		}
 	}
 
+	/** Deletes category. */
+	@Operation(summary = "Deletes category", description = "Deletes category API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteCategory(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
@@ -75,6 +85,8 @@ public class CategoryController {
 		}
 	}
 
+	/** Gets category by id. */
+	@Operation(summary = "Gets category by id", description = "Gets category by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getCategoryById(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {

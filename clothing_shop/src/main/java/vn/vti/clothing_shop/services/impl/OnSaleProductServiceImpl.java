@@ -17,12 +17,14 @@ public class OnSaleProductServiceImpl implements OnSaleProductService {
 
 	private final OnSaleProductRepository onSaleProductRepository;
 
+	/** Gets all on sale products. */
 	@Cacheable(value = "onSaleProducts", key = "'all'")
 	@Override
 	public List<OnSaleProduct> getAllOnSaleProducts() {
 		return onSaleProductRepository.findDistinctByDeletedAtIsNull();
 	}
 
+	/** Gets on sale product by id. */
 	@Override
 	@Cacheable(value = "onSaleProducts", key = "'product:' + #id")
 	public List<OnSaleProduct> getOnSaleProductById(Long id) {

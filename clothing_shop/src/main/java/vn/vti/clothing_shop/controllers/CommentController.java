@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,8 @@ public class CommentController {
 	private final CommentService commentService;
 	private final CommentMapper commentMapper;
 
+	/** Gets all comment. */
+	@Operation(summary = "Gets all comment", description = "Gets all comment API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllComment() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, commentService.getAllComments().stream()
@@ -40,6 +44,8 @@ public class CommentController {
 		                                                                   .toList());
 	}
 
+	/** Gets comment. */
+	@Operation(summary = "Gets comment", description = "Gets comment API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getComment(@PathVariable Long id) {
 		return ResponseHandler.successBuilder(HttpStatus.OK, commentService.getCommentByProductId(id).stream()
@@ -47,6 +53,8 @@ public class CommentController {
 		                                                                   .toList());
 	}
 
+	/** Adds comment. */
+	@Operation(summary = "Adds comment", description = "Adds comment API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addComment(@RequestBody @Valid CommentCreateRequest commentCreateRequest) {
 		try {
@@ -61,6 +69,8 @@ public class CommentController {
 		}
 	}
 
+	/** Updates comment. */
+	@Operation(summary = "Updates comment", description = "Updates comment API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateComment(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id,
@@ -76,6 +86,8 @@ public class CommentController {
 		}
 	}
 
+	/** Deletes comment. */
+	@Operation(summary = "Deletes comment", description = "Deletes comment API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteComment(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {

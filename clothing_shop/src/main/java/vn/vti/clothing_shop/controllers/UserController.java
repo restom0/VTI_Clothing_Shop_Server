@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -38,6 +40,8 @@ public class UserController {
 	private final UserService userService;
 	private final UserMapper userMapper;
 
+	/** Logs in user. */
+	@Operation(summary = "Logs in user", description = "Logs in user API.")
 	@PostMapping("/login")
 	public ResponseEntity<BaseMessageResponse> loginUser(@RequestBody @Valid UserLoginRequest userLoginRequest) {
 		try {
@@ -48,6 +52,8 @@ public class UserController {
 		}
 	}
 
+	/** Registers user. */
+	@Operation(summary = "Registers user", description = "Registers user API.")
 	@PostMapping("/register")
 	public ResponseEntity<BaseMessageResponse> registerUser(@RequestBody @Valid UserCreateRequest userCreateRequest) {
 		try {
@@ -58,6 +64,8 @@ public class UserController {
 		}
 	}
 
+	/** Gets user by id. */
+	@Operation(summary = "Gets user by id", description = "Gets user by id API.")
 	@GetMapping("/profile")
 	public ResponseEntity<BaseMessageResponse> getUserById() {
 		try {
@@ -71,11 +79,15 @@ public class UserController {
 		}
 	}
 
+	/** Gets all users. */
+	@Operation(summary = "Gets all users", description = "Gets all users API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllUsers() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, userMapper.listEntityToDTO(userService.getUsers()));
 	}
 
+	/** Updates user. */
+	@Operation(summary = "Updates user", description = "Updates user API.")
 	@PutMapping
 	public ResponseEntity<BaseMessageResponse> updateUser(@RequestBody @Valid UserUpdateRequest userUpdateRequest) {
 		try {
@@ -89,6 +101,8 @@ public class UserController {
 		}
 	}
 
+	/** Updates password. */
+	@Operation(summary = "Updates password", description = "Updates password API.")
 	@PutMapping("/password")
 	public ResponseEntity<BaseMessageResponse> updatePassword(@RequestBody @Valid UserUpdatePasswordRequest userUpdateRequest) {
 		try {
@@ -102,6 +116,8 @@ public class UserController {
 		}
 	}
 
+	/** Deletes user. */
+	@Operation(summary = "Deletes user", description = "Deletes user API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteUser(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
@@ -113,6 +129,8 @@ public class UserController {
 		}
 	}
 
+	/** Deletes account. */
+	@Operation(summary = "Deletes account", description = "Deletes account API.")
 	@DeleteMapping
 	public ResponseEntity<BaseMessageResponse> deleteAccount() {
 		try {

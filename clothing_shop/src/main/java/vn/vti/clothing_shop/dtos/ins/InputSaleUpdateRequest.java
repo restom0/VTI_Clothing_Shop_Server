@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 
 import java.time.LocalDate;
 
+/** Creates InputSaleUpdateRequest instance. */
 public record InputSaleUpdateRequest(
 
 		@NotNull(message = "{messages.validation.required}")

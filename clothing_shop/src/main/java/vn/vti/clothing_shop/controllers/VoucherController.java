@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,12 +32,16 @@ public class VoucherController {
 	private final VoucherService voucherService;
 	private final VoucherMapper voucherMapper;
 
+	/** Gets all vouchers. */
+	@Operation(summary = "Gets all vouchers", description = "Gets all vouchers API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllVouchers() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, voucherMapper.listEntityToDTO(voucherService.getAllVouchers()));
 
 	}
 
+	/** Gets voucher by id. */
+	@Operation(summary = "Gets voucher by id", description = "Gets voucher by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getVoucherById(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {
@@ -46,6 +52,8 @@ public class VoucherController {
 		}
 	}
 
+	/** Gets voucher by code. */
+	@Operation(summary = "Gets voucher by code", description = "Gets voucher by code API.")
 	@GetMapping("/code/{code}")
 	public ResponseEntity<BaseMessageResponse> getVoucherByCode(
 			@PathVariable @Valid @NotNull(message = "{messages.validation.required}") String code) {
@@ -57,12 +65,16 @@ public class VoucherController {
 		}
 	}
 
+	/** Gets all available vouchers. */
+	@Operation(summary = "Gets all available vouchers", description = "Gets all available vouchers API.")
 	@GetMapping("/available")
 	public ResponseEntity<BaseMessageResponse> getAllAvailableVouchers() {
 		return ResponseHandler.successBuilder(HttpStatus.OK,
 		                                      voucherMapper.listEntityToDTO(voucherService.getAllAvailableVouchers()));
 	}
 
+	/** Creates voucher. */
+	@Operation(summary = "Creates voucher", description = "Creates voucher API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> createVoucher(
 			@RequestBody @NotNull(message = "{messages.validation.required}") VoucherCreateRequest voucherCreateRequest) {
@@ -74,6 +86,8 @@ public class VoucherController {
 		}
 	}
 
+	/** Updates voucher. */
+	@Operation(summary = "Updates voucher", description = "Updates voucher API.")
 	@PutMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateVoucher(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id,
@@ -86,6 +100,8 @@ public class VoucherController {
 		}
 	}
 
+	/** Deletes voucher. */
+	@Operation(summary = "Deletes voucher", description = "Deletes voucher API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteVoucher(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id) {

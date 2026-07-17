@@ -28,6 +28,7 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 	private Server server;
 	private boolean running;
 
+	/** Starts value. */
 	@Override
 	public void start() {
 		if (running) {
@@ -45,12 +46,14 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 		}
 	}
 
+	/** Stops value. */
 	@Override
 	public void stop(Runnable callback) {
 		stop();
 		callback.run();
 	}
 
+	/** Stops value. */
 	@Override
 	public void stop() {
 		if (server != null) {
@@ -59,16 +62,19 @@ public class GrpcServerLifecycle implements SmartLifecycle {
 		running = false;
 	}
 
+	/** Checks whether running. */
 	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	/** Checks whether auto startup. */
 	@Override
 	public boolean isAutoStartup() {
 		return true;
 	}
 
+	/** Gets phase. */
 	@Override
 	public int getPhase() {
 		return Integer.MAX_VALUE;

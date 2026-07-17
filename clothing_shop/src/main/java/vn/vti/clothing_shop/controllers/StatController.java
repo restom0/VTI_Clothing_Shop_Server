@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,8 @@ import java.util.Map;
 public class StatController {
 	private final StatService statService;
 
+	/** Gets statistical analysis. */
+	@Operation(summary = "Gets statistical analysis", description = "Gets statistical analysis API.")
 	@GetMapping("/analysis")
 	public ResponseEntity<BaseMessageResponse> getStatisticalAnalysis() {
 		Map<String, Object> response = new HashMap<>();

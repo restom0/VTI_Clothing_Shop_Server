@@ -15,14 +15,19 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
+	/** Maps to DTO. */
 	UserDTO entityToDTO(User user);
 
+	/** Handles list entity to DTO. */
 	List<UserDTO> listEntityToDTO(List<User> users);
 
+	/** Creates request to entity. */
 	User createRequestToEntity(UserCreateRequest userCreateRequest, UserRole role);
 
+	/** Updates request to entity. */
 	User updateRequestToEntity(UserUpdateRequest userUpdateRequest, @MappingTarget User user);
 
+	/** Maps to login DTO. */
 	UserLoginDTO entityToLoginDTO(User user, String token);
 
 }

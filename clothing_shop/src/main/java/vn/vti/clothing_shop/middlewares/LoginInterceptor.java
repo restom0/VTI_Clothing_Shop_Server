@@ -38,6 +38,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 	private final JwtService jwtService;
 	private final ObjectMapper objectMapper;
 
+	/** Runs handle. */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		if (HttpMethod.OPTIONS.matches(request.getMethod())) {
@@ -62,11 +63,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 		}
 	}
 
+	/** Runs completion. */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 		SecurityContextHolder.clearContext();
 	}
 
+	/** Handles authenticate. */
 	private User authenticate(HttpServletRequest request) throws UnauthorizeException {
 		String authHeader = request.getHeader("Authorization");
 		if (authHeader == null || !authHeader.startsWith(BEARER_PREFIX)) {
@@ -97,6 +100,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		return user;
 	}
 
+	/** Handles requires authentication. */
 	private boolean requiresAuthentication(HttpServletRequest request, String path) {
 		if (requiresAdmin(path)) {
 			return true;
@@ -124,10 +128,12 @@ public class LoginInterceptor implements HandlerInterceptor {
 		);
 	}
 
+	/** Handles requires admin. */
 	private boolean requiresAdmin(String path) {
 		return startsWithAny(path, "/audit", "/log");
 	}
 
+	/** Checks whether write request. */
 	private boolean isWriteRequest(HttpServletRequest request) {
 		return HttpMethod.POST.matches(request.getMethod())
 				|| HttpMethod.PUT.matches(request.getMethod())
@@ -135,6 +141,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 				|| HttpMethod.DELETE.matches(request.getMethod());
 	}
 
+	/** Handles starts with any. */
 	private boolean startsWithAny(String path, String... prefixes) {
 		for (String prefix : prefixes) {
 			if (path.equals(prefix) || path.startsWith(prefix + "/")) {
@@ -144,6 +151,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		return false;
 	}
 
+	/** Handles normalized path. */
 	private String normalizedPath(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		String path = request.getRequestURI();
@@ -159,6 +167,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 		return path.toLowerCase(Locale.ROOT);
 	}
 
+	/** Handles write error. */
 	private void writeError(HttpServletResponse response, Locale locale, HttpStatus status, String message) throws IOException {
 		response.setStatus(status.value());
 		response.setContentType("application/json");

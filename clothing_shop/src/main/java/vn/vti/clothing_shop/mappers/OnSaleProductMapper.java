@@ -13,11 +13,14 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface OnSaleProductMapper {
 
+	/** Maps to DTO. */
 	@Mapping(target = "discount", source = "inputSale.discount")
 	OnSaleProductDTO entityToDTO(OnSaleProduct onSaleProduct);
 
+	/** Maps to DTO. */
 	List<OnSaleProductDTO> entityToDTO(List<OnSaleProduct> onSaleProducts);
 
+	/** Handles import product and input sale to on sale product. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "product", source = "importedProduct")
 	@Mapping(target = "inputSale", source = "inputSale")

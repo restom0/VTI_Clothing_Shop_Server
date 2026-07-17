@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import vn.vti.clothing_shop.validators.PhoneNumber;
 
+/** Creates OrderCreateRequest instance. */
 public record OrderCreateRequest(
 		@NotBlank(message = "{messages.validation.required}")
 		@Size(max = 255, message = "{messages.validation.max255}")

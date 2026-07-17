@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,6 +35,8 @@ public class BrandController {
 	private final BrandService brandService;
 	private final BrandMapper brandMapper;
 
+	/** Gets brands. */
+	@Operation(summary = "Gets brands", description = "Gets brands API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getBrands() {
 		final List<BrandDTO> brands = brandService.getBrands().stream()
@@ -44,6 +48,8 @@ public class BrandController {
 		);
 	}
 
+	/** Adds brand. */
+	@Operation(summary = "Adds brand", description = "Adds brand API.")
 	@PostMapping("/brand")
 	public ResponseEntity<BaseMessageResponse> addBrand(@RequestBody @Valid BrandCreateRequest brandCreateRequest) {
 		try {
@@ -58,6 +64,8 @@ public class BrandController {
 		}
 	}
 
+	/** Updates brand. */
+	@Operation(summary = "Updates brand", description = "Updates brand API.")
 	@PatchMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> updateBrand(@RequestBody @Valid BrandUpdateRequest brandUpdateRequest,
 	                                                       @PathVariable @NotNull(message = "{messages.validation.required}")
@@ -73,6 +81,8 @@ public class BrandController {
 		}
 	}
 
+	/** Deletes brand. */
+	@Operation(summary = "Deletes brand", description = "Deletes brand API.")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteBrand(
 			@PathVariable @Valid @NotNull(message = "{messages.validation.required}") Long id) {
@@ -87,6 +97,8 @@ public class BrandController {
 		}
 	}
 
+	/** Gets brand by id. */
+	@Operation(summary = "Gets brand by id", description = "Gets brand by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getBrandById(
 			@PathVariable @Valid @NotNull(message = "{messages.validation.required}") Long id) {

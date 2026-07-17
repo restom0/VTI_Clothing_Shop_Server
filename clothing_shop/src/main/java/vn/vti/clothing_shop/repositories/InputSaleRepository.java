@@ -9,7 +9,9 @@ import java.util.List;
 
 @Repository
 public interface InputSaleRepository extends JpaRepository<InputSale, Long> {
+	/** Finds by deleted at is null order by id desc. */
 	List<InputSale> findByDeletedAtIsNullOrderByIdDesc();
 
+	/** Finds by deleted at is null. */
 	List<InputSale> findByDeletedAtIsNull();
 }

@@ -22,6 +22,7 @@ public class MongoReadModelQueryService {
 	private final ReadModelRepository readModelRepository;
 	private final ObjectMapper objectMapper;
 
+	/** Finds all. */
 	public <T> List<T> findAll(ReadModelType modelType, Class<T> targetType) {
 		try {
 			return readModelRepository.findByModelAndDeletedFalseOrderBySortValueDesc(modelType.name())
@@ -35,6 +36,7 @@ public class MongoReadModelQueryService {
 		}
 	}
 
+	/** Converts payload. */
 	private <T> Optional<T> toPayload(ReadModelDocument document, Class<T> targetType) {
 		try {
 			return Optional.ofNullable(objectMapper.convertValue(document.getPayload(), targetType));
@@ -45,6 +47,7 @@ public class MongoReadModelQueryService {
 		}
 	}
 
+	/** Finds by owner. */
 	public <T> List<T> findByOwner(ReadModelType modelType, Long ownerId, Class<T> targetType) {
 		try {
 			return readModelRepository.findByModelAndOwnerIdAndDeletedFalseOrderBySortValueDesc(modelType.name(), ownerId)
@@ -58,6 +61,7 @@ public class MongoReadModelQueryService {
 		}
 	}
 
+	/** Finds by id. */
 	public <T> Optional<T> findById(ReadModelType modelType, Long id, Class<T> targetType) {
 		try {
 			return readModelRepository.findByModelAndEntityIdAndDeletedFalse(modelType.name(), id)
@@ -68,6 +72,7 @@ public class MongoReadModelQueryService {
 		}
 	}
 
+	/** Finds by id and owner. */
 	public <T> Optional<T> findByIdAndOwner(ReadModelType modelType, Long id, Long ownerId, Class<T> targetType) {
 		try {
 			return readModelRepository.findByModelAndEntityIdAndOwnerIdAndDeletedFalse(modelType.name(), id, ownerId)
@@ -78,6 +83,7 @@ public class MongoReadModelQueryService {
 		}
 	}
 
+	/** Finds by lookup key. */
 	public <T> Optional<T> findByLookupKey(ReadModelType modelType, String lookupKey, Class<T> targetType) {
 		try {
 			return readModelRepository.findByModelAndLookupKeyAndDeletedFalse(modelType.name(), lookupKey)

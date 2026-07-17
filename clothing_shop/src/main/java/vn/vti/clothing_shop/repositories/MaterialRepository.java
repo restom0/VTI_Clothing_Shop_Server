@@ -11,10 +11,13 @@ import java.util.Optional;
 @Repository
 public interface MaterialRepository extends JpaRepository<Material, Long> {
 
+	/** Finds by deleted at is null. */
 	List<Material> findByDeletedAtIsNull();
 
+	/** Finds by deleted at is null and name. */
 	Optional<Material> findByDeletedAtIsNullAndName(String name);
 
+	/** Finds by category id and deleted at is null. */
 	Optional<Material> findByCategory_IdAndDeletedAtIsNull(Long id);
 
 }

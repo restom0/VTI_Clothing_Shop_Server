@@ -26,19 +26,23 @@ public class JwtService {
 	@Value("${security.jwt.expiration-time}")
 	private long jwtExpiration;
 
+	/** Extracts id. */
 	public String extractId(String token) {
 		return extractClaim(token, Claims::getSubject);
 	}
 
+	/** Extracts claim. */
 	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
 		final Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
 	}
 
+	/** Generates salt. */
 	public String generateSalt(String id) {
 		return buildSalt(id);
 	}
 
+	/** Builds salt. */
 	public String buildSalt(String id) {
 		Instant now = Instant.now();
 		return Jwts
@@ -50,19 +54,23 @@ public class JwtService {
 				.compact();
 	}
 
+	/** Gets expiration time. */
 	public long getExpirationTime() {
 		return jwtExpiration;
 	}
 
+	/** Gets sign in key. */
 	private SecretKey getSignInKey() {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
 
+	/** Generates token. */
 	public String generateToken(User user) {
 		return buildToken(user);
 	}
 
+	/** Builds token. */
 	public String buildToken(User user) {
 		Instant now = Instant.now();
 		Map<String, Object> claims = new HashMap<>();
@@ -77,24 +85,29 @@ public class JwtService {
 				.compact();
 	}
 
+	/** Checks whether token valid. */
 	public boolean isTokenValid(String token, User user) {
 		final String id = extractId(token);
 		return (id.equals(String.valueOf(user.getId()))) && !isTokenExpired(token);
 	}
 
+	/** Checks whether token expired. */
 	public boolean isTokenExpired(String token) {
 		return extractExpiration(token).isBefore(Instant.now());
 	}
 
+	/** Extracts expiration. */
 	private Instant extractExpiration(String token) {
 		return extractClaim(token, Claims::getExpiration).toInstant();
 	}
 
+	/** Converts JWT date. */
 	@SuppressWarnings({ "java:S2143", "squid:S2143" })
 	private Date toJwtDate(Instant instant) {
 		return Date.from(instant); // NOSONAR - JJWT builder requires java.util.Date.
 	}
 
+	/** Extracts all claims. */
 	private Claims extractAllClaims(String token) {
 		return Jwts
 				.parser()

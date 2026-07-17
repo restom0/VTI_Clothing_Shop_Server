@@ -13,10 +13,12 @@ public enum PaymentMethod {
 
 	private final String value;
 
+	/** Creates PaymentMethod instance. */
 	PaymentMethod(String value) {
 		this.value = value;
 	}
 
+	/** Converts value. */
 	@JsonCreator
 	public static PaymentMethod fromValue(String value) {
 		if (value == null) {
@@ -30,6 +32,7 @@ public enum PaymentMethod {
 		throw new IllegalArgumentException("Unknown payment method: " + value);
 	}
 
+	/** Gets value. */
 	@JsonValue
 	public String getValue() {
 		return value;

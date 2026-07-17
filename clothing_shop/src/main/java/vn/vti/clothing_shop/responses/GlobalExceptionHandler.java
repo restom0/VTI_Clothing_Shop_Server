@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 public class GlobalExceptionHandler {
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+	/** Handles validation exceptions. */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<BaseMessageResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
 		String errors = ex.getBindingResult().getFieldErrors().stream()
@@ -39,10 +40,12 @@ public class GlobalExceptionHandler {
 		return ResponseHandler.exceptionBuilder(errors, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles format field error. */
 	private String formatFieldError(FieldError error) {
 		return error.getField() + ": " + MessageResolver.resolve(error.getDefaultMessage());
 	}
 
+	/** Handles missing servlet request parameter exception. */
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public ResponseEntity<BaseMessageResponse> handleMissingServletRequestParameterException(
 			MissingServletRequestParameterException ex) {
@@ -50,6 +53,7 @@ public class GlobalExceptionHandler {
 		return ResponseHandler.exceptionBuilder(message, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles constraint violation exception. */
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<BaseMessageResponse> handleConstraintViolationException(ConstraintViolationException ex) {
 		String errors = ex.getConstraintViolations().stream()
@@ -58,6 +62,7 @@ public class GlobalExceptionHandler {
 		return ResponseHandler.exceptionBuilder(errors, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles handler method validation exception. */
 	@ExceptionHandler(HandlerMethodValidationException.class)
 	public ResponseEntity<BaseMessageResponse> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
 		String errors = Stream.concat(
@@ -73,18 +78,21 @@ public class GlobalExceptionHandler {
 		return ResponseHandler.exceptionBuilder(errors, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles HTTP message not readable exception. */
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<BaseMessageResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
 		final String message = MessageResolver.resolve("messages.request.malformedJson", ex.getMostSpecificCause().getMessage());
 		return ResponseHandler.exceptionBuilder(message, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles illegal argument exception. */
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<BaseMessageResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
 		final String message = MessageResolver.resolve("messages.request.invalidArgument", ex.getMessage());
 		return ResponseHandler.exceptionBuilder(message, HttpStatus.BAD_REQUEST);
 	}
 
+	/** Handles rate limit exceeded exception. */
 	@ExceptionHandler(RateLimitExceededException.class)
 	public ResponseEntity<BaseMessageResponse> handleRateLimitExceededException(RateLimitExceededException ex) {
 		RateLimitService.RateLimitDecision decision = ex.getDecision();
@@ -102,6 +110,7 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(response, headers, HttpStatus.TOO_MANY_REQUESTS);
 	}
 
+	/** Handles unchecked exception. */
 	@ExceptionHandler(RuntimeException.class)
 	public ResponseEntity<BaseMessageResponse> handleUncheckedException(RuntimeException ex) {
 		LOGGER.error("Unhandled unchecked exception", ex);

@@ -30,6 +30,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	private final OAuth2LoginFailureHandler failureHandler;
 	private final OAuth2LoginProperties properties;
 
+	/** Handles authentication success. */
 	@Override
 	public void onAuthenticationSuccess(
 			HttpServletRequest request,
@@ -50,6 +51,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		}
 	}
 
+	/** Builds URL. */
 	private String successUrl(UserLoginDTO login) {
 		String fragment = "token=" + encode(login.getToken())
 				+ "&name=" + encode(login.getName())
@@ -57,6 +59,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 		return properties.getLogin().getSuccessRedirectUrl() + "#" + fragment;
 	}
 
+	/** Encodes value. */
 	private String encode(String value) {
 		return UriUtils.encode(value == null ? "" : value, StandardCharsets.UTF_8);
 	}

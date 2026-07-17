@@ -46,6 +46,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 	private final SizeMapper sizeMapper;
 	private final MaterialMapper materialMapper;
 
+	/** Adds imported product. */
 	@Caching(evict = {
 			@CacheEvict(value = "importedProducts", allEntries = true),
 			@CacheEvict(value = "colors", allEntries = true),
@@ -99,6 +100,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
+	/** Deletes imported product. */
 	@CacheEvict(value = "importedProducts", allEntries = true)
 	@Transactional
 	@Override
@@ -113,6 +115,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
+	/** Updates imported product. */
 	@Caching(evict = {
 			@CacheEvict(value = "importedProducts", allEntries = true),
 			@CacheEvict(value = "colors", allEntries = true),
@@ -160,6 +163,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
+	/** Finds imported product by id. */
 	@Cacheable(value = "importedProducts", key = "'id:' + #id")
 	@Override
 	public ImportedProduct findImportedProductById(Long id) throws WrapperException {
@@ -172,6 +176,7 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		}
 	}
 
+	/** Gets imported product by filter. */
 	@Cacheable(value = "importedProducts", key = "'filter:' + #filter + ':id:' + #id")
 	@Override
 	public List<ImportedProduct> getImportedProductByFilter(Filter filter, Long id) {
@@ -192,24 +197,28 @@ public class ImportedProductServiceImpl implements ImportedProductService {
 		};
 	}
 
+	/** Gets all imported products. */
 	@Cacheable(value = "importedProducts", key = "'all'")
 	@Override
 	public List<ImportedProduct> getAllImportedProducts() {
 		return importedProductRepository.findAll();
 	}
 
+	/** Gets colors. */
 	@Cacheable(value = "colors", key = "'all'")
 	@Override
 	public List<Color> getColors() {
 		return colorRepository.findByDeletedAtIsNull();
 	}
 
+	/** Gets materials. */
 	@Cacheable(value = "materials", key = "'all'")
 	@Override
 	public List<Material> getMaterials() {
 		return materialRepository.findByDeletedAtIsNull();
 	}
 
+	/** Gets sizes. */
 	@Cacheable(value = "sizes", key = "'all'")
 	@Override
 	public List<Size> getSizes() {

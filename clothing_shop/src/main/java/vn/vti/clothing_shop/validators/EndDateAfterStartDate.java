@@ -14,9 +14,12 @@ import java.lang.annotation.Target;
 @Target({ ElementType.TYPE })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EndDateAfterStartDate {
+	/** Returns value. */
 	String message() default "{messages.validation.endDateAfterStart}";
 
+	/** Returns value. */
 	Class<?>[] groups() default {};
 
+	/** Returns value. */
 	Class<? extends Payload>[] payload() default {};
 }

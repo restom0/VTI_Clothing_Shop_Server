@@ -12,6 +12,7 @@ import java.time.ZoneId;
 @Configuration
 public class TimeZoneConfig {
 
+	/** Handles application clock. */
 	@Bean
 	public Clock applicationClock(@Value("${application.time-zone:UTC}") String timeZone) {
 		ZoneId zoneId = ZoneId.of(timeZone);

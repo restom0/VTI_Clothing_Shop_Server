@@ -34,6 +34,7 @@ public class ReadModuleGrpcService extends ReadModuleServiceGrpc.ReadModuleServi
 	private final MongoReadModelQueryService queryService;
 	private final ObjectMapper objectMapper;
 
+	/** Handles query. */
 	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void query(GrpcReadRequest request, StreamObserver<GrpcReadResponse> responseObserver) {
@@ -73,6 +74,7 @@ public class ReadModuleGrpcService extends ReadModuleServiceGrpc.ReadModuleServi
 		}
 	}
 
+	/** Handles target type for. */
 	private Class<?> targetTypeFor(ReadModelType modelType) {
 		return switch (modelType) {
 			case BRAND -> BrandDTO.class;
@@ -83,6 +85,7 @@ public class ReadModuleGrpcService extends ReadModuleServiceGrpc.ReadModuleServi
 		};
 	}
 
+	/** Converts json. */
 	private String toJson(Object value) {
 		try {
 			return objectMapper.writeValueAsString(value);

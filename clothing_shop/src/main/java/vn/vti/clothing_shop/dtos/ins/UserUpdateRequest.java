@@ -8,6 +8,7 @@ import vn.vti.clothing_shop.validators.PhoneNumber;
 
 import java.time.LocalDate;
 
+/** Creates UserUpdateRequest instance. */
 public record UserUpdateRequest(
 		@NotBlank(message = "{messages.validation.required}")
 		String name,

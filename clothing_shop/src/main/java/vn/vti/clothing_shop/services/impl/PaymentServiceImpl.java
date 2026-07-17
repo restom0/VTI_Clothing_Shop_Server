@@ -81,6 +81,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Value("${zalopay.app-user:clothing-shop}")
 	private String zaloPayAppUser;
 
+	/** Creates checkout. */
 	@Override
 	public PaymentCheckoutResponse createCheckout(OrderDTO orderDTO) throws WrapperException {
 		try {
@@ -104,6 +105,7 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
+	/** Creates manual checkout. */
 	private PaymentCheckoutResponse createManualCheckout(OrderDTO orderDTO, PaymentMethod paymentMethod) {
 		Map<String, Object> providerData = new LinkedHashMap<>();
 		providerData.put("manual", true);
@@ -121,6 +123,7 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
+	/** Creates pay os checkout. */
 	private PaymentCheckoutResponse createPayOsCheckout(OrderDTO orderDTO) throws PaymentGatewayException {
 		PaymentData paymentData = PaymentData.builder()
 		                                     .orderCode(orderDTO.getOrderCode())
@@ -144,6 +147,7 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
+	/** Creates pay os payment link. */
 	@SuppressWarnings("java:S2221")
 	private CheckoutResponseData createPayOsPaymentLink(PaymentData paymentData) throws PaymentGatewayException {
 		try {
@@ -153,6 +157,7 @@ public class PaymentServiceImpl implements PaymentService {
 		}
 	}
 
+	/** Creates stripe checkout. */
 	private PaymentCheckoutResponse createStripeCheckout(OrderDTO orderDTO)
 			throws IOException, InterruptedException, BadRequestException {
 		requireConfigured(stripeSecretKey);
@@ -184,6 +189,8 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
+	/** Creates zalo pay checkout. */
+	/** Creates zalo pay checkout. */
 	private PaymentCheckoutResponse createZaloPayCheckout(OrderDTO orderDTO)
 			throws IOException, InterruptedException, BadRequestException, GeneralSecurityException {
 		requireConfigured(zaloPayAppId);
@@ -236,6 +243,7 @@ public class PaymentServiceImpl implements PaymentService {
 		);
 	}
 
+	/** Builds pay os items. */
 	private List<ItemData> buildPayOsItems(OrderDTO orderDTO) {
 		return orderItems(orderDTO).stream()
 		                           .map(orderItem -> ItemData.builder()
@@ -246,6 +254,7 @@ public class PaymentServiceImpl implements PaymentService {
 		                           .toList();
 	}
 
+	/** Builds zalo pay items. */
 	private List<Map<String, Object>> buildZaloPayItems(OrderDTO orderDTO) {
 		return orderItems(orderDTO).stream()
 		                           .map(orderItem -> {
@@ -258,10 +267,12 @@ public class PaymentServiceImpl implements PaymentService {
 		                           .toList();
 	}
 
+	/** Handles order items. */
 	private List<OrderItemDTO> orderItems(OrderDTO orderDTO) {
 		return orderDTO.getOrderItems() == null ? List.of() : orderDTO.getOrderItems();
 	}
 
+	/** Resolves item name. */
 	private String resolveItemName(OrderItemDTO orderItemDTO) {
 		if (orderItemDTO == null
 				|| orderItemDTO.getProduct() == null
@@ -273,12 +284,14 @@ public class PaymentServiceImpl implements PaymentService {
 		return orderItemDTO.getProduct().getProduct().getProduct().getName();
 	}
 
+	/** Resolves item quantity. */
 	private Integer resolveItemQuantity(OrderItemDTO orderItemDTO) {
 		return orderItemDTO == null || orderItemDTO.getQuantity() == null || orderItemDTO.getQuantity() <= 0
 		       ? 1
 		       : orderItemDTO.getQuantity();
 	}
 
+	/** Resolves item price. */
 	private Integer resolveItemPrice(OrderDTO orderDTO, OrderItemDTO orderItemDTO) {
 		if (orderItemDTO != null && orderItemDTO.getProduct() != null && orderItemDTO.getProduct().getSalePrice() > 0) {
 			return Math.round(orderItemDTO.getProduct().getSalePrice());
@@ -290,6 +303,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return Math.toIntExact(totalPrice / resolveItemQuantity(orderItemDTO));
 	}
 
+	/** Handles post form. */
 	private Map<String, Object> postForm(String url, Map<String, String> form, String authorization)
 			throws IOException, InterruptedException, BadRequestException {
 		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
@@ -306,6 +320,7 @@ public class PaymentServiceImpl implements PaymentService {
 		});
 	}
 
+	/** Encodes form. */
 	private String encodeForm(Map<String, String> form) {
 		List<String> pairs = new ArrayList<>();
 		form.forEach((key, value) -> pairs.add(URLEncoder.encode(key, StandardCharsets.UTF_8)
@@ -314,6 +329,7 @@ public class PaymentServiceImpl implements PaymentService {
 		return String.join("&", pairs);
 	}
 
+	/** Handles HMAC SHA-256. */
 	private String hmacSha256(String key, String data) throws GeneralSecurityException {
 		Mac mac = Mac.getInstance("HmacSHA256");
 		mac.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
@@ -325,12 +341,14 @@ public class PaymentServiceImpl implements PaymentService {
 		return hex.toString();
 	}
 
+	/** Handles require configured. */
 	private void requireConfigured(String value) throws BadRequestException {
 		if (!StringUtils.hasText(value)) {
 			throw new BadRequestException("messages.payments.gatewayNotConfigured");
 		}
 	}
 
+	/** Handles as string. */
 	private String asString(Object value) {
 		return value == null ? null : String.valueOf(value);
 	}
@@ -338,6 +356,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private static final class PaymentGatewayException extends Exception {
 		private static final long serialVersionUID = 1L;
 
+		/** Handles payment gateway exception. */
 		private PaymentGatewayException(Throwable cause) {
 			super(cause);
 		}

@@ -9,6 +9,7 @@ import vn.vti.clothing_shop.constants.InputSaleFilter;
 
 import java.time.LocalDate;
 
+/** Creates InputSaleCreateRequest instance. */
 public record InputSaleCreateRequest(
 		@NotNull(message = "{messages.validation.required}")
 		InputSaleFilter filter,

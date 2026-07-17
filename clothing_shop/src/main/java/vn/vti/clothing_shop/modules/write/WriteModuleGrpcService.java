@@ -35,6 +35,7 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 	private final ObjectMapper objectMapper;
 	private final OrderMapper orderMapper;
 
+	/** Handles execute command. */
 	@Override
 	public void executeCommand(GrpcWriteCommandRequest request, StreamObserver<GrpcWriteCommandResponse> responseObserver) {
 		try {
@@ -53,10 +54,12 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 		}
 	}
 
+	/** Normalizes value. */
 	private String normalize(String value) {
 		return value == null ? "" : value.trim().toUpperCase(Locale.ROOT);
 	}
 
+	/** Handles order command. */
 	private GrpcWriteCommandResponse handleOrderCommand(GrpcWriteCommandRequest request) throws Exception {
 		String action = normalize(request.getAction());
 		JsonNode payload = payload(request.getPayloadJson());
@@ -66,11 +69,13 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 				                                        ? null
 				                                        : objectMapper.treeToValue(payload, OrderCreateRequest.class);
 				OrderDTO order = orderMapper.entityToDTO(orderService.addOrder(orderCreateRequest, request.getActorId()));
+				/** Builds value. */
 				yield success("messages.orders.created", objectMapper.writeValueAsString(order));
 			}
 			case "CONFIRM" -> {
 				OrderConfirmRequest confirmRequest = objectMapper.treeToValue(payload, OrderConfirmRequest.class);
 				Boolean confirmed = orderService.confirmOrder(confirmRequest, request.getActorId());
+				/** Builds value. */
 				yield success("messages.orders.updated", objectMapper.writeValueAsString(confirmed));
 			}
 			case "UPDATE" -> {
@@ -78,17 +83,20 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 				OrderUpdateRequest updateRequest = objectMapper.treeToValue(payload.required("request"),
 				                                                            OrderUpdateRequest.class);
 				orderService.updateOrder(id, updateRequest);
+				/** Builds value. */
 				yield success("messages.orders.updated", "{}");
 			}
 			case "DELETE" -> {
 				Long id = requiredLong(payload, "id");
 				orderService.deleteOrder(id);
+				/** Builds value. */
 				yield success("messages.orders.deleted", "{}");
 			}
 			default -> unsupported(request);
 		};
 	}
 
+	/** Handles read model command. */
 	private GrpcWriteCommandResponse handleReadModelCommand(GrpcWriteCommandRequest request) throws Exception {
 		JsonNode payload = payload(request.getPayloadJson());
 		ReadModelType modelType = ReadModelType.valueOf(payload.required("model").asText().toUpperCase(Locale.ROOT));
@@ -96,16 +104,19 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 		return switch (normalize(request.getAction())) {
 			case "SYNC" -> {
 				readModelSyncService.sync(modelType, entityId);
+				/** Builds value. */
 				yield success("messages.read.synced", "{}");
 			}
 			case "REMOVE" -> {
 				readModelSyncService.remove(modelType, entityId);
+				/** Builds value. */
 				yield success("messages.read.removed", "{}");
 			}
 			default -> unsupported(request);
 		};
 	}
 
+	/** Handles unsupported. */
 	private GrpcWriteCommandResponse unsupported(GrpcWriteCommandRequest request) {
 		return GrpcWriteCommandResponse.newBuilder()
 		                               .setSuccess(false)
@@ -113,6 +124,7 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 		                               .build();
 	}
 
+	/** Returns value. */
 	private JsonNode payload(String payloadJson) throws Exception {
 		if (payloadJson == null || payloadJson.isBlank()) {
 			return objectMapper.missingNode();
@@ -120,6 +132,7 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 		return objectMapper.readTree(payloadJson);
 	}
 
+	/** Builds value. */
 	private GrpcWriteCommandResponse success(String message, String resultJson) {
 		return GrpcWriteCommandResponse.newBuilder()
 		                               .setSuccess(true)
@@ -128,6 +141,7 @@ public class WriteModuleGrpcService extends WriteModuleServiceGrpc.WriteModuleSe
 		                               .build();
 	}
 
+	/** Handles required long. */
 	private Long requiredLong(JsonNode payload, String field) {
 		JsonNode node = payload.required(field);
 		if (!node.canConvertToLong()) {

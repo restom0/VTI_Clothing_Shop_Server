@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+/** Creates ProductUpdateRequest instance. */
 public record ProductUpdateRequest(
 		@NotBlank(message = "{messages.validation.required}")
 		String name,

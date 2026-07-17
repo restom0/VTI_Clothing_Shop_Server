@@ -6,6 +6,7 @@ public class BaseCheckedException extends Exception {
 	public final HttpStatus statusCode;
 	public final String message;
 
+	/** Creates BaseCheckedException instance. */
 	public BaseCheckedException(HttpStatus statusCode, String message) {
 		super(message);
 		this.statusCode = statusCode;

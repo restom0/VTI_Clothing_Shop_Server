@@ -31,6 +31,7 @@ public class VoucherServiceImpl implements VoucherService {
 	private final MongoReadModelQueryService readModelQueryService;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets all vouchers. */
 	@Cacheable(value = "vouchers", key = "'all'")
 	public List<Voucher> getAllVouchers() {
 		List<Voucher> mongoVouchers = readModelQueryService.findAll(ReadModelType.VOUCHER, Voucher.class);
@@ -40,6 +41,7 @@ public class VoucherServiceImpl implements VoucherService {
 		return voucherRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Gets all available vouchers. */
 	@Cacheable(value = "vouchers", key = "'available'")
 	public List<Voucher> getAllAvailableVouchers() {
 		Long now = TimeUtils.currentEpochMillis();
@@ -55,6 +57,7 @@ public class VoucherServiceImpl implements VoucherService {
 				0, now, now);
 	}
 
+	/** Finds voucher by id. */
 	@Cacheable(value = "vouchers", key = "'id:' + #id")
 	public Voucher findVoucherById(Long id) throws WrapperException {
 		try {
@@ -69,6 +72,7 @@ public class VoucherServiceImpl implements VoucherService {
 		}
 	}
 
+	/** Finds voucher by code. */
 	@Cacheable(value = "vouchers", key = "'code:' + #code")
 	public Voucher findVoucherByCode(String code) throws WrapperException {
 		try {
@@ -83,6 +87,7 @@ public class VoucherServiceImpl implements VoucherService {
 		}
 	}
 
+	/** Creates voucher. */
 	@CacheEvict(value = "vouchers", allEntries = true)
 	@Transactional
 	public void createVoucher(VoucherCreateRequest voucherCreateRequest) throws WrapperException {
@@ -97,6 +102,7 @@ public class VoucherServiceImpl implements VoucherService {
 		}
 	}
 
+	/** Updates voucher. */
 	@CacheEvict(value = "vouchers", allEntries = true)
 	@Transactional
 	public void updateVoucher(VoucherUpdateRequest voucherUpdateRequest, Long id) throws WrapperException {
@@ -110,6 +116,7 @@ public class VoucherServiceImpl implements VoucherService {
 		}
 	}
 
+	/** Deletes voucher. */
 	@CacheEvict(value = "vouchers", allEntries = true)
 	@Transactional
 	public void deleteVoucher(Long id) throws WrapperException {

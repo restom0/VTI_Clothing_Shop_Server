@@ -18,6 +18,7 @@ import java.util.Set;
 public class TimeIntervalInterceptor implements HandlerInterceptor {
 	private static final Set<String> SUPPORTED_LANGUAGE_CODES = Set.of("en", "es", "de", "fr", "ca", "it");
 
+	/** Runs handle. */
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
 		String languageCode = resolveLanguageCode(request);
@@ -29,12 +30,14 @@ public class TimeIntervalInterceptor implements HandlerInterceptor {
 		return true;
 	}
 
+	/** Runs completion. */
 	@Override
 	public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
 		TimeIntervalContext.clear();
 		LocaleContextHolder.resetLocaleContext();
 	}
 
+	/** Resolves language code. */
 	private String resolveLanguageCode(HttpServletRequest request) {
 		String explicitCode = firstNotBlank(
 				request.getParameter("languageCode"),
@@ -48,6 +51,7 @@ public class TimeIntervalInterceptor implements HandlerInterceptor {
 		return normalizeAcceptLanguage(request.getHeader("Accept-Language"));
 	}
 
+	/** Normalizes accept language. */
 	private String normalizeAcceptLanguage(String header) {
 		if (header == null || header.isBlank()) {
 			return null;
@@ -66,6 +70,7 @@ public class TimeIntervalInterceptor implements HandlerInterceptor {
 		return null;
 	}
 
+	/** Normalizes value. */
 	private String normalize(String languageCode) {
 		if (languageCode == null || languageCode.isBlank()) {
 			return null;
@@ -74,6 +79,7 @@ public class TimeIntervalInterceptor implements HandlerInterceptor {
 		return SUPPORTED_LANGUAGE_CODES.contains(primaryLanguage) ? primaryLanguage : "en";
 	}
 
+	/** Handles first not blank. */
 	private String firstNotBlank(String... values) {
 		for (String value : values) {
 			if (value != null && !value.isBlank()) {

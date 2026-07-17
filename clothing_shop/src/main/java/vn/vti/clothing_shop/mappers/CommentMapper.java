@@ -13,10 +13,12 @@ import vn.vti.clothing_shop.entities.User;
 
 @Mapper(componentModel = "spring", uses = { DateMapper.class, ProductMapper.class, UserMapper.class })
 public interface CommentMapper {
+	/** Maps to DTO. */
 	@Mapping(target = "userId", source = "user")
 	@Mapping(target = "productId", source = "product")
 	CommentDTO entityToDTO(Comment comment);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "user", source = "user")
 	@Mapping(target = "product", source = "product")
@@ -27,6 +29,7 @@ public interface CommentMapper {
 	@Mapping(target = "version", ignore = true)
 	Comment createRequestToEntity(CommentCreateRequest commentCreateRequest, User user, Product product);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "user", ignore = true)
 	@Mapping(target = "product", ignore = true)

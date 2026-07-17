@@ -7,6 +7,7 @@ public class RegularExpression {
 	public static final Pattern PHONE_NUMBER = Pattern.compile("\\+?[0-9 .()-]+");
 	public static final Pattern COLOR = Pattern.compile("^#[a-fA-F0-9]{6}$");
 
+	/** Creates RegularExpression instance. */
 	private RegularExpression() {
 		throw new IllegalStateException("Utility class");
 	}

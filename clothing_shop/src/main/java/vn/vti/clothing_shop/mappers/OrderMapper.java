@@ -14,8 +14,10 @@ import vn.vti.clothing_shop.entities.Voucher;
 @Mapper(componentModel = "spring",
         uses = { OrderItemMapper.class })
 public interface OrderMapper {
+	/** Maps to DTO. */
 	OrderDTO entityToDTO(Order order);
 
+	/** Creates request to entity. */
 	@Mapping(target = "address", source = "orderCreateRequest.address")
 	@Mapping(target = "phoneNumber", source = "orderCreateRequest.phoneNumber")
 	@Mapping(target = "id", ignore = true)
@@ -32,6 +34,7 @@ public interface OrderMapper {
 	@Mapping(target = "version", ignore = true)
 	Order createRequestToEntity(OrderCreateRequest orderCreateRequest, User user);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "user", ignore = true)
 	@Mapping(target = "voucher", source = "voucher")

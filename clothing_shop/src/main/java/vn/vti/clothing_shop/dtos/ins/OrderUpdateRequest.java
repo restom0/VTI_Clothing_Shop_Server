@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import vn.vti.clothing_shop.constants.PaymentMethod;
 import vn.vti.clothing_shop.validators.PhoneNumber;
 
+/** Creates OrderUpdateRequest instance. */
 public record OrderUpdateRequest(
 		@NotBlank(message = "{messages.validation.required}")
 

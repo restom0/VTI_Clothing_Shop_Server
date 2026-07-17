@@ -7,6 +7,7 @@ import vn.vti.clothing_shop.validators.EndDateAfterStartDate;
 
 import java.time.LocalDate;
 
+/** Creates VoucherCreateRequest instance. */
 @EndDateAfterStartDate
 public record VoucherCreateRequest(
 		@NotNull(message = "{messages.validation.required}")

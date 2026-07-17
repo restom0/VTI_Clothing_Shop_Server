@@ -12,8 +12,10 @@ import vn.vti.clothing_shop.entities.Material;
 
 @Mapper(componentModel = "spring", uses = CategoryMapper.class)
 public interface MaterialMapper {
+	/** Maps to DTO. */
 	MaterialDTO entityToDTO(Material material);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "importedProductCreateRequest.material")
 	@Mapping(target = "category", source = "category")
@@ -23,6 +25,7 @@ public interface MaterialMapper {
 	@Mapping(target = "version", ignore = true)
 	Material createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Category category);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "name", source = "importedProductUpdateRequest.material")
 	@Mapping(target = "category", source = "category")

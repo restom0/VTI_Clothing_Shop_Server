@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -21,12 +23,16 @@ public class OnSaleProductController {
 	private final OnSaleProductService onSaleProductService;
 	private final OnSaleProductMapper onSaleProductMapper;
 
+	/** Gets all on sale products. */
+	@Operation(summary = "Gets all on sale products", description = "Gets all on sale products API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllOnSaleProducts() {
 		return ResponseHandler.successBuilder(HttpStatus.OK,
 		                                      onSaleProductMapper.entityToDTO(onSaleProductService.getAllOnSaleProducts()));
 	}
 
+	/** Gets on sale product by id. */
+	@Operation(summary = "Gets on sale product by id", description = "Gets on sale product by id API.")
 	@GetMapping("/{id}")
 	public ResponseEntity<BaseMessageResponse> getOnSaleProductById(@PathVariable Long id) {
 		return ResponseHandler.successBuilder(HttpStatus.OK,

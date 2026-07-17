@@ -31,6 +31,7 @@ public class BrandServiceImpl implements BrandService {
 	private final MongoReadModelQueryService readModelQueryService;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets brands. */
 	@Cacheable(value = "brands", key = "'all'")
 	public List<Brand> getBrands() {
 		List<Brand> mongoBrands = readModelQueryService.findAll(ReadModelType.BRAND, Brand.class);
@@ -40,6 +41,7 @@ public class BrandServiceImpl implements BrandService {
 		return brandRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Creates brand. */
 	@CacheEvict(value = "brands", allEntries = true)
 	@Transactional
 	public Brand createBrand(BrandCreateRequest brandCreateRequest) throws WrapperException {
@@ -56,6 +58,7 @@ public class BrandServiceImpl implements BrandService {
 		}
 	}
 
+	/** Updates brand. */
 	@Caching(evict = {
 			@CacheEvict(value = "brands", allEntries = true),
 			@CacheEvict(value = "products", allEntries = true)
@@ -79,6 +82,7 @@ public class BrandServiceImpl implements BrandService {
 		}
 	}
 
+	/** Deletes brand. */
 	@Caching(evict = {
 			@CacheEvict(value = "brands", allEntries = true),
 			@CacheEvict(value = "products", allEntries = true)
@@ -98,6 +102,7 @@ public class BrandServiceImpl implements BrandService {
 		}
 	}
 
+	/** Finds brand by id. */
 	@Cacheable(value = "brands", key = "'id:' + #id")
 	@Override
 	public Brand findBrandById(Long id) throws WrapperException {
@@ -113,6 +118,7 @@ public class BrandServiceImpl implements BrandService {
 		}
 	}
 
+	/** Counts brand. */
 	@Override
 	public Long countBrand() {
 		return brandRepository.countByDeletedAtIsNull();

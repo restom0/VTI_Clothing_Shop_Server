@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import lombok.AllArgsConstructor;
 
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,8 @@ public class AuditController {
 	private final AuditService auditService;
 	private final AuditMapper auditMapper;
 
+	/** Gets all audits. */
+	@Operation(summary = "Gets all audits", description = "Gets all audits API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllAudits() {
 		return ResponseHandler.successBuilder(HttpStatus.OK, auditMapper.listEntityToDTO(auditService.getAllAudits()));

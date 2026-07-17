@@ -14,6 +14,7 @@ import org.springframework.data.redis.serializer.SerializationException;
 public class CustomRedisSerializer implements RedisSerializer<Object> {
 	private final ObjectMapper mapper;
 
+	/** Creates CustomRedisSerializer instance. */
 	public CustomRedisSerializer() {
 		mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
@@ -23,6 +24,7 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
 				JsonTypeInfo.As.PROPERTY);
 	}
 
+	/** Handles serialize. */
 	@Override
 	public byte[] serialize(Object object) throws SerializationException {
 		if (object == null) {
@@ -37,6 +39,7 @@ public class CustomRedisSerializer implements RedisSerializer<Object> {
 		return new byte[0];
 	}
 
+	/** Handles deserialize. */
 	@Override
 	public Object deserialize(byte[] bytes) throws SerializationException {
 		if (bytes == null || bytes.length == 0) {

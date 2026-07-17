@@ -1,5 +1,7 @@
 package vn.vti.clothing_shop.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -33,12 +35,16 @@ public class OrderItemController {
 	private final OrderItemServiceImpl orderItemService;
 	private final OrderItemMapper orderItemMapper;
 
+	/** Gets all order item. */
+	@Operation(summary = "Gets all order item", description = "Gets all order item API.")
 	@GetMapping
 	public ResponseEntity<BaseMessageResponse> getAllOrderItem() {
 		return ResponseHandler.successBuilder(HttpStatus.OK,
 		                                      orderItemMapper.listEntityToListDTO(orderItemService.getAllOrderItems()));
 	}
 
+	/** Gets all order items by order id. */
+	@Operation(summary = "Gets all order items by order id", description = "Gets all order items by order id API.")
 	@GetMapping("/{orderId}")
 	public ResponseEntity<BaseMessageResponse> getAllOrderItemsByOrderId(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId) {
@@ -46,6 +52,8 @@ public class OrderItemController {
 				orderItemService.getAllOrderItemsByOrderId(orderId)));
 	}
 
+	/** Gets order item by id and order id. */
+	@Operation(summary = "Gets order item by id and order id", description = "Gets order item by id and order id API.")
 	@GetMapping("/{orderId}/{id}")
 	public ResponseEntity<BaseMessageResponse> getOrderItemByIdAndOrderId(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long id,
@@ -58,6 +66,8 @@ public class OrderItemController {
 		}
 	}
 
+	/** Adds order item. */
+	@Operation(summary = "Adds order item", description = "Adds order item API.")
 	@PostMapping
 	public ResponseEntity<BaseMessageResponse> addOrderItem(
 			@RequestBody @Valid @NotNull(message = "{messages.validation.required}")
@@ -70,6 +80,8 @@ public class OrderItemController {
 		}
 	}
 
+	/** Updates order item. */
+	@Operation(summary = "Updates order item", description = "Updates order item API.")
 	@PutMapping("/{orderId}/{id}")
 	public ResponseEntity<BaseMessageResponse> updateOrderItem(@RequestBody @Valid OrderItemUpdateRequest orderItemUpdateRequest
 			, @PathVariable @NotNull(message = "{messages.validation.required}") Long orderId
@@ -85,6 +97,8 @@ public class OrderItemController {
 		}
 	}
 
+	/** Deletes order item. */
+	@Operation(summary = "Deletes order item", description = "Deletes order item API.")
 	@DeleteMapping("/{orderId}/{id}")
 	public ResponseEntity<BaseMessageResponse> deleteOrderItem(
 			@PathVariable @NotNull(message = "{messages.validation.required}") Long orderId,

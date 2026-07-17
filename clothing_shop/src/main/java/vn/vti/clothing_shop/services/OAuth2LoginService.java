@@ -33,6 +33,7 @@ public class OAuth2LoginService {
 	private final PasswordEncoder passwordEncoder;
 	private final JwtService jwtService;
 
+	/** Logs in service request. */
 	@Transactional
 	public UserLoginDTO login(String registrationId, Map<String, Object> attributes) {
 		SocialAuthProvider provider = SocialAuthProvider.fromRegistrationId(registrationId);
@@ -48,6 +49,7 @@ public class OAuth2LoginService {
 		return new UserLoginDTO(user.getAvatarUrl(), user.getName(), jwtService.generateToken(user), null);
 	}
 
+	/** Creates social account. */
 	private UserSocialAccount createSocialAccount(SocialAuthProvider provider, SocialProfile profile) {
 		User user = findExistingUserByEmail(profile.email());
 		if (user == null) {
@@ -61,6 +63,7 @@ public class OAuth2LoginService {
 		return socialAccount;
 	}
 
+	/** Finds existing user by email. */
 	private User findExistingUserByEmail(String email) {
 		if (email == null || email.isBlank()) {
 			return null;
@@ -68,6 +71,7 @@ public class OAuth2LoginService {
 		return userRepository.findByDeletedAtIsNullAndEmail(email).orElse(null);
 	}
 
+	/** Creates user. */
 	private User createUser(SocialAuthProvider provider, SocialProfile profile) {
 		User user = new User();
 		user.setName(firstNonBlank(profile.name(), provider.registrationId() + " user"));
@@ -82,6 +86,7 @@ public class OAuth2LoginService {
 		return userRepository.save(user);
 	}
 
+	/** Syncs user profile. */
 	private User syncUserProfile(User user, SocialProfile profile) {
 		boolean changed = false;
 		if ((user.getName() == null || user.getName().isBlank()) && hasText(profile.name())) {
@@ -99,6 +104,7 @@ public class OAuth2LoginService {
 		return changed ? userRepository.save(user) : user;
 	}
 
+	/** Syncs social account. */
 	private void syncSocialAccount(UserSocialAccount socialAccount, SocialProfile profile) {
 		socialAccount.setEmail(blankToNull(profile.email()));
 		socialAccount.setName(firstNonBlank(profile.name(), socialAccount.getName()));
@@ -106,6 +112,7 @@ public class OAuth2LoginService {
 		socialAccountRepository.save(socialAccount);
 	}
 
+	/** Handles unique username. */
 	private String uniqueUsername(SocialAuthProvider provider, SocialProfile profile) {
 		String seed = firstNonBlank(profile.username(), profile.email(), profile.providerUserId());
 		String base = sanitizeUsername(provider.registrationId() + "_" + seed);
@@ -118,6 +125,7 @@ public class OAuth2LoginService {
 		return username;
 	}
 
+	/** Handles unique placeholder phone. */
 	private String uniquePlaceholderPhone(SocialAuthProvider provider, String providerUserId) {
 		String base = "oauth-" + provider.registrationId() + "-" + shortHash(provider.registrationId() + ":" + providerUserId);
 		String phoneNumber = base;
@@ -129,6 +137,7 @@ public class OAuth2LoginService {
 		return phoneNumber;
 	}
 
+	/** Handles sanitize username. */
 	private String sanitizeUsername(String value) {
 		String sanitized = value.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_]", "_");
 		sanitized = sanitized.replaceAll("_+", "_").replaceAll("(^_)|(_$)", "");
@@ -138,6 +147,7 @@ public class OAuth2LoginService {
 		return sanitized.length() <= 80 ? sanitized : sanitized.substring(0, 80);
 	}
 
+	/** Handles short hash. */
 	private String shortHash(String value) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -148,10 +158,12 @@ public class OAuth2LoginService {
 		}
 	}
 
+	/** Checks whether text. */
 	private boolean hasText(String value) {
 		return value != null && !value.isBlank();
 	}
 
+	/** Handles first non blank. */
 	private String firstNonBlank(String... values) {
 		for (String value : values) {
 			if (hasText(value)) {
@@ -161,10 +173,12 @@ public class OAuth2LoginService {
 		return null;
 	}
 
+	/** Handles blank to null. */
 	private String blankToNull(String value) {
 		return hasText(value) ? value : null;
 	}
 
+	/** Creates SocialProfile instance. */
 	private record SocialProfile(
 			String providerUserId,
 			String name,
@@ -172,6 +186,7 @@ public class OAuth2LoginService {
 			String email,
 			String avatarUrl
 	) {
+		/** Converts value. */
 		private static SocialProfile from(SocialAuthProvider provider, Map<String, Object> attributes) {
 			return switch (provider) {
 				case GOOGLE -> google(attributes);
@@ -180,6 +195,7 @@ public class OAuth2LoginService {
 			};
 		}
 
+		/** Handles google. */
 		private static SocialProfile google(Map<String, Object> attributes) {
 			return new SocialProfile(
 					requiredString(attributes, "sub"),
@@ -190,6 +206,7 @@ public class OAuth2LoginService {
 			);
 		}
 
+		/** Handles facebook. */
 		private static SocialProfile facebook(Map<String, Object> attributes) {
 			return new SocialProfile(
 					requiredString(attributes, "id"),
@@ -200,6 +217,7 @@ public class OAuth2LoginService {
 			);
 		}
 
+		/** Handles twitter. */
 		private static SocialProfile twitter(Map<String, Object> attributes) {
 			Map<String, Object> data = nestedMap(attributes, "data");
 			Map<String, Object> source = data == null ? attributes : data;
@@ -212,12 +230,14 @@ public class OAuth2LoginService {
 			);
 		}
 
+		/** Handles facebook picture. */
 		private static String facebookPicture(Map<String, Object> attributes) {
 			Map<String, Object> picture = nestedMap(attributes, "picture");
 			Map<String, Object> data = picture == null ? null : nestedMap(picture, "data");
 			return data == null ? null : string(data, "url");
 		}
 
+		/** Handles nested map. */
 		@SuppressWarnings("unchecked")
 		private static Map<String, Object> nestedMap(Map<String, Object> attributes, String key) {
 			Object value = attributes.get(key);
@@ -227,6 +247,7 @@ public class OAuth2LoginService {
 			return null;
 		}
 
+		/** Handles required string. */
 		private static String requiredString(Map<String, Object> attributes, String key) {
 			String value = string(attributes, key);
 			if (value == null || value.isBlank()) {
@@ -235,6 +256,7 @@ public class OAuth2LoginService {
 			return value;
 		}
 
+		/** Handles string. */
 		private static String string(Map<String, Object> attributes, String key) {
 			Object value = attributes.get(key);
 			return value == null ? null : String.valueOf(value);

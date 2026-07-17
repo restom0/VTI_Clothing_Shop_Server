@@ -37,12 +37,14 @@ public class InputSaleServiceImpl implements InputSaleService {
 	private final InputSaleMapper inputSaleMapper;
 	private final OnSaleProductMapper onSaleProductMapper;
 
+	/** Gets all input sale. */
 	@Cacheable(value = "inputSales", key = "'all'")
 	@Override
 	public List<InputSale> getAllInputSale() {
 		return inputSaleRepository.findByDeletedAtIsNull();
 	}
 
+	/** Gets input sale by id. */
 	@Cacheable(value = "inputSales", key = "'id:' + #id")
 	@Override
 	public InputSale getInputSaleById(Long id) throws WrapperException {
@@ -54,6 +56,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		}
 	}
 
+	/** Creates input sale. */
 	@Caching(evict = {
 			@CacheEvict(value = "inputSales", allEntries = true),
 			@CacheEvict(value = "onSaleProducts", allEntries = true)
@@ -95,6 +98,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		}
 	}
 
+	/** Saves list on sale product. */
 	private void saveListOnSaleProduct(List<ImportedProduct> importedProducts, InputSale inputSale) {
 		if (importedProducts.isEmpty()) {
 			return;
@@ -109,6 +113,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		});
 	}
 
+	/** Checks whether valid to save. */
 	private boolean isValidToSave(ImportedProduct importedProduct, InputSale inputSale) {
 		Long productId = importedProduct.getId();
 		LocalDate startDate = inputSale.getStartDate();
@@ -133,6 +138,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		}
 	}
 
+	/** Updates input sale. */
 	@Caching(evict = {
 			@CacheEvict(value = "inputSales", allEntries = true),
 			@CacheEvict(value = "onSaleProducts", allEntries = true)
@@ -153,6 +159,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		}
 	}
 
+	/** Updates list on sale product. */
 	private void updateListOnSaleProduct(List<OnSaleProduct> onSaleProducts, InputSale inputSale) {
 		if (onSaleProducts.isEmpty()) {
 			return;
@@ -167,6 +174,7 @@ public class InputSaleServiceImpl implements InputSaleService {
 		});
 	}
 
+	/** Deletes input sale. */
 	@Caching(evict = {
 			@CacheEvict(value = "inputSales", allEntries = true),
 			@CacheEvict(value = "onSaleProducts", allEntries = true)

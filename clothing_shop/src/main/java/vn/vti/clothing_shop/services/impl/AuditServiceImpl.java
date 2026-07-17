@@ -24,12 +24,14 @@ public class AuditServiceImpl implements AuditService {
 	private final AuditRepository auditRepository;
 	private final UserRepository userRepository;
 
+	/** Gets all audits. */
 	//@Cacheable(value = "Audits")
 	@Override
 	public List<Audit> getAllAudits() {
 		return auditRepository.findAll();
 	}
 
+	/** Creates audit. */
 	//@CacheEvict(value = "Audits", allEntries = true)
 	@Transactional
 	@Override

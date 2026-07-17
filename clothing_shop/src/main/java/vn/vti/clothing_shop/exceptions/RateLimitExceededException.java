@@ -9,6 +9,7 @@ public class RateLimitExceededException extends RuntimeException {
 
 	private final transient RateLimitService.RateLimitDecision decision;
 
+	/** Creates RateLimitExceededException instance. */
 	public RateLimitExceededException(RateLimitService.RateLimitDecision decision) {
 		super("messages.rateLimit.exceeded");
 		this.decision = decision;

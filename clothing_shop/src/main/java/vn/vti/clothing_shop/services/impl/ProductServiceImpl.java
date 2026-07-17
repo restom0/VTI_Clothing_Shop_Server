@@ -36,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
 	private final MongoReadModelQueryService readModelQueryService;
 	private final PostgresToMongoReadModelSyncService readModelSyncService;
 
+	/** Gets all products. */
 	@Cacheable(value = "products", key = "'all'")
 	@Override
 	public List<Product> getAllProducts() {
@@ -46,6 +47,7 @@ public class ProductServiceImpl implements ProductService {
 		return productRepository.findByDeletedAtIsNullOrderByIdDesc();
 	}
 
+	/** Adds product. */
 	@CacheEvict(value = "products", allEntries = true)
 	@Override
 	@Transactional
@@ -64,6 +66,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	/** Deletes product. */
 	@CacheEvict(value = "products", allEntries = true)
 	@Transactional
 	@Override
@@ -79,6 +82,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	/** Updates product. */
 	@CacheEvict(value = "products", allEntries = true)
 	@Transactional
 	@Override
@@ -101,6 +105,7 @@ public class ProductServiceImpl implements ProductService {
 		}
 	}
 
+	/** Gets product by id. */
 	@Cacheable(value = "products", key = "'id:' + #id")
 	@Override
 	public Product getProductById(Long id) throws WrapperException {

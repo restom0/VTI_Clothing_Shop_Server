@@ -30,18 +30,21 @@ public class CommentServiceImpl implements CommentService {
 	private final UserRepository userRepository;
 	private final CommentMapper commentMapper;
 
+	/** Gets all comments. */
 	//@Cacheable(value = "comments")
 	@Override
 	public List<Comment> getAllComments() {
 		return commentRepository.findAll();
 	}
 
+	/** Gets comment by product id. */
 	//@Cacheable(value = "comments", key = "#productId")
 	@Override
 	public List<Comment> getCommentByProductId(Long productId) {
 		return commentRepository.findByDeletedAtIsNullAndProductIdOrderByCreatedAtDesc(productId);
 	}
 
+	/** Creates comment. */
 	//@CacheEvict(value = "comments", allEntries = true)
 	@Transactional
 	@Override
@@ -57,6 +60,7 @@ public class CommentServiceImpl implements CommentService {
 		}
 	}
 
+	/** Updates comment. */
 	//@CachePut(value = "comments")
 	@Transactional
 	@Override
@@ -73,6 +77,7 @@ public class CommentServiceImpl implements CommentService {
 		}
 	}
 
+	/** Deletes comment. */
 	//@CacheEvict(value = "comments", allEntries = true)
 	@Transactional
 	@Override

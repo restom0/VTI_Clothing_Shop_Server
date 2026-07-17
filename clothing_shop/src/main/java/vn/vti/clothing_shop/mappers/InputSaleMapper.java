@@ -12,9 +12,11 @@ import vn.vti.clothing_shop.entities.InputSale;
 @Mapper(componentModel = "spring",
         uses = { OnSaleProductMapper.class })
 public interface InputSaleMapper {
+	/** Maps to DTO. */
 	@Mapping(target = "availableDate", source = "startDate")
 	InputSaleDTO entityToDTO(InputSale inputSale);
 
+	/** Creates request entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "startDate", source = "availableDate")
 	@Mapping(target = "createdAt", ignore = true)
@@ -23,6 +25,7 @@ public interface InputSaleMapper {
 	@Mapping(target = "version", ignore = true)
 	InputSale createRequestEntity(InputSaleCreateRequest inputSaleCreateRequest);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "filter", ignore = true)
 	@Mapping(target = "filterId", ignore = true)

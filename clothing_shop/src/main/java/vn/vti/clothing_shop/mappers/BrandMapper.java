@@ -10,10 +10,13 @@ import vn.vti.clothing_shop.entities.Brand;
 
 @Mapper(componentModel = "spring")
 public interface BrandMapper {
+	/** Maps to DTO. */
 	BrandDTO entityToDTO(Brand brand);
 
+	/** Creates request to entity. */
 	Brand createRequestToEntity(BrandCreateRequest brandCreateRequest);
 
+	/** Updates request to entity. */
 	Brand updateRequestToEntity(BrandUpdateRequest brandUpdateRequest, @MappingTarget Brand brand);
 
 }

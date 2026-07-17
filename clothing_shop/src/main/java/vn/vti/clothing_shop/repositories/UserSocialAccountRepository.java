@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserSocialAccountRepository extends JpaRepository<UserSocialAccount, Long> {
+	/** Finds by deleted at is null and provider and provider user id. */
 	Optional<UserSocialAccount> findByDeletedAtIsNullAndProviderAndProviderUserId(
 			SocialAuthProvider provider,
 			String providerUserId

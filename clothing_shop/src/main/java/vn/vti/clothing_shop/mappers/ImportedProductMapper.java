@@ -16,8 +16,10 @@ import vn.vti.clothing_shop.entities.Size;
 @Mapper(componentModel = "spring",
         uses = { ProductMapper.class, ColorMapper.class, SizeMapper.class, MaterialMapper.class })
 public interface ImportedProductMapper {
+	/** Maps to DTO. */
 	ImportedProductDTO entityToDTO(ImportedProduct importedProduct);
 
+	/** Creates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)
@@ -31,6 +33,7 @@ public interface ImportedProductMapper {
 	ImportedProduct createRequestToEntity(ImportedProductCreateRequest importedProductCreateRequest, Color color, Size size,
 	                                      Material material, Product product);
 
+	/** Updates request to entity. */
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
 	@Mapping(target = "updatedAt", ignore = true)

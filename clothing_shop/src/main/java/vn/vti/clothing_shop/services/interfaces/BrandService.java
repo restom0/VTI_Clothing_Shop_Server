@@ -8,15 +8,21 @@ import vn.vti.clothing_shop.exceptions.WrapperException;
 import java.util.List;
 
 public interface BrandService {
+	/** Gets brands. */
 	List<Brand> getBrands();
 
+	/** Creates brand. */
 	Brand createBrand(BrandCreateRequest brandCreateRequest) throws WrapperException;
 
+	/** Updates brand. */
 	Brand updateBrand(BrandUpdateRequest brandUpdateRequest, Long id) throws WrapperException;
 
+	/** Deletes brand. */
 	void deleteBrand(Long id) throws WrapperException;
 
+	/** Finds brand by id. */
 	Brand findBrandById(Long id) throws WrapperException;
 
+	/** Counts brand. */
 	Long countBrand();
 }

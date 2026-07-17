@@ -27,6 +27,7 @@ public class OAuth2ClientConfig {
 
 	private final OAuth2LoginProperties properties;
 
+	/** Handles client registration repository. */
 	@Bean
 	public ClientRegistrationRepository clientRegistrationRepository() {
 		List<ClientRegistration> registrations = new ArrayList<>();
@@ -36,6 +37,7 @@ public class OAuth2ClientConfig {
 		return new OptionalClientRegistrationRepository(registrations);
 	}
 
+	/** Handles google registration. */
 	private ClientRegistration googleRegistration() {
 		OAuth2LoginProperties.Provider google = properties.getClient().getGoogle();
 		if (!isConfigured(google)) {
@@ -49,6 +51,7 @@ public class OAuth2ClientConfig {
 		                                  .build();
 	}
 
+	/** Handles facebook registration. */
 	private ClientRegistration facebookRegistration() {
 		OAuth2LoginProperties.Provider facebook = properties.getClient().getFacebook();
 		if (!isConfigured(facebook)) {
@@ -63,6 +66,7 @@ public class OAuth2ClientConfig {
 		                                    .build();
 	}
 
+	/** Handles twitter registration. */
 	private ClientRegistration twitterRegistration() {
 		OAuth2LoginProperties.TwitterProvider twitter = properties.getClient().getTwitter();
 		if (!isConfigured(twitter)) {
@@ -84,6 +88,7 @@ public class OAuth2ClientConfig {
 		                         .build();
 	}
 
+	/** Handles scopes or default. */
 	private List<String> scopesOrDefault(List<String> scopes, String... defaults) {
 		if (scopes == null || scopes.isEmpty()) {
 			return Arrays.asList(defaults);
@@ -91,16 +96,19 @@ public class OAuth2ClientConfig {
 		return scopes;
 	}
 
+	/** Adds if configured. */
 	private void addIfConfigured(List<ClientRegistration> registrations, ClientRegistration registration) {
 		if (registration != null) {
 			registrations.add(registration);
 		}
 	}
 
+	/** Checks whether configured. */
 	private boolean isConfigured(OAuth2LoginProperties.Provider provider) {
 		return hasText(provider.getClientId()) && hasText(provider.getClientSecret());
 	}
 
+	/** Checks whether text. */
 	private boolean hasText(String value) {
 		return value != null && !value.isBlank();
 	}
@@ -109,6 +117,7 @@ public class OAuth2ClientConfig {
 			implements ClientRegistrationRepository, Iterable<ClientRegistration> {
 		private final Map<String, ClientRegistration> registrations;
 
+		/** Creates OptionalClientRegistrationRepository instance. */
 		private OptionalClientRegistrationRepository(List<ClientRegistration> registrations) {
 			this.registrations = new LinkedHashMap<>();
 			for (ClientRegistration registration : registrations) {
@@ -116,11 +125,13 @@ public class OAuth2ClientConfig {
 			}
 		}
 
+		/** Finds by registration id. */
 		@Override
 		public ClientRegistration findByRegistrationId(String registrationId) {
 			return registrations.get(registrationId);
 		}
 
+		/** Handles iterator. */
 		@Override
 		public Iterator<ClientRegistration> iterator() {
 			return registrations.values().iterator();

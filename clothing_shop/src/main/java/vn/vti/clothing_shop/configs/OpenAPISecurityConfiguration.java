@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.tags.Tag;
+import lombok.RequiredArgsConstructor;
 
 import org.springdoc.core.customizers.OpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
@@ -28,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class OpenAPISecurityConfiguration {
 	private static final String BEARER_AUTH = "bearerAuth";
 	private static final String AUTH_TAG = "Authentication & Users";
@@ -40,6 +42,7 @@ public class OpenAPISecurityConfiguration {
 	private static final String OPERATIONS_TAG = "Operations";
 	private static final String ERROR_PATH = "/error";
 	private static final List<String> SUPPORTED_LANGUAGES = List.of("en", "es", "de", "fr", "ca", "it");
+	private final EndpointSecurityPolicy endpointSecurityPolicy;
 
 	/** Handles clothing shop open API. */
 	@Bean
@@ -342,43 +345,12 @@ public class OpenAPISecurityConfiguration {
 
 	/** Handles requires authentication. */
 	private boolean requiresAuthentication(String path, PathItem.HttpMethod method) {
-		String normalizedPath = normalize(path);
-		if (requiresAdmin(normalizedPath)) {
-			return true;
-		}
-		if (startsWithAny(normalizedPath, "/chat", "/order", "/order-item", "/order-items")) {
-			return true;
-		}
-		if (normalizedPath.equals("/user/profile") || startsWithAny(normalizedPath, "/user/password")) {
-			return true;
-		}
-		if (startsWithAny(normalizedPath, "/user") && isWriteMethod(method)) {
-			return !normalizedPath.equals("/user/login") && !normalizedPath.equals("/user/register");
-		}
-		return isWriteMethod(method) && startsWithAny(normalizedPath,
-		                                              "/brand",
-		                                              "/category",
-		                                              "/comment",
-		                                              "/imported-product",
-		                                              "/input-sale",
-		                                              "/on-sale-product",
-		                                              "/product",
-		                                              "/voucher"
-		);
+		return endpointSecurityPolicy.requiresAuthentication(path, method.name());
 	}
 
 	/** Handles requires admin. */
 	private boolean requiresAdmin(String path) {
-		String normalizedPath = normalize(path);
-		return startsWithAny(normalizedPath, "/audit", "/log");
-	}
-
-	/** Checks whether write method. */
-	private boolean isWriteMethod(PathItem.HttpMethod method) {
-		return method == PathItem.HttpMethod.POST
-				|| method == PathItem.HttpMethod.PUT
-				|| method == PathItem.HttpMethod.PATCH
-				|| method == PathItem.HttpMethod.DELETE;
+		return endpointSecurityPolicy.requiresAdmin(path);
 	}
 
 	/** Handles starts with any. */

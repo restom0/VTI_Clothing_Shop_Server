@@ -14,6 +14,7 @@ import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 import vn.vti.clothing_shop.constants.PaymentMethod;
+import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.dtos.outs.OrderDTO;
 import vn.vti.clothing_shop.dtos.outs.OrderItemDTO;
 import vn.vti.clothing_shop.dtos.outs.PaymentCheckoutResponse;
@@ -46,6 +47,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PaymentServiceImpl implements PaymentService {
 	private static final String MANUAL_STATUS = "MANUAL_CONFIRMATION_REQUIRED";
+	private static final String STRIPE_IDEMPOTENCY_PREFIX = "checkout-order-";
 	private static final ZoneId VIETNAM_ZONE = ZoneId.of("Asia/Ho_Chi_Minh");
 	private static final DateTimeFormatter ZALO_PAY_TRANSACTION_DATE = DateTimeFormatter.ofPattern("yyMMdd").withZone(
 			VIETNAM_ZONE);
@@ -85,9 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
 	@Override
 	public PaymentCheckoutResponse createCheckout(OrderDTO orderDTO) throws WrapperException {
 		try {
-			if (orderDTO == null) {
-				throw new BadRequestException("messages.orders.notfound");
-			}
+			validatePayableOrder(orderDTO);
 			PaymentMethod paymentMethod = orderDTO.getPaymentMethod() == null ? PaymentMethod.COD : orderDTO.getPaymentMethod();
 			return switch (paymentMethod) {
 				case PAYOS -> createPayOsCheckout(orderDTO);
@@ -95,12 +95,12 @@ public class PaymentServiceImpl implements PaymentService {
 				case ZALO_PAY -> createZaloPayCheckout(orderDTO);
 				case COD, E_BANKING, MOMO -> createManualCheckout(orderDTO, paymentMethod);
 			};
-		} catch (BaseCheckedException e) {
-			throw new WrapperException(e);
-		} catch (InterruptedException e) {
+		} catch (BaseCheckedException _) {
+			throw new WrapperException(_);
+		} catch (InterruptedException _) {
 			Thread.currentThread().interrupt();
 			throw new WrapperException(new BadRequestException("messages.payments.gatewayUnavailable"));
-		} catch (IOException | PaymentGatewayException | GeneralSecurityException e) {
+		} catch (IOException | PaymentGatewayException | GeneralSecurityException _) {
 			throw new WrapperException(new BadRequestException("messages.payments.gatewayUnavailable"));
 		}
 	}
@@ -109,6 +109,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private PaymentCheckoutResponse createManualCheckout(OrderDTO orderDTO, PaymentMethod paymentMethod) {
 		Map<String, Object> providerData = new LinkedHashMap<>();
 		providerData.put("manual", true);
+		providerData.put("idempotencyKey", STRIPE_IDEMPOTENCY_PREFIX + orderDTO.getOrderCode());
 		providerData.put("message", "Payment will be confirmed manually");
 		return new PaymentCheckoutResponse(
 				paymentMethod,
@@ -124,11 +125,11 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/** Creates pay os checkout. */
-	private PaymentCheckoutResponse createPayOsCheckout(OrderDTO orderDTO) throws PaymentGatewayException {
+	private PaymentCheckoutResponse createPayOsCheckout(OrderDTO orderDTO) throws PaymentGatewayException, BadRequestException {
 		PaymentData paymentData = PaymentData.builder()
 		                                     .orderCode(orderDTO.getOrderCode())
 		                                     .items(buildPayOsItems(orderDTO))
-		                                     .amount(Math.toIntExact(orderDTO.getTotalPrice()))
+		                                     .amount(toPayOsAmount(orderDTO.getTotalPrice()))
 		                                     .description("Order " + orderDTO.getOrderCode())
 		                                     .returnUrl(returnUrl)
 		                                     .cancelUrl(cancelUrl)
@@ -166,12 +167,19 @@ public class PaymentServiceImpl implements PaymentService {
 		form.put("success_url", returnUrl);
 		form.put("cancel_url", cancelUrl);
 		form.put("client_reference_id", String.valueOf(orderDTO.getOrderCode()));
+		form.put("metadata[order_code]", String.valueOf(orderDTO.getOrderCode()));
+		form.put("payment_intent_data[metadata][order_code]", String.valueOf(orderDTO.getOrderCode()));
 		form.put("line_items[0][price_data][currency]", currency.toLowerCase(Locale.ROOT));
 		form.put("line_items[0][price_data][product_data][name]", "Order " + orderDTO.getOrderCode());
 		form.put("line_items[0][price_data][unit_amount]", String.valueOf(orderDTO.getTotalPrice()));
 		form.put("line_items[0][quantity]", "1");
 
-		Map<String, Object> response = postForm(stripeCheckoutSessionUrl, form, "Bearer " + stripeSecretKey);
+		Map<String, Object> response = postForm(
+				stripeCheckoutSessionUrl,
+				form,
+				"Bearer " + stripeSecretKey,
+				STRIPE_IDEMPOTENCY_PREFIX + orderDTO.getOrderCode()
+		);
 		String checkoutUrl = asString(response.get("url"));
 		if (!StringUtils.hasText(checkoutUrl)) {
 			throw new BadRequestException("messages.payments.gatewayUnavailable");
@@ -190,14 +198,14 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/** Creates zalo pay checkout. */
-	/** Creates zalo pay checkout. */
 	private PaymentCheckoutResponse createZaloPayCheckout(OrderDTO orderDTO)
 			throws IOException, InterruptedException, BadRequestException, GeneralSecurityException {
 		requireConfigured(zaloPayAppId);
 		requireConfigured(zaloPayKey1);
 
-		long appTime = Instant.now().toEpochMilli();
-		String appTransId = ZALO_PAY_TRANSACTION_DATE.format(Instant.now()) + "_" + orderDTO.getOrderCode();
+		Instant now = Instant.now();
+		long appTime = now.toEpochMilli();
+		String appTransId = ZALO_PAY_TRANSACTION_DATE.format(now) + "_" + orderDTO.getOrderCode();
 		String embedData = objectMapper.writeValueAsString(Map.of(
 				"redirecturl", returnUrl,
 				"preferred_payment_method", List.of("zalopay_wallet")
@@ -225,7 +233,7 @@ public class PaymentServiceImpl implements PaymentService {
 		form.put("bank_code", "");
 		form.put("mac", hmacSha256(zaloPayKey1, macInput));
 
-		Map<String, Object> response = postForm(zaloPayCreateOrderUrl, form, null);
+		Map<String, Object> response = postForm(zaloPayCreateOrderUrl, form, null, null);
 		String checkoutUrl = asString(response.get("order_url"));
 		if (!StringUtils.hasText(checkoutUrl)) {
 			throw new BadRequestException("messages.payments.gatewayUnavailable");
@@ -304,13 +312,16 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	/** Handles post form. */
-	private Map<String, Object> postForm(String url, Map<String, String> form, String authorization)
+	private Map<String, Object> postForm(String url, Map<String, String> form, String authorization, String idempotencyKey)
 			throws IOException, InterruptedException, BadRequestException {
 		HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url))
 		                                         .header("Content-Type", "application/x-www-form-urlencoded")
 		                                         .POST(HttpRequest.BodyPublishers.ofString(encodeForm(form)));
 		if (StringUtils.hasText(authorization)) {
 			builder.header("Authorization", authorization);
+		}
+		if (StringUtils.hasText(idempotencyKey)) {
+			builder.header("Idempotency-Key", idempotencyKey);
 		}
 		HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
 		if (response.statusCode() < 200 || response.statusCode() >= 300) {
@@ -346,6 +357,29 @@ public class PaymentServiceImpl implements PaymentService {
 		if (!StringUtils.hasText(value)) {
 			throw new BadRequestException("messages.payments.gatewayNotConfigured");
 		}
+	}
+
+	private void validatePayableOrder(OrderDTO orderDTO) throws BadRequestException {
+		if (orderDTO == null) {
+			throw new BadRequestException("messages.orders.notfound");
+		}
+		if (orderDTO.getOrderCode() == null || orderDTO.getOrderCode() <= 0
+				|| orderDTO.getTotalPrice() == null || orderDTO.getTotalPrice() <= 0) {
+			throw new BadRequestException("messages.payments.invalidOrder");
+		}
+		PaymentStatus paymentStatus = orderDTO.getPaymentStatus();
+		if (paymentStatus != null
+				&& paymentStatus != PaymentStatus.NOT_CONFIRMED
+				&& paymentStatus != PaymentStatus.ON_HOLD) {
+			throw new BadRequestException("messages.payments.orderAlreadyProcessed");
+		}
+	}
+
+	private int toPayOsAmount(Long amount) throws BadRequestException {
+		if (amount > Integer.MAX_VALUE) {
+			throw new BadRequestException("messages.payments.invalidOrder");
+		}
+		return Math.toIntExact(amount);
 	}
 
 	/** Handles as string. */

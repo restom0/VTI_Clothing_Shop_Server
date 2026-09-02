@@ -409,7 +409,7 @@ class InventorySaleServiceTest {
 		}
 
 		@Test
-		void createInputSaleCreatesWhenOpenSaleStartsSameDay() {
+		void createInputSaleSkipsWhenOpenSaleStartsSameDay() {
 			LocalDate startDate = LocalDate.now().plusDays(2);
 			InputSaleCreateRequest request = new InputSaleCreateRequest(
 					InputSaleFilter.ALL,
@@ -427,13 +427,44 @@ class InventorySaleServiceTest {
 			sameDaySale.setStartDate(startDate);
 			OnSaleProduct existingOnSaleProduct = new OnSaleProduct();
 			existingOnSaleProduct.setInputSale(sameDaySale);
-			OnSaleProduct mapped = new OnSaleProduct();
 
 			when(inputSaleMapper.createRequestEntity(request)).thenReturn(inputSale);
 			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThan(anyInt()))
 					.thenReturn(List.of(importedProduct));
 			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNullEndDate(1L, startDate))
 					.thenReturn(Optional.of(existingOnSaleProduct));
+
+			service.createInputSale(request);
+
+			assertThat(sameDaySale.getEndDate()).isNull();
+			verify(onSaleProductMapper, never()).importProductAndInputSaleToOnSaleProduct(
+					org.mockito.ArgumentMatchers.any(),
+					org.mockito.ArgumentMatchers.any()
+			);
+		}
+
+		@Test
+		void createInputSaleCreatesOpenEndedSaleForProductThatIsNotOnSaleYet() {
+			LocalDate startDate = LocalDate.now().plusDays(2);
+			InputSaleCreateRequest request = new InputSaleCreateRequest(
+					InputSaleFilter.ALL,
+					0L,
+					120F,
+					10F,
+					startDate,
+					null
+			);
+			InputSale inputSale = new InputSale();
+			inputSale.setStartDate(startDate);
+			ImportedProduct importedProduct = new ImportedProduct();
+			importedProduct.setId(1L);
+			OnSaleProduct mapped = new OnSaleProduct();
+
+			when(inputSaleMapper.createRequestEntity(request)).thenReturn(inputSale);
+			when(importedProductRepository.findByDeletedAtIsNullAndStockGreaterThan(anyInt()))
+					.thenReturn(List.of(importedProduct));
+			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNullEndDate(1L, startDate))
+					.thenReturn(Optional.empty());
 			when(onSaleProductMapper.importProductAndInputSaleToOnSaleProduct(importedProduct, inputSale))
 					.thenReturn(mapped);
 
@@ -467,6 +498,11 @@ class InventorySaleServiceTest {
 					1L
 			);
 			InputSale mapped = new InputSale();
+			mapped.setId(1L);
+			mapped.setStartDate(startDate);
+			mapped.setEndDate(startDate.plusDays(10));
+			mapped.setSalePercentage(125F);
+			mapped.setDiscount(15F);
 			ImportedProduct importedProduct = new ImportedProduct();
 			importedProduct.setId(5L);
 			OnSaleProduct onSaleProduct = new OnSaleProduct();
@@ -482,14 +518,15 @@ class InventorySaleServiceTest {
 			when(onSaleProductRepository.findByProductIdAndAvailableDateAndNotNullEndDate(
 					5L,
 					startDate,
-					startDate.plusDays(7)
+					startDate.plusDays(10)
 			)).thenReturn(Optional.empty());
 			when(inputSaleMapper.updateRequestToEntity(request, inputSale)).thenReturn(mapped);
 
 			service.updateInputSale(request, 1L);
 
-			assertThat(onSaleProduct.getSalePrice()).isEqualTo(150L);
-			assertThat(onSaleProduct.getInputSale().getDiscount()).isEqualTo(20F);
+			// Repricing uses the requested percentage/discount, not the pre-update ones.
+			assertThat(onSaleProduct.getSalePrice()).isEqualTo(125L);
+			assertThat(onSaleProduct.getInputSale().getDiscount()).isEqualTo(15F);
 			verify(onSaleProductRepository).save(onSaleProduct);
 			verify(inputSaleRepository).save(mapped);
 		}

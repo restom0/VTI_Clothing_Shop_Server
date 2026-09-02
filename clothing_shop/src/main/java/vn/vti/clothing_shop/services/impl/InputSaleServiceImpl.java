@@ -130,11 +130,13 @@ public class InputSaleServiceImpl implements InputSaleService {
 						if (onSaleProduct.getInputSale().getStartDate().isBefore(startDate)) {
 							onSaleProduct.getInputSale().setEndDate(TimeUtils.today());
 							onSaleProductRepository.save(onSaleProduct);
-							return true;
 						}
-						return false;
+						// An open sale already covers this product on this date; a second one
+						// would leave two competing open sales.
+						return true;
 					})
-					.orElse(true);
+					// Nothing on sale for this product yet, so the new sale must be created.
+					.orElse(false);
 		}
 	}
 
@@ -152,8 +154,11 @@ public class InputSaleServiceImpl implements InputSaleService {
 			List<OnSaleProduct> onSaleProducts
 					= onSaleProductRepository.findByInputSale_IdAndInputSale_StartDateLessThanEqualAndDeletedAtIsNullAndInputSale_DeletedAtIsNullOrderByIdDesc(
 					inputSaleId, TimeUtils.today());
-			updateListOnSaleProduct(onSaleProducts, inputSale);
-			inputSaleRepository.save(inputSaleMapper.updateRequestToEntity(inputSaleUpdateRequest, inputSale));
+			// Apply the requested values first: repricing must use the new percentage/discount,
+			// not the ones the sale had before this update.
+			InputSale updatedInputSale = inputSaleMapper.updateRequestToEntity(inputSaleUpdateRequest, inputSale);
+			updateListOnSaleProduct(onSaleProducts, updatedInputSale);
+			inputSaleRepository.save(updatedInputSale);
 		} catch (NotFoundException e) {
 			throw new WrapperException(e);
 		}

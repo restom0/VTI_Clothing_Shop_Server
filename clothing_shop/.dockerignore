@@ -1,0 +1,33 @@
+# Build output (125 MB of the 149 MB context before this file existed)
+target/
+
+# VCS / IDE / tooling
+.git/
+.gitignore
+.idea/
+.vscode/
+.aidex/
+.codegraph/
+*.iml
+
+# Local runtime config and secrets
+.env
+.env.*
+!.env.example
+
+# Docs, API collections, infra that the image does not need
+*.md
+bruno/
+k8s/
+docker/
+docker-compose*.yml
+qodana.yaml
+sonar-project.properties
+
+# Maven wrapper (image builds with the maven base image's mvn)
+mvnw
+mvnw.cmd
+.mvn/
+
+# Unused vendored jar (payos comes from Maven Central, see pom.xml)
+libs/

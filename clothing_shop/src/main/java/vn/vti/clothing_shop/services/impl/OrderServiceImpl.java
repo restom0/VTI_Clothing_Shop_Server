@@ -105,14 +105,19 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public void updateOrder(Long id, OrderUpdateRequest orderUpdateRequest) throws WrapperException {
 		try {
-				Order order = orderRepository.findById(id).orElseThrow(
-						() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
+			Order order = orderRepository.findById(id).orElseThrow(
+					() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
+			assertOpenOrder(order);
 			Voucher voucher = voucherRepository.findById(orderUpdateRequest.voucherId()).orElseThrow(
 					() -> new NotFoundException("messages.vouchers.notfound"));
-			adjustStock(voucher.getId(), NumberUtils.INTEGER_MINUS_ONE);
+			// Only spend stock when the voucher actually changes; re-sending the same update
+			// must not decrement twice for one order.
+			if (order.getVoucher() == null || !voucher.getId().equals(order.getVoucher().getId())) {
+				adjustStock(voucher.getId(), NumberUtils.INTEGER_MINUS_ONE);
+			}
 			Order savedOrder = orderRepository.save(orderMapper.updateRequestToEntity(orderUpdateRequest, voucher, order));
 			readModelSyncService.syncAfterCommit(ReadModelType.ORDER, savedOrder.getId());
-		} catch (NotFoundException ex) {
+		} catch (BadRequestException | NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
 	}
@@ -123,7 +128,7 @@ public class OrderServiceImpl implements OrderService {
 			Voucher voucher = voucherRepository.findById(id).orElseThrow(
 					() -> new NotFoundException("messages.vouchers.notfound"));
 			Long now = TimeUtils.currentEpochMillis();
-			if (voucher.getStock() < 0
+			if (voucher.getStock() + quantity < 0
 					|| voucher.getEndDate() < now
 					|| voucher.getAvailableDate() > now) {
 				throw new BadRequestException("messages.vouchers.outOfStock");
@@ -145,14 +150,17 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public void deleteOrder(Long id) throws WrapperException {
 		try {
-				Order order = orderRepository.findById(id).orElseThrow(
-						() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
-			adjustStock(order.getVoucher().getId(), NumberUtils.INTEGER_ONE);
+			Order order = orderRepository.findById(id).orElseThrow(
+					() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
+			assertOpenOrder(order);
+			if (order.getVoucher() != null) {
+				adjustStock(order.getVoucher().getId(), NumberUtils.INTEGER_ONE);
+			}
 			order.setPaymentStatus(PaymentStatus.CANCELLED);
 			order.setDeletedAt(TimeUtils.currentEpochMillis());
 			orderRepository.save(order);
 			readModelSyncService.removeAfterCommit(ReadModelType.ORDER, id);
-		} catch (NotFoundException ex) {
+		} catch (BadRequestException | NotFoundException ex) {
 			throw new WrapperException(ex);
 		}
 	}
@@ -179,15 +187,30 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	@Override
 	public Boolean confirmOrder(OrderConfirmRequest orderConfirmRequest, Long userId) throws WrapperException {
-			try {
-				Order order = orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(orderConfirmRequest.orderCode(), userId)
-				                             .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
-			order.setPaymentStatus(orderConfirmRequest.status() ? PaymentStatus.CONFIRMED : PaymentStatus.CANCELLED);
+		try {
+			Order order = orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(orderConfirmRequest.orderCode(), userId)
+			                             .orElseThrow(() -> new NotFoundException(Messages.MESSAGE_ORDER_NOTFOUND));
+			PaymentStatus targetStatus = orderConfirmRequest.status() ? PaymentStatus.CONFIRMED : PaymentStatus.CANCELLED;
+			if (targetStatus == order.getPaymentStatus()) {
+				return orderConfirmRequest.status();
+			}
+			assertOpenOrder(order);
+			order.setPaymentStatus(targetStatus);
 			orderRepository.save(order);
 			readModelSyncService.syncAfterCommit(ReadModelType.ORDER, order.getId());
 			return orderConfirmRequest.status();
-		} catch (NotFoundException ex) {
+		} catch (BadRequestException | NotFoundException ex) {
 			throw new WrapperException(ex);
+		}
+	}
+
+	/** Ensures checkout order can still change state. */
+	private void assertOpenOrder(Order order) throws BadRequestException {
+		PaymentStatus paymentStatus = order.getPaymentStatus();
+		if (paymentStatus != null
+				&& paymentStatus != PaymentStatus.NOT_CONFIRMED
+				&& paymentStatus != PaymentStatus.ON_HOLD) {
+			throw new BadRequestException("messages.orders.locked");
 		}
 	}
 }

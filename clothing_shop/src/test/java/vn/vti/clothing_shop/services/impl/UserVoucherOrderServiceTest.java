@@ -62,6 +62,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -673,6 +674,77 @@ class UserVoucherOrderServiceTest {
 		}
 
 		@Test
+		void updateOrderWrapsExhaustedVoucher() {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Order order = new Order();
+			Voucher exhausted = availableVoucher(5L, 0);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(exhausted));
+
+			assertThatThrownBy(() -> service.updateOrder(7L, request))
+					.isInstanceOf(WrapperException.class);
+			assertThat(exhausted.getStock()).isZero();
+			verify(voucherRepository, never()).save(exhausted);
+		}
+
+		@Test
+		void updateOrderRejectsLockedOrder() {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Order order = new Order();
+			order.setPaymentStatus(PaymentStatus.CONFIRMED);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+
+			assertThatThrownBy(() -> service.updateOrder(7L, request))
+					.isInstanceOf(WrapperException.class)
+					.extracting("message")
+					.isEqualTo("messages.orders.locked");
+			verify(voucherRepository, never()).findById(5L);
+		}
+
+		@Test
+		void updateOrderDoesNotSpendStockAgainForTheVoucherTheOrderAlreadyUses() throws WrapperException {
+			OrderUpdateRequest request = new OrderUpdateRequest(
+					"Address",
+					"0900000001",
+					"Demo",
+					false,
+					PaymentMethod.COD,
+					5L
+			);
+			Voucher voucher = availableVoucher(5L, 2);
+			Order order = new Order();
+			order.setVoucher(voucher);
+			Order mapped = new Order();
+			mapped.setId(7L);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+			when(voucherRepository.findById(5L)).thenReturn(Optional.of(voucher));
+			when(orderMapper.updateRequestToEntity(request, voucher, order)).thenReturn(mapped);
+			when(orderRepository.save(mapped)).thenReturn(mapped);
+
+			service.updateOrder(7L, request);
+
+			assertThat(voucher.getStock()).isEqualTo(2);
+			verify(voucherRepository, never()).save(voucher);
+		}
+
+		@Test
 		void updateOrderWrapsInvalidVoucherWindow() {
 			OrderUpdateRequest request = new OrderUpdateRequest(
 					"Address",
@@ -734,6 +806,20 @@ class UserVoucherOrderServiceTest {
 			verify(orderRepository).save(order);
 		}
 
+		@Test
+		void deleteOrderRejectsLockedOrder() {
+			Order order = new Order();
+			order.setPaymentStatus(PaymentStatus.DELIVERING);
+
+			when(orderRepository.findById(7L)).thenReturn(Optional.of(order));
+
+			assertThatThrownBy(() -> service.deleteOrder(7L))
+					.isInstanceOf(WrapperException.class)
+					.extracting("message")
+					.isEqualTo("messages.orders.locked");
+			verify(orderRepository, never()).save(order);
+		}
+
 		private Voucher availableVoucher(Long id, Integer stock) {
 			Voucher voucher = new Voucher();
 			voucher.setId(id);
@@ -768,6 +854,34 @@ class UserVoucherOrderServiceTest {
 
 			assertThat(service.confirmOrder(request, 9L)).isFalse();
 			assertThat(order.getPaymentStatus()).isEqualTo(PaymentStatus.CANCELLED);
+		}
+
+		@Test
+		void confirmOrderAllowsIdempotentProviderCallback() throws WrapperException {
+			Order order = new Order();
+			order.setPaymentStatus(PaymentStatus.CONFIRMED);
+			OrderConfirmRequest request = new OrderConfirmRequest(123L, true);
+
+			when(orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(123L, 9L))
+					.thenReturn(Optional.of(order));
+
+			assertThat(service.confirmOrder(request, 9L)).isTrue();
+			verify(orderRepository, never()).save(order);
+		}
+
+		@Test
+		void confirmOrderRejectsProcessedStatusChange() {
+			Order order = new Order();
+			order.setPaymentStatus(PaymentStatus.CONFIRMED);
+			OrderConfirmRequest request = new OrderConfirmRequest(123L, false);
+
+			when(orderRepository.findByDeletedAtIsNullAndOrderCodeAndUser_Id(123L, 9L))
+					.thenReturn(Optional.of(order));
+
+			assertThatThrownBy(() -> service.confirmOrder(request, 9L))
+					.isInstanceOf(WrapperException.class)
+					.extracting("message")
+					.isEqualTo("messages.orders.locked");
 		}
 
 		@Test

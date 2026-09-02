@@ -23,6 +23,7 @@ import vn.vti.clothing_shop.exceptions.UnauthorizeException;
 import vn.vti.clothing_shop.repositories.UserRepository;
 import vn.vti.clothing_shop.responses.ExceptionMessageResponse;
 import vn.vti.clothing_shop.responses.MessageResolver;
+import vn.vti.clothing_shop.configs.EndpointSecurityPolicy;
 import vn.vti.clothing_shop.services.JwtService;
 
 import java.io.IOException;
@@ -37,6 +38,7 @@ public class LoginInterceptor implements HandlerInterceptor {
 	private final UserRepository userRepository;
 	private final JwtService jwtService;
 	private final ObjectMapper objectMapper;
+	private final EndpointSecurityPolicy endpointSecurityPolicy;
 
 	/** Runs handle. */
 	@Override
@@ -46,13 +48,13 @@ public class LoginInterceptor implements HandlerInterceptor {
 		}
 
 		String path = normalizedPath(request);
-		if (!requiresAuthentication(request, path)) {
+		if (!endpointSecurityPolicy.requiresAuthentication(path, request.getMethod())) {
 			return true;
 		}
 
 		try {
 			User user = authenticate(request);
-			if (requiresAdmin(path) && user.getRole() != UserRole.ADMIN) {
+			if (endpointSecurityPolicy.requiresAdmin(path) && user.getRole() != UserRole.ADMIN) {
 				writeError(response, request.getLocale(), HttpStatus.FORBIDDEN, "messages.auth.forbidden");
 				return false;
 			}
@@ -98,57 +100,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 			SecurityContextHolder.getContext().setAuthentication(authToken);
 		}
 		return user;
-	}
-
-	/** Handles requires authentication. */
-	private boolean requiresAuthentication(HttpServletRequest request, String path) {
-		if (requiresAdmin(path)) {
-			return true;
-		}
-		if (startsWithAny(path, "/chat", "/order", "/order-item", "/order-items")) {
-			return true;
-		}
-		if (path.equals("/user/profile") || startsWithAny(path, "/user/password")) {
-			return true;
-		}
-		if (startsWithAny(path, "/user") && isWriteRequest(request)) {
-			return !path.equals("/user/login") && !path.equals("/user/register");
-		}
-		return isWriteRequest(request) && startsWithAny(path,
-		                                                "/brand",
-		                                                "/brands",
-		                                                "/category",
-		                                                "/categories",
-		                                                "/comment",
-		                                                "/imported-product",
-		                                                "/input-sale",
-		                                                "/on-sale-product",
-		                                                "/product",
-		                                                "/voucher"
-		);
-	}
-
-	/** Handles requires admin. */
-	private boolean requiresAdmin(String path) {
-		return startsWithAny(path, "/audit", "/log");
-	}
-
-	/** Checks whether write request. */
-	private boolean isWriteRequest(HttpServletRequest request) {
-		return HttpMethod.POST.matches(request.getMethod())
-				|| HttpMethod.PUT.matches(request.getMethod())
-				|| HttpMethod.PATCH.matches(request.getMethod())
-				|| HttpMethod.DELETE.matches(request.getMethod());
-	}
-
-	/** Handles starts with any. */
-	private boolean startsWithAny(String path, String... prefixes) {
-		for (String prefix : prefixes) {
-			if (path.equals(prefix) || path.startsWith(prefix + "/")) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/** Handles normalized path. */

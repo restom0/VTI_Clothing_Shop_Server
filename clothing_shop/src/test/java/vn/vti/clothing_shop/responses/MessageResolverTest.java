@@ -1,8 +1,10 @@
 package vn.vti.clothing_shop.responses;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -12,12 +14,23 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class MessageResolverTest {
+	private MessageSource previousMessageSource;
+
 	@BeforeEach
 	void setUp() {
+		previousMessageSource = messageSourceHolder().get();
 		ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
 		messageSource.setBasename("labels/labels");
 		messageSource.setDefaultEncoding("UTF-8");
 		new MessageResolver(messageSource);
+		// The resolver reads LocaleContextHolder, which otherwise defaults to the JVM locale.
+		LocaleContextHolder.setLocale(Locale.ENGLISH);
+	}
+
+	@AfterEach
+	void tearDown() {
+		LocaleContextHolder.resetLocaleContext();
+		messageSourceHolder().set(previousMessageSource);
 	}
 
 	@Test

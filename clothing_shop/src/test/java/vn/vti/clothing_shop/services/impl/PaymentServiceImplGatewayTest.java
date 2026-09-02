@@ -13,6 +13,7 @@ import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.PaymentData;
 import vn.vti.clothing_shop.constants.PaymentMethod;
+import vn.vti.clothing_shop.constants.PaymentStatus;
 import vn.vti.clothing_shop.dtos.outs.ImportedProductDTO;
 import vn.vti.clothing_shop.dtos.outs.OnSaleProductDTO;
 import vn.vti.clothing_shop.dtos.outs.OrderDTO;
@@ -85,6 +86,7 @@ class PaymentServiceImplGatewayTest {
 				"/stripe", exchange -> {
 					stripeBody.set(readBody(exchange));
 					assertThat(exchange.getRequestHeaders().getFirst("Authorization")).isEqualTo("Bearer sk_test");
+					assertThat(exchange.getRequestHeaders().getFirst("Idempotency-Key")).isEqualTo("checkout-order-555");
 					respond(exchange, 200, "{\"url\":\"https://stripe.example/session\",\"status\":\"open\"}");
 				},
 				"/zalo", exchange -> {
@@ -106,7 +108,11 @@ class PaymentServiceImplGatewayTest {
 		assertThat(stripe.checkoutUrl()).isEqualTo("https://stripe.example/session");
 		assertThat(stripe.status()).isEqualTo("open");
 		assertThat(stripe.providerData()).isEqualTo(Map.of("url", "https://stripe.example/session", "status", "open"));
-		assertThat(stripeBody.get()).contains("client_reference_id=555", "line_items%5B0%5D%5Bquantity%5D=1");
+		assertThat(stripeBody.get()).contains(
+				"client_reference_id=555",
+				"metadata%5Border_code%5D=555",
+				"line_items%5B0%5D%5Bquantity%5D=1"
+		);
 		assertThat(zalo.checkoutUrl()).isEqualTo("https://zalo.example/order");
 		assertThat(zalo.status()).isEqualTo("ok");
 		assertThat(zaloBody.get()).contains("app_id=2553", "amount=1000", "mac=");
@@ -163,6 +169,24 @@ class PaymentServiceImplGatewayTest {
 				.isEqualTo("messages.payments.gatewayUnavailable");
 	}
 
+	@Test
+	void invalidAndProcessedOrdersAreRejectedBeforeGatewayCalls() {
+		PaymentServiceImpl service = service(mock(PayOS.class));
+		OrderDTO invalidOrder = order(PaymentMethod.COD);
+		invalidOrder.setTotalPrice(0L);
+		OrderDTO completedOrder = order(PaymentMethod.COD);
+		completedOrder.setPaymentStatus(PaymentStatus.COMPLETED);
+
+		assertThatThrownBy(() -> service.createCheckout(invalidOrder))
+				.isInstanceOf(WrapperException.class)
+				.extracting("message")
+				.isEqualTo("messages.payments.invalidOrder");
+		assertThatThrownBy(() -> service.createCheckout(completedOrder))
+				.isInstanceOf(WrapperException.class)
+				.extracting("message")
+				.isEqualTo("messages.payments.orderAlreadyProcessed");
+	}
+
 	private PaymentServiceImpl service(PayOS payOS) {
 		PaymentServiceImpl service = new PaymentServiceImpl(payOS, new ObjectMapper());
 		setField(service, "returnUrl", "https://client.example/return");
@@ -172,7 +196,7 @@ class PaymentServiceImplGatewayTest {
 	}
 
 	private static OrderDTO order(PaymentMethod paymentMethod) {
-		return new OrderDTO(7L, "Street", "0912345678", "Ada", false, 1000L, 555L, null, paymentMethod, null,
+		return new OrderDTO(7L, "Street", "0912345678", "Ada", false, 1000L, 555L, PaymentStatus.NOT_CONFIRMED, paymentMethod, null,
 		                    List.of(namedItem(), new OrderItemDTO(12L, null, 1)));
 	}
 
@@ -191,7 +215,7 @@ class PaymentServiceImplGatewayTest {
 		handlers.forEach((path, handler) -> server.createContext(path, exchange -> {
 			try {
 				handler.handle(exchange);
-			} catch (Exception exception) {
+			} catch (Exception _) {
 				respond(exchange, 500, "{}");
 			}
 		}));

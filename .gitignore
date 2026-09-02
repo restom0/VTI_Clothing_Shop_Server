@@ -29,3 +29,7 @@ replay_pid*
 !.env.example
 k8s/package/app-secret.env
 k8s/monitoring/grafana-secret.env
+
+# Local AI tooling indexes
+.aidex/
+.codegraph/

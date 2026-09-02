@@ -5,12 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
@@ -23,7 +26,9 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 @RequiredArgsConstructor
-public class CacheConfig {
+public class CacheConfig implements CachingConfigurer {
+	private static final Duration COMMAND_TIMEOUT = Duration.ofSeconds(2);
+
 	private final ObjectMapper objectMapper;
 
 	@Value("${spring.data.redis.host:localhost}")
@@ -60,7 +65,22 @@ public class CacheConfig {
 		if (StringUtils.hasText(redisPassword)) {
 			config.setPassword(redisPassword);
 		}
-		return new JedisConnectionFactory(config);
+		JedisClientConfiguration clientConfiguration = JedisClientConfiguration.builder()
+		                                                                       .connectTimeout(COMMAND_TIMEOUT)
+		                                                                       .readTimeout(COMMAND_TIMEOUT)
+		                                                                       .build();
+		return new JedisConnectionFactory(config, clientConfiguration);
+	}
+
+	/**
+	 * Handles cache error handler.
+	 *
+	 * <p>Keeps the API serving from PostgreSQL/MongoDB while the cache server is unreachable
+	 * instead of failing every cached read with a 500.
+	 */
+	@Override
+	public CacheErrorHandler errorHandler() {
+		return new LoggingCacheErrorHandler();
 	}
 
 	/** Handles redis util redis template. */
